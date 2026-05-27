@@ -72,11 +72,11 @@
 | P0-02 | ESLint / Prettier / Git 初期設定 | P0-01 | lint 通過、`.gitignore` 整備 | `[ ]` |
 | P0-03 | Supabase プロジェクト作成（dev） | — | Dashboard or CLI でプロジェクト利用可能 | `[ ]` |
 | P0-04 | Supabase CLI マイグレーション運用 | P0-03 | `supabase/migrations/` で SQL 管理 | `[ ]` |
-| P0-05 | スキーマ: `profiles` | P0-04 | `work_day_start` 等、§9 準拠 | `[ ]` |
-| P0-06 | スキーマ: `projects` | P0-04 | `is_system`, `archived_at` 等 | `[ ]` |
-| P0-07 | スキーマ: `tasks` | P0-04 | `parent_id`, 見積・実績フィールド | `[ ]` |
-| P0-08 | スキーマ: `todos` | P0-04 | `scheduled_start` nullable, `task_id` NOT NULL | `[ ]` |
-| P0-09 | スキーマ: `work_sessions` | P0-04 | `todo_id` NOT NULL, `ended_at` nullable | `[ ]` |
+| P0-05 | スキーマ: `profiles` | P0-04 | [database-schema.md §4.1](./database-schema.md#41-profiles) 準拠 | `[ ]` |
+| P0-06 | スキーマ: `projects` | P0-04 | [§4.2](./database-schema.md#42-projects) 準拠 | `[ ]` |
+| P0-07 | スキーマ: `tasks` | P0-04 | [§4.3](./database-schema.md#43-tasks) 準拠 | `[ ]` |
+| P0-08 | スキーマ: `todos` | P0-04 | [§4.4](./database-schema.md#44-todos) 準拠 | `[ ]` |
+| P0-09 | スキーマ: `work_sessions` | P0-04 | [§4.5](./database-schema.md#45-work_sessions) 準拠 | `[ ]` |
 | P0-10 | 全テーブル RLS + `user_id` | P0-05〜09 | 他ユーザー行が読めないことを確認 | `[ ]` |
 | P0-11 | サインアップ時 Inbox・問合せ作成 | P0-06, P0-10 | trigger or Server Action、§3.2 準拠 | `[ ]` |
 | P0-12 | Auth（Google + メール）+ `/login` + ミドルウェア | P0-03 | 未ログイン → `/login`、§11.1 準拠 | `[ ]` |
@@ -135,7 +135,7 @@
 
 | ID | タスク | 依存 | 完了条件 | 状態 |
 |----|--------|------|----------|:----:|
-| P3-01 | スキーマ: `recurring_rules` | P0-04 | §7.4, §9 | `[ ]` |
+| P3-01 | スキーマ: `recurring_rules` | P0-04 | [database-schema.md §4.6](./database-schema.md#46-recurring_rulesv1--p3) 準拠 | `[ ]` |
 | P3-02 | 定期ルール CRUD UI | P3-01 | daily / weekdays / weekly | `[ ]` |
 | P3-03 | 明日を準備: 定期統合（優先順位） | P2-02, P3-02 | ①時刻あり → ②なし30分 → ③繰越、§7.2 | `[ ]` |
 | P3-04 | 1ルール×1日=Todo最大1件 | P3-03 | 重複生成防止、§7.4 | `[ ]` |
@@ -188,5 +188,6 @@ MVP / v1 スコープ外。必要になったら着手。
 ## 参照
 
 - 仕様正本: [product-spec.md](./product-spec.md)
+- DB 設計: [database-schema.md](./database-schema.md)
 - 概要: [requirements.md](./requirements.md)
 - 推奨着手順（仕様 §14）: P0 → P1 → P2（繰越）→ P3（定期・警告）→ P4（任意）

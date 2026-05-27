@@ -306,6 +306,8 @@
 
 ## 9. データモデル（概念）
 
+> **詳細設計:** カラム定義・ER 図・RLS・マイグレーション順序は [database-schema.md](./database-schema.md) を参照。
+
 全業務テーブルに `user_id`（`auth.users.id`）を持ち、**Supabase RLS** でログインユーザー自身の行のみ読み書き可能にする。
 
 ```
