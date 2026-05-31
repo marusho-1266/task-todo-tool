@@ -217,6 +217,48 @@ export async function editSessionTimes(
   }
 }
 
+export async function deleteSession(sessionId: string): Promise<ActionResult> {
+  try {
+    const { supabase, user } = await getAuthedUser();
+
+    const { data: session, error: fetchError } = await supabase
+      .from("work_sessions")
+      .select("id, task_id, ended_at")
+      .eq("id", sessionId)
+      .eq("user_id", user.id)
+      .single();
+
+    if (fetchError || !session) {
+      return { success: false, error: "セッションが見つかりません" };
+    }
+
+    if (!session.ended_at) {
+      return {
+        success: false,
+        error: "計測中のセッションは削除できません。先に停止してください。",
+      };
+    }
+
+    const { error } = await supabase
+      .from("work_sessions")
+      .delete()
+      .eq("id", sessionId)
+      .eq("user_id", user.id);
+
+    if (error) return { success: false, error: error.message };
+
+    await recalculateActualMinutes(session.task_id);
+
+    revalidatePath("/");
+    return { success: true };
+  } catch (e) {
+    return {
+      success: false,
+      error: e instanceof Error ? e.message : "削除に失敗しました",
+    };
+  }
+}
+
 export async function addManualSession(
   todoId: string,
   startedAtIso: string,

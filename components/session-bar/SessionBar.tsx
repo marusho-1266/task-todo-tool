@@ -44,7 +44,7 @@ export function SessionBar({ session, onStopped }: Props) {
     <div
       className="border-b px-4 py-2.5"
       style={{
-        background: "var(--color-accent-soft)",
+        background: "var(--color-actual-soft)",
         borderColor: "var(--color-rule)",
       }}
     >
@@ -52,7 +52,7 @@ export function SessionBar({ session, onStopped }: Props) {
         <div className="flex min-w-0 items-center gap-3">
           <span
             className="inline-block h-2 w-2 shrink-0 animate-pulse rounded-full"
-            style={{ background: "var(--color-accent)" }}
+            style={{ background: "var(--color-actual)" }}
             aria-hidden
           />
           <span
@@ -72,7 +72,7 @@ export function SessionBar({ session, onStopped }: Props) {
           <time
             className="tabular-nums text-lg font-medium tracking-tight"
             style={{
-              color: "var(--color-accent)",
+              color: "var(--color-actual)",
               fontFamily: "var(--font-mono)",
             }}
             dateTime={`PT${elapsed}S`}
@@ -85,8 +85,8 @@ export function SessionBar({ session, onStopped }: Props) {
             disabled={stopping}
             className="rounded-[var(--radius-sm)] px-3 py-1.5 text-sm font-medium transition-colors hover:opacity-90 disabled:opacity-50"
             style={{
-              background: "var(--color-accent)",
-              color: "var(--color-accent-ink)",
+              background: "var(--color-actual)",
+              color: "var(--color-actual-ink)",
               fontFamily: "var(--font-body)",
             }}
           >

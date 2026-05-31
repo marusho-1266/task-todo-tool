@@ -19,6 +19,13 @@
   --color-accent: oklch(52% 0.14 250);
   --color-accent-soft: oklch(94% 0.04 250);
   --color-accent-ink: oklch(98% 0.01 250);
+  /* 予実: 計画=青 / 実績=緑 */
+  --color-plan: oklch(52% 0.14 245);
+  --color-plan-soft: oklch(93% 0.045 245);
+  --color-plan-border: oklch(68% 0.11 245);
+  --color-actual: oklch(48% 0.12 145);
+  --color-actual-soft: oklch(93% 0.04 145);
+  --color-actual-ink: oklch(98% 0.01 145);
   --color-warn: oklch(58% 0.16 55);
   --color-warn-soft: oklch(94% 0.05 55);
   --color-warn-border: oklch(72% 0.12 55);

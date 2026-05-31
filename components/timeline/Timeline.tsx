@@ -18,10 +18,8 @@ import {
 import { getOverlappingIds } from "@/lib/overlap";
 import {
   BLOCK_COMPACT_HEIGHT_PX,
-  formatMergedPlanActualHeader,
-  getLinkedSessionsByTodoId,
-  getOverlappingLinkedSessions,
-  getPairedSessionIds,
+  formatPlanTooltip,
+  PLAN_LANE_CLASS,
 } from "@/lib/timeline-blocks";
 import type { Todo, WorkSession } from "@/lib/types";
 import { useToast } from "@/components/ui/Toast";
@@ -50,11 +48,6 @@ export function Timeline({
   const { showToast } = useToast();
   const timelineRef = useRef<HTMLDivElement>(null);
   const overlappingIds = getOverlappingIds(placedTodos, date);
-  const linkedSessionsByTodoId = getLinkedSessionsByTodoId(
-    placedTodos,
-    daySessions,
-  );
-  const pairedSessionIds = getPairedSessionIds(placedTodos, daySessions, date);
 
   const hours: number[] = [];
   for (let h = TIMELINE_START_HOUR; h < TIMELINE_END_HOUR; h++) {
@@ -131,19 +124,22 @@ export function Timeline({
             <span className="flex items-center gap-1">
               <span
                 className="inline-block h-3 w-4 rounded-sm border border-dashed"
-                style={{ borderColor: "var(--color-rule-strong)", opacity: 0.7 }}
+                style={{
+                  borderColor: "var(--color-plan-border)",
+                  background: "color-mix(in srgb, var(--color-plan) 18%, transparent)",
+                }}
               />
-              計画
+              左=計画
             </span>
             <span className="flex items-center gap-1">
               <span
                 className="inline-block h-3 w-4 rounded-sm border-l-[3px]"
                 style={{
-                  borderColor: "var(--color-accent)",
-                  background: "color-mix(in srgb, var(--color-accent) 22%, transparent)",
+                  borderColor: "var(--color-actual)",
+                  background: "color-mix(in srgb, var(--color-actual) 22%, transparent)",
                 }}
               />
-              実績
+              右=実績
             </span>
           </div>
           <QuickAddModal date={date} onAdded={onUpdated} />
@@ -197,8 +193,15 @@ export function Timeline({
             </div>
           ))}
 
-          {/* Drop slots for DnD (10-min) */}
-          <div className="absolute top-0 right-0 left-12">
+          {/* Lane divider: plan (left) | actual (right) */}
+          <div
+            className="pointer-events-none absolute top-0 bottom-0 left-1/2 w-px -translate-x-1/2"
+            style={{ background: "var(--color-rule)", opacity: 0.5 }}
+            aria-hidden="true"
+          />
+
+          {/* Drop slots for DnD (10-min) — plan lane only */}
+          <div className="absolute top-0 left-12 right-[46%]">
             {Array.from({ length: slotCount }).map((_, i) => (
               <Droppable key={i} droppableId={`slot-${i}`}>
                 {(provided, snapshot) => (
@@ -208,7 +211,7 @@ export function Timeline({
                     style={{
                       height: SNAP_MINUTES * PX_PER_MINUTE,
                       background: snapshot.isDraggingOver
-                        ? "var(--color-accent-soft)"
+                        ? "var(--color-plan-soft)"
                         : "transparent",
                     }}
                   >
@@ -226,8 +229,8 @@ export function Timeline({
               session={session}
               date={date}
               isActive={session.id === activeSessionId}
-              suppressLabel={pairedSessionIds.has(session.id)}
               onEdit={onEditSession}
+              onUpdated={onUpdated}
             />
           ))}
 
@@ -246,12 +249,6 @@ export function Timeline({
               startDt.getMinutes(),
             );
 
-            const linkedSessions = getOverlappingLinkedSessions(
-              todo,
-              linkedSessionsByTodoId.get(todo.id) ?? [],
-              date,
-            );
-
             return (
               <PlacedBlock
                 key={todo.id}
@@ -264,7 +261,6 @@ export function Timeline({
                 activeSessionTodoId={activeSessionTodoId}
                 title={title}
                 timeLabel={timeLabel}
-                linkedSessions={linkedSessions}
                 onMoveStart={handleBlockMoveStart}
                 onUpdated={onUpdated}
               />
@@ -286,7 +282,6 @@ type BlockProps = {
   activeSessionTodoId: string | null;
   title: string;
   timeLabel: string;
-  linkedSessions: WorkSession[];
   onMoveStart: (todo: Todo, e: React.PointerEvent) => void;
   onUpdated: () => void;
 };
@@ -307,7 +302,6 @@ function PlacedBlock({
   activeSessionTodoId,
   title,
   timeLabel,
-  linkedSessions,
   onMoveStart,
   onUpdated,
 }: BlockProps) {
@@ -387,39 +381,29 @@ function PlacedBlock({
     document.addEventListener("pointercancel", onCancel);
   }
 
-  const hasMergedHeader = linkedSessions.length > 0;
   const isCompact = heightPx < BLOCK_COMPACT_HEIGHT_PX;
-  const mergedHeader = hasMergedHeader
-    ? formatMergedPlanActualHeader(
-        timeLabel,
-        todo.planned_minutes,
-        linkedSessions,
-      )
-    : null;
   const blockTooltip = isCompact
-    ? hasMergedHeader
-      ? `${mergedHeader} — ${title}`
-      : `計画 ${timeLabel}·${todo.planned_minutes}分 — ${title}`
+    ? formatPlanTooltip(timeLabel, todo.planned_minutes, title)
     : undefined;
 
   return (
     <div
       ref={blockRef}
       data-todo-block
-      className="absolute right-2 left-12 cursor-grab overflow-hidden rounded-[var(--radius-sm)] border border-dashed text-sm shadow-sm active:cursor-grabbing"
+      className={`${PLAN_LANE_CLASS} cursor-grab overflow-hidden rounded-[var(--radius-sm)] border border-dashed text-sm shadow-sm active:cursor-grabbing`}
       style={{
         top: topPx,
         height: heightPx,
         borderColor: isOverlapping
           ? "var(--color-warn-border)"
           : isActive
-            ? "var(--color-accent)"
-            : "var(--color-rule-strong)",
+            ? "var(--color-plan)"
+            : "var(--color-plan-border)",
         background: isOverlapping
           ? "color-mix(in srgb, var(--color-warn-soft) 75%, transparent)"
           : isActive
-            ? "color-mix(in srgb, var(--color-accent-soft) 80%, transparent)"
-            : "color-mix(in srgb, var(--color-paper) 55%, transparent)",
+            ? "color-mix(in srgb, var(--color-plan-soft) 90%, transparent)"
+            : "color-mix(in srgb, var(--color-plan) 16%, transparent)",
         zIndex: isActive ? 20 : 10,
         fontFamily: "var(--font-body)",
       }}
@@ -430,43 +414,24 @@ function PlacedBlock({
         <div className="flex items-start justify-between gap-1">
           {!isCompact && (
             <div className="min-w-0 flex-1">
-              {hasMergedHeader ? (
-                <>
-                  <span
-                    className="block truncate text-[10px] tabular-nums leading-snug"
-                    style={{ color: "var(--color-ink-muted)" }}
-                  >
-                    {mergedHeader}
-                  </span>
-                  <span
-                    className="block truncate font-medium leading-tight"
-                    style={{ color: "var(--color-ink)" }}
-                  >
-                    {title}
-                  </span>
-                </>
-              ) : (
-                <>
-                  <span
-                    className="text-[10px] font-medium uppercase tracking-wider"
-                    style={{ color: "var(--color-ink-faint)" }}
-                  >
-                    計画
-                  </span>
-                  <span
-                    className="block truncate text-xs tabular-nums"
-                    style={{ color: "var(--color-ink-muted)" }}
-                  >
-                    {timeLabel} · {todo.planned_minutes}分
-                  </span>
-                  <span
-                    className="block truncate font-medium leading-tight"
-                    style={{ color: "var(--color-ink)" }}
-                  >
-                    {title}
-                  </span>
-                </>
-              )}
+              <span
+                className="text-[10px] font-medium uppercase tracking-wider"
+                style={{ color: "var(--color-plan)" }}
+              >
+                計画
+              </span>
+              <span
+                className="block truncate text-xs tabular-nums"
+                style={{ color: "var(--color-ink-muted)" }}
+              >
+                {timeLabel} · {todo.planned_minutes}分
+              </span>
+              <span
+                className="block truncate font-medium leading-tight"
+                style={{ color: "var(--color-ink)" }}
+              >
+                {title}
+              </span>
             </div>
           )}
           <div className={`flex shrink-0 gap-0.5${isCompact ? " ml-auto" : ""}`}>
@@ -480,7 +445,7 @@ function PlacedBlock({
                 }}
                 className="rounded px-1.5 py-0.5 text-xs font-medium"
                 style={{
-                  background: "var(--color-accent)",
+                  background: "var(--color-plan)",
                   color: "var(--color-accent-ink)",
                 }}
                 title="計測開始"

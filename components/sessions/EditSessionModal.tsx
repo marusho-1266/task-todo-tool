@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { editSessionTimes } from "@/app/actions/sessions";
+import { deleteSession, editSessionTimes } from "@/app/actions/sessions";
 import { useToast } from "@/components/ui/Toast";
 import type { WorkSession } from "@/lib/types";
 
@@ -28,6 +28,22 @@ export function EditSessionModal({ session, onClose, onSaved }: Props) {
     toLocalInputValue(new Date(session.started_at)),
   );
   const [endedAt, setEndedAt] = useState(toLocalInputValue(defaultEnd));
+
+  async function handleDelete() {
+    if (!window.confirm("このセッションを削除しますか？実績分数からも差し引かれます。")) {
+      return;
+    }
+    setLoading(true);
+    const result = await deleteSession(session.id);
+    setLoading(false);
+    if (!result.success) {
+      showToast(result.error);
+      return;
+    }
+    showToast("セッションを削除しました", "success");
+    onSaved();
+    onClose();
+  }
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -117,26 +133,41 @@ export function EditSessionModal({ session, onClose, onSaved }: Props) {
             }}
           />
         </label>
-        <div className="mt-4 flex justify-end gap-2">
+        <div className="mt-4 flex items-center justify-between gap-2">
           <button
             type="button"
-            onClick={onClose}
-            className="rounded-[var(--radius-sm)] border px-3 py-1.5 text-sm"
-            style={{ borderColor: "var(--color-rule)", color: "var(--color-ink-muted)" }}
-          >
-            キャンセル
-          </button>
-          <button
-            type="submit"
+            onClick={handleDelete}
             disabled={loading}
-            className="rounded-[var(--radius-sm)] px-3 py-1.5 text-sm font-medium disabled:opacity-50"
+            className="rounded-[var(--radius-sm)] border px-3 py-1.5 text-sm disabled:opacity-50"
             style={{
-              background: "var(--color-accent)",
-              color: "var(--color-accent-ink)",
+              borderColor: "var(--color-warn-border)",
+              color: "var(--color-warn)",
             }}
           >
-            {loading ? "保存中…" : "保存"}
+            {loading ? "処理中…" : "削除"}
           </button>
+          <div className="flex gap-2">
+            <button
+              type="button"
+              onClick={onClose}
+              disabled={loading}
+              className="rounded-[var(--radius-sm)] border px-3 py-1.5 text-sm disabled:opacity-50"
+              style={{ borderColor: "var(--color-rule)", color: "var(--color-ink-muted)" }}
+            >
+              キャンセル
+            </button>
+            <button
+              type="submit"
+              disabled={loading}
+              className="rounded-[var(--radius-sm)] px-3 py-1.5 text-sm font-medium disabled:opacity-50"
+              style={{
+                background: "var(--color-accent)",
+                color: "var(--color-accent-ink)",
+              }}
+            >
+              {loading ? "保存中…" : "保存"}
+            </button>
+          </div>
         </div>
       </form>
     </div>
