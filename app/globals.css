@@ -1,0 +1,36 @@
+@import url("https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600&family=Newsreader:ital,wght@0,400;0,500;1,400&display=swap");
+@import "tailwindcss";
+@import "./tokens.css";
+
+@theme inline {
+  --color-background: var(--color-paper);
+  --color-foreground: var(--color-ink);
+  --font-sans: var(--font-body);
+  --font-mono: var(--font-mono);
+}
+
+html,
+body {
+  overflow-x: clip;
+  min-height: 100%;
+}
+
+body {
+  background: var(--color-paper);
+  color: var(--color-ink);
+  font-family: var(--font-body);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-paper: oklch(18% 0.015 265);
+    --color-paper-2: oklch(22% 0.018 265);
+    --color-paper-3: oklch(26% 0.02 265);
+    --color-ink: oklch(94% 0.01 85);
+    --color-ink-muted: oklch(72% 0.012 85);
+    --color-ink-faint: oklch(58% 0.01 85);
+    --color-rule: oklch(32% 0.015 265);
+    --color-rule-strong: oklch(38% 0.018 265);
+    --color-accent-soft: oklch(28% 0.06 250);
+  }
+}
