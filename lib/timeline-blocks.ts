@@ -5,8 +5,14 @@ import {
 } from "@/lib/time";
 import type { WorkSession } from "@/lib/types";
 
-/** Hide block labels below this height; details shown via title tooltip. */
-export const BLOCK_COMPACT_HEIGHT_PX = 36;
+/** Timeline slot height required for plan/actual 3-line layout (label + time + title). */
+export const BLOCK_FULL_LAYOUT_MIN_HEIGHT_PX = 68;
+
+/** Use single-line row layout below this height (~57 min at 1.2px/min). */
+export const BLOCK_SHORT_LAYOUT_HEIGHT_PX = BLOCK_FULL_LAYOUT_MIN_HEIGHT_PX;
+
+/** @deprecated Use BLOCK_SHORT_LAYOUT_HEIGHT_PX */
+export const BLOCK_COMPACT_HEIGHT_PX = BLOCK_SHORT_LAYOUT_HEIGHT_PX;
 
 /** Left lane for plan (Todo) blocks. */
 export const PLAN_LANE_CLASS = "absolute left-12 right-[46%]";

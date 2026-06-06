@@ -6,7 +6,7 @@ import { useToast } from "@/components/ui/Toast";
 import {
   ACTUAL_LANE_CLASS,
   formatSessionTooltip,
-  BLOCK_COMPACT_HEIGHT_PX,
+  BLOCK_SHORT_LAYOUT_HEIGHT_PX,
   sessionDurationMinutes,
 } from "@/lib/timeline-blocks";
 import {
@@ -87,7 +87,7 @@ export function SessionBlock({
   const title = session.todos?.tasks?.title ?? "（無題）";
   const durationDisplay = Math.round(durationMin);
   const canManipulate = !isActive && !!session.ended_at;
-  const isCompact = heightPx < BLOCK_COMPACT_HEIGHT_PX;
+  const isShort = heightPx < BLOCK_SHORT_LAYOUT_HEIGHT_PX;
 
   const tooltip = isActive
     ? `実績 ${timeLabel}·${durationDisplay}分（計測中） — ${title}`
@@ -228,11 +228,11 @@ export function SessionBlock({
             }
           : undefined
       }
-      className={`${ACTUAL_LANE_CLASS} overflow-hidden rounded-[var(--radius-sm)] border-l-[3px] text-sm ${
+      className={`${ACTUAL_LANE_CLASS} rounded-[var(--radius-sm)] border-l-[3px] text-sm ${
         canManipulate ? "cursor-grab active:cursor-grabbing" : ""
       } ${canManipulate && onEdit ? "transition-opacity hover:opacity-90" : ""} ${
         isActive ? "animate-pulse" : ""
-      }`}
+      } ${isShort ? "overflow-x-hidden overflow-y-visible" : "overflow-hidden"}`}
       style={{
         top: topPx,
         height: heightPx,
@@ -245,15 +245,26 @@ export function SessionBlock({
         fontFamily: "var(--font-body)",
       }}
       title={
-        isCompact
+        isShort
           ? tooltip
           : canManipulate
             ? "ドラッグで移動 · 下端で長さ変更 · クリックで修正・削除"
             : undefined
       }
-      aria-label={isCompact ? tooltip : undefined}
+      aria-label={isShort ? tooltip : undefined}
     >
-      {!isCompact && (
+      {isShort ? (
+        <div className="relative h-full min-h-0 w-full">
+          <div className="absolute inset-x-0 top-1/2 flex -translate-y-1/2 items-center px-1.5 py-1">
+            <span
+              className="min-w-0 flex-1 truncate text-xs font-medium leading-none"
+              style={{ color: "var(--color-ink)" }}
+            >
+              {title}
+            </span>
+          </div>
+        </div>
+      ) : (
         <div className="flex h-full flex-col px-2 py-1.5">
           <span
             className="text-[10px] font-medium uppercase tracking-wider"

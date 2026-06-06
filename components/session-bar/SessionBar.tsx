@@ -42,7 +42,7 @@ export function SessionBar({ session, onStopped }: Props) {
 
   return (
     <div
-      className="border-b px-4 py-2.5"
+      className="sticky top-0 z-40 border-b px-4 py-2.5"
       style={{
         background: "var(--color-actual-soft)",
         borderColor: "var(--color-rule)",

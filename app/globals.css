@@ -21,16 +21,25 @@ body {
   font-family: var(--font-body);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --color-paper: oklch(18% 0.015 265);
-    --color-paper-2: oklch(22% 0.018 265);
-    --color-paper-3: oklch(26% 0.02 265);
-    --color-ink: oklch(94% 0.01 85);
-    --color-ink-muted: oklch(72% 0.012 85);
-    --color-ink-faint: oklch(58% 0.01 85);
-    --color-rule: oklch(32% 0.015 265);
-    --color-rule-strong: oklch(38% 0.018 265);
-    --color-accent-soft: oklch(28% 0.06 250);
-  }
+html {
+  color-scheme: light;
+}
+
+html.dark {
+  color-scheme: dark;
+  --color-paper: oklch(18% 0.015 265);
+  --color-paper-2: oklch(22% 0.018 265);
+  --color-paper-3: oklch(26% 0.02 265);
+  --color-ink: oklch(94% 0.01 85);
+  --color-ink-muted: oklch(72% 0.012 85);
+  --color-ink-faint: oklch(58% 0.01 85);
+  --color-rule: oklch(32% 0.015 265);
+  --color-rule-strong: oklch(38% 0.018 265);
+  --color-accent-soft: oklch(28% 0.06 250);
+  --color-plan-soft: oklch(28% 0.05 245);
+  --color-plan-border: oklch(52% 0.1 245);
+  --color-actual-soft: oklch(28% 0.05 145);
+  --color-actual: oklch(72% 0.12 145);
+  --color-warn-soft: oklch(30% 0.06 55);
+  --color-warn: oklch(72% 0.14 55);
 }

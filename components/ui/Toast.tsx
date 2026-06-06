@@ -40,29 +40,40 @@ export function ToastProvider({ children }: { children: ReactNode }) {
         className="pointer-events-none fixed bottom-4 right-4 z-50 flex flex-col gap-2"
         aria-live="polite"
       >
-        {toasts.map((toast) => (
+        {toasts.map((toast) => {
+          const styles =
+            toast.type === "success"
+              ? {
+                  background: "var(--color-actual-soft)",
+                  borderColor: "var(--color-actual)",
+                  color: "var(--color-actual)",
+                }
+              : toast.type === "error"
+                ? {
+                    background: "var(--color-warn-soft)",
+                    borderColor: "var(--color-warn-border)",
+                    color: "var(--color-warn)",
+                  }
+                : {
+                    background: "var(--color-paper)",
+                    borderColor: "var(--color-rule)",
+                    color: "var(--color-ink)",
+                  };
+
+          return (
           <div
             key={toast.id}
             role="alert"
-            className="pointer-events-auto max-w-sm rounded-[var(--radius-md)] border px-4 py-3 text-sm shadow-lg"
+            className="pointer-events-auto max-w-sm rounded-[var(--radius-md)] border px-4 py-3 text-sm font-medium shadow-lg"
             style={{
-              background:
-                toast.type === "error"
-                  ? "var(--color-warn-soft)"
-                  : toast.type === "success"
-                    ? "oklch(94% 0.04 145)"
-                    : "var(--color-paper)",
-              borderColor:
-                toast.type === "error"
-                  ? "var(--color-warn-border)"
-                  : "var(--color-rule)",
-              color: "var(--color-ink)",
+              ...styles,
               fontFamily: "var(--font-body)",
             }}
           >
             {toast.message}
           </div>
-        ))}
+          );
+        })}
       </div>
     </ToastContext.Provider>
   );

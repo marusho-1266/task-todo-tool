@@ -18,6 +18,7 @@ import { Timeline } from "@/components/timeline/Timeline";
 import { UnplacedPanel } from "@/components/unplaced/UnplacedPanel";
 import { EditSessionModal } from "@/components/sessions/EditSessionModal";
 import { ManualSessionModal } from "@/components/sessions/ManualSessionModal";
+import { ThemeToggle } from "@/components/theme/ThemeToggle";
 
 type Props = {
   selectedDate: Date;
@@ -117,6 +118,7 @@ export function DashboardClient({
               </h1>
             </div>
             <div className="flex flex-wrap items-center gap-3">
+              <ThemeToggle />
               <DateNav selectedDate={selectedDate} />
               <button
                 type="button"

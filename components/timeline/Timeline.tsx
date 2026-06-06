@@ -17,7 +17,7 @@ import {
 } from "@/lib/time";
 import { getOverlappingIds } from "@/lib/overlap";
 import {
-  BLOCK_COMPACT_HEIGHT_PX,
+  BLOCK_SHORT_LAYOUT_HEIGHT_PX,
   formatPlanTooltip,
   PLAN_LANE_CLASS,
 } from "@/lib/timeline-blocks";
@@ -381,8 +381,8 @@ function PlacedBlock({
     document.addEventListener("pointercancel", onCancel);
   }
 
-  const isCompact = heightPx < BLOCK_COMPACT_HEIGHT_PX;
-  const blockTooltip = isCompact
+  const isShort = heightPx < BLOCK_SHORT_LAYOUT_HEIGHT_PX;
+  const blockTooltip = isShort
     ? formatPlanTooltip(timeLabel, todo.planned_minutes, title)
     : undefined;
 
@@ -390,7 +390,9 @@ function PlacedBlock({
     <div
       ref={blockRef}
       data-todo-block
-      className={`${PLAN_LANE_CLASS} cursor-grab overflow-hidden rounded-[var(--radius-sm)] border border-dashed text-sm shadow-sm active:cursor-grabbing`}
+      className={`${PLAN_LANE_CLASS} cursor-grab rounded-[var(--radius-sm)] border border-dashed text-sm shadow-sm active:cursor-grabbing ${
+        isShort ? "overflow-x-hidden overflow-y-visible" : "overflow-hidden"
+      }`}
       style={{
         top: topPx,
         height: heightPx,
@@ -410,31 +412,76 @@ function PlacedBlock({
       title={blockTooltip}
       onPointerDown={(e) => onMoveStart(todo, e)}
     >
+      {isShort ? (
+        <div className="relative h-full min-h-0 w-full">
+          <div className="absolute inset-x-0 top-1/2 flex -translate-y-1/2 items-center gap-1 px-1.5 py-1">
+            <span
+              className="min-w-0 flex-1 truncate text-xs font-medium leading-none"
+              style={{ color: "var(--color-ink)" }}
+            >
+              {title}
+            </span>
+            <div className="flex shrink-0 gap-0.5">
+              {activeSessionTodoId !== todo.id && (
+                <button
+                  type="button"
+                  onPointerDown={(e) => e.stopPropagation()}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleStart();
+                  }}
+                  className="rounded px-1 py-0.5 text-xs font-medium leading-none"
+                  style={{
+                    background: "var(--color-plan)",
+                    color: "var(--color-accent-ink)",
+                  }}
+                  title="計測開始"
+                >
+                  ▶
+                </button>
+              )}
+              <button
+                type="button"
+                onPointerDown={(e) => e.stopPropagation()}
+                onClick={async (e) => {
+                  e.stopPropagation();
+                  const res = await moveTodoToUnplaced(todo.id);
+                  if (!res.success) showToast(res.error);
+                  else onUpdated();
+                }}
+                className="rounded px-1 py-0.5 text-xs leading-none"
+                style={{ color: "var(--color-ink-muted)" }}
+                title="未配置へ戻す"
+              >
+                外す
+              </button>
+            </div>
+          </div>
+        </div>
+      ) : (
       <div className="flex h-full flex-col px-2 py-1.5">
         <div className="flex items-start justify-between gap-1">
-          {!isCompact && (
-            <div className="min-w-0 flex-1">
-              <span
-                className="text-[10px] font-medium uppercase tracking-wider"
-                style={{ color: "var(--color-plan)" }}
-              >
-                計画
-              </span>
-              <span
-                className="block truncate text-xs tabular-nums"
-                style={{ color: "var(--color-ink-muted)" }}
-              >
-                {timeLabel} · {todo.planned_minutes}分
-              </span>
-              <span
-                className="block truncate font-medium leading-tight"
-                style={{ color: "var(--color-ink)" }}
-              >
-                {title}
-              </span>
-            </div>
-          )}
-          <div className={`flex shrink-0 gap-0.5${isCompact ? " ml-auto" : ""}`}>
+          <div className="min-w-0 flex-1">
+            <span
+              className="text-[10px] font-medium uppercase tracking-wider"
+              style={{ color: "var(--color-plan)" }}
+            >
+              計画
+            </span>
+            <span
+              className="block truncate text-xs tabular-nums"
+              style={{ color: "var(--color-ink-muted)" }}
+            >
+              {timeLabel} · {todo.planned_minutes}分
+            </span>
+            <span
+              className="block truncate font-medium leading-tight"
+              style={{ color: "var(--color-ink)" }}
+            >
+              {title}
+            </span>
+          </div>
+          <div className="flex shrink-0 gap-0.5">
             {activeSessionTodoId !== todo.id && (
               <button
                 type="button"
@@ -470,12 +517,13 @@ function PlacedBlock({
             </button>
           </div>
         </div>
-        {!isCompact && isOverlapping && (
+        {isOverlapping && (
           <span className="mt-auto text-xs" style={{ color: "var(--color-warn)" }}>
             重なり
           </span>
         )}
       </div>
+      )}
       <div
         role="separator"
         aria-label="リサイズ"
