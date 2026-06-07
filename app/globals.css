@@ -43,3 +43,17 @@ html.dark {
   --color-warn-soft: oklch(30% 0.06 55);
   --color-warn: oklch(72% 0.14 55);
 }
+
+/* Native form controls — dropdown options must follow theme tokens */
+select,
+textarea,
+input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="file"]) {
+  background-color: var(--color-paper);
+  color: var(--color-ink);
+}
+
+select option,
+select optgroup {
+  background-color: var(--color-paper);
+  color: var(--color-ink);
+}

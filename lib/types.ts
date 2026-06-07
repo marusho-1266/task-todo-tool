@@ -4,12 +4,44 @@ export type Project = {
   is_system: boolean;
 };
 
+export const BACKLOG_STATUSES = ["not_started", "in_progress", "done"] as const;
+export type BacklogStatus = (typeof BACKLOG_STATUSES)[number];
+
+export function isBacklogStatus(value: unknown): value is BacklogStatus {
+  return (
+    typeof value === "string" &&
+    (BACKLOG_STATUSES as readonly string[]).includes(value)
+  );
+}
+
+export type BacklogProject = {
+  id: string;
+  title: string;
+  is_system: boolean;
+  color: string | null;
+  status: BacklogStatus;
+  description: string | null;
+  category: string | null;
+};
+
 export type Task = {
   id: string;
   title: string;
   project_id: string | null;
   actual_minutes: number;
   is_leaf: boolean;
+};
+
+export type BacklogTask = {
+  id: string;
+  title: string;
+  project_id: string | null;
+  parent_id: string | null;
+  is_leaf: boolean;
+  status: BacklogStatus;
+  estimate_minutes: number | null;
+  due_date: string | null;
+  description: string | null;
 };
 
 export const TODO_STATUSES = ["pending", "done", "rolled_over"] as const;

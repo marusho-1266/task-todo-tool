@@ -17,7 +17,6 @@ export function ThemeToggle() {
         borderColor: "var(--color-rule)",
         color: "var(--color-ink-muted)",
       }}
-      suppressHydrationWarning
     >
       {isDark ? <SunIcon /> : <MoonIcon />}
     </button>

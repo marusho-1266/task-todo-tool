@@ -5,14 +5,20 @@ import { useCallback, useState } from "react";
 import { DragDropContext, type DropResult } from "@hello-pangea/dnd";
 import { signOut } from "@/app/actions/auth";
 import {
+  addUnplacedTodoFromBacklog,
+  scheduleBacklogTask,
+} from "@/app/actions/tasks";
+import {
   moveTodoToUnplaced,
   updateTodoSchedule,
 } from "@/app/actions/todos";
+import { parseBacklogTaskDraggableId } from "@/lib/tasks";
 import { formatDisplayDate, isToday, slotIndexToMinutes } from "@/lib/time";
-import type { Todo, WorkSession } from "@/lib/types";
+import type { BacklogProject, BacklogTask, Todo, WorkSession } from "@/lib/types";
 import { useToast } from "@/components/ui/Toast";
+import { BacklogPanel } from "@/components/dashboard/BacklogPanel";
 import { DateNav } from "@/components/dashboard/DateNav";
-import { BacklogStub } from "@/components/dashboard/BacklogStub";
+import { PrepareTomorrowModal } from "@/components/prepare-tomorrow/PrepareTomorrowModal";
 import { SessionBar } from "@/components/session-bar/SessionBar";
 import { Timeline } from "@/components/timeline/Timeline";
 import { UnplacedPanel } from "@/components/unplaced/UnplacedPanel";
@@ -27,6 +33,9 @@ type Props = {
   activeSession: WorkSession | null;
   daySessions: WorkSession[];
   userEmail: string;
+  projects: BacklogProject[];
+  backlogTasks: BacklogTask[];
+  carryOverCandidates: Todo[];
 };
 
 export function DashboardClient({
@@ -36,11 +45,15 @@ export function DashboardClient({
   activeSession,
   daySessions,
   userEmail,
+  projects,
+  backlogTasks,
+  carryOverCandidates,
 }: Props) {
   const router = useRouter();
   const { showToast } = useToast();
   const [editSession, setEditSession] = useState<WorkSession | null>(null);
   const [showManualAdd, setShowManualAdd] = useState(false);
+  const [showPrepareTomorrow, setShowPrepareTomorrow] = useState(false);
 
   const unplaced = todos.filter(
     (t) => !t.scheduled_start && t.status === "pending",
@@ -57,6 +70,32 @@ export function DashboardClient({
     async (result: DropResult) => {
       const { draggableId, destination, source } = result;
       if (!destination) return;
+
+      const backlogTaskId = parseBacklogTaskDraggableId(draggableId);
+      if (backlogTaskId) {
+        if (destination.droppableId === "unplaced") {
+          const res = await addUnplacedTodoFromBacklog(backlogTaskId, dateStr);
+          if (!res.success) showToast(res.error);
+          else refresh();
+          return;
+        }
+
+        if (destination.droppableId.startsWith("slot-")) {
+          const slotIndex = parseInt(
+            destination.droppableId.replace("slot-", ""),
+            10,
+          );
+          const minutes = slotIndexToMinutes(slotIndex);
+          const res = await scheduleBacklogTask(
+            backlogTaskId,
+            dateStr,
+            minutes,
+          );
+          if (!res.success) showToast(res.error);
+          else refresh();
+        }
+        return;
+      }
 
       const todo = todos.find((t) => t.id === draggableId);
       if (!todo) return;
@@ -120,6 +159,20 @@ export function DashboardClient({
             <div className="flex flex-wrap items-center gap-3">
               <ThemeToggle />
               <DateNav selectedDate={selectedDate} />
+              {isToday(selectedDate) && (
+                <button
+                  type="button"
+                  onClick={() => setShowPrepareTomorrow(true)}
+                  className="rounded-[var(--radius-sm)] px-2.5 py-1 text-xs font-medium"
+                  style={{
+                    background: "var(--color-accent)",
+                    color: "var(--color-accent-ink)",
+                    fontFamily: "var(--font-body)",
+                  }}
+                >
+                  明日を準備
+                </button>
+              )}
               <button
                 type="button"
                 onClick={() => setShowManualAdd(true)}
@@ -168,7 +221,19 @@ export function DashboardClient({
           <UnplacedPanel todos={unplaced} />
         </div>
 
-        <BacklogStub />
+        <BacklogPanel
+          projects={projects}
+          tasks={backlogTasks}
+          onChanged={refresh}
+        />
+
+        {showPrepareTomorrow && (
+          <PrepareTomorrowModal
+            todayDateStr={dateStr}
+            initialCandidates={carryOverCandidates}
+            onClose={() => setShowPrepareTomorrow(false)}
+          />
+        )}
 
         {editSession && (
           <EditSessionModal
