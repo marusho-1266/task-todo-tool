@@ -1,7 +1,12 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
+import {
+  getDefaultBacklogSidebarOpen,
+  persistBacklogSidebarOpen,
+  readStoredBacklogSidebarOpen,
+} from "@/lib/backlog-sidebar";
 import { DragDropContext, type DropResult } from "@hello-pangea/dnd";
 import { signOut } from "@/app/actions/auth";
 import {
@@ -54,6 +59,20 @@ export function DashboardClient({
   const [editSession, setEditSession] = useState<WorkSession | null>(null);
   const [showManualAdd, setShowManualAdd] = useState(false);
   const [showPrepareTomorrow, setShowPrepareTomorrow] = useState(false);
+  const [backlogOpen, setBacklogOpen] = useState(true);
+
+  useEffect(() => {
+    // Mount-only sync from localStorage; initial state is true for SSR/hydration match.
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- external store (localStorage)
+    setBacklogOpen(
+      readStoredBacklogSidebarOpen() ?? getDefaultBacklogSidebarOpen(),
+    );
+  }, []);
+
+  const handleBacklogOpenChange = useCallback((open: boolean) => {
+    setBacklogOpen(open);
+    persistBacklogSidebarOpen(open);
+  }, []);
 
   const unplaced = todos.filter(
     (t) => !t.scheduled_start && t.status === "pending",
@@ -130,7 +149,7 @@ export function DashboardClient({
   return (
     <DragDropContext onDragEnd={onDragEnd}>
       <div
-        className="flex min-h-full flex-1 flex-col"
+        className="flex h-dvh min-h-0 flex-col overflow-hidden"
         style={{ background: "var(--color-paper)" }}
       >
         {activeSession && (
@@ -208,24 +227,27 @@ export function DashboardClient({
           </div>
         </header>
 
-        <div className="mx-auto flex w-full max-w-7xl flex-1 flex-col lg:flex-row">
-          <Timeline
-            date={dateStr}
-            placedTodos={placed}
-            daySessions={daySessions}
-            activeSessionId={activeSession?.id ?? null}
-            activeSessionTodoId={activeSession?.todo_id ?? null}
-            onUpdated={refresh}
-            onEditSession={setEditSession}
+        <div className="mx-auto flex min-h-0 w-full max-w-7xl flex-1">
+          <BacklogPanel
+            projects={projects}
+            tasks={backlogTasks}
+            open={backlogOpen}
+            onOpenChange={handleBacklogOpenChange}
+            onChanged={refresh}
           />
-          <UnplacedPanel todos={unplaced} />
+          <div className="flex min-h-0 min-w-0 flex-1 flex-col lg:flex-row">
+            <Timeline
+              date={dateStr}
+              placedTodos={placed}
+              daySessions={daySessions}
+              activeSessionId={activeSession?.id ?? null}
+              activeSessionTodoId={activeSession?.todo_id ?? null}
+              onUpdated={refresh}
+              onEditSession={setEditSession}
+            />
+            <UnplacedPanel todos={unplaced} />
+          </div>
         </div>
-
-        <BacklogPanel
-          projects={projects}
-          tasks={backlogTasks}
-          onChanged={refresh}
-        />
 
         {showPrepareTomorrow && (
           <PrepareTomorrowModal
