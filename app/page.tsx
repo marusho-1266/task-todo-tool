@@ -41,7 +41,7 @@ export default async function HomePage({ searchParams }: PageProps) {
       .select(TODO_WITH_TASK_SELECT)
       .eq("user_id", user.id)
       .eq("date", dateStr)
-      .in("status", ["pending", "done"])
+      .in("status", ["pending", "done", "rolled_over"])
       .order("scheduled_start", { ascending: true, nullsFirst: false }),
     supabase
       .from("work_sessions")
@@ -78,6 +78,7 @@ export default async function HomePage({ searchParams }: PageProps) {
           .eq("user_id", user.id)
           .eq("date", todayStr)
           .eq("status", "pending")
+          .eq("is_ad_hoc", false)
           .order("scheduled_start", { ascending: true, nullsFirst: true })
       : Promise.resolve({ data: [], error: null }),
   ]);

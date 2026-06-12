@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { stopSession } from "@/app/actions/sessions";
 import { formatElapsed } from "@/lib/time";
+import { getSessionDisplayTitle } from "@/lib/interrupt";
 import type { WorkSession } from "@/lib/types";
 import { useToast } from "@/components/ui/Toast";
 
@@ -16,7 +17,7 @@ export function SessionBar({ session, onStopped }: Props) {
   const [elapsed, setElapsed] = useState(0);
   const [stopping, setStopping] = useState(false);
 
-  const title = session.todos?.tasks?.title ?? "作業中";
+  const title = getSessionDisplayTitle(session);
 
   useEffect(() => {
     const start = new Date(session.started_at).getTime();

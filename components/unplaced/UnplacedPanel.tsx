@@ -5,10 +5,11 @@ import type { Todo } from "@/lib/types";
 
 type Props = {
   todos: Todo[];
+  rolledOverTodos?: Todo[];
 };
 
-export function UnplacedPanel({ todos }: Props) {
-  if (todos.length === 0) return null;
+export function UnplacedPanel({ todos, rolledOverTodos = [] }: Props) {
+  if (todos.length === 0 && rolledOverTodos.length === 0) return null;
 
   return (
     <aside
@@ -83,6 +84,44 @@ export function UnplacedPanel({ todos }: Props) {
           </ul>
         )}
       </Droppable>
+
+      {rolledOverTodos.length > 0 && (
+        <div
+          className="border-t px-3 py-3"
+          style={{ borderColor: "var(--color-rule)" }}
+        >
+          <h3
+            className="mb-2 text-xs font-medium uppercase tracking-wider"
+            style={{ color: "var(--color-ink-faint)", fontFamily: "var(--font-body)" }}
+          >
+            繰越済（未配置）
+          </h3>
+          <ul className="flex flex-col gap-2">
+            {rolledOverTodos.map((todo) => (
+              <li
+                key={todo.id}
+                className="rounded-[var(--radius-sm)] border border-dashed px-3 py-2.5 text-sm opacity-60"
+                style={{
+                  borderColor: "var(--color-plan-border)",
+                  background: "color-mix(in srgb, var(--color-plan) 8%, transparent)",
+                  fontFamily: "var(--font-body)",
+                  color: "var(--color-ink-muted)",
+                }}
+              >
+                <span className="block font-medium">
+                  {todo.tasks?.title ?? "（無題）"}
+                </span>
+                <span
+                  className="mt-0.5 block text-xs"
+                  style={{ color: "var(--color-ink-faint)" }}
+                >
+                  {todo.planned_minutes}分 · 明日へ繰越済
+                </span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
     </aside>
   );
 }

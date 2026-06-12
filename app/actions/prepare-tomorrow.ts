@@ -4,8 +4,8 @@ import { revalidatePath } from "next/cache";
 import {
   addDaysToDateStr,
   existingBlocksFromTodos,
+  mergeCarryOverByTask,
   planCarryOverPlacements,
-  type CarryOverInput,
   workDayStartMinutes,
 } from "@/lib/prepare-tomorrow";
 import { datetimeFromMinutes } from "@/lib/time";
@@ -35,6 +35,7 @@ export async function getCarryOverCandidates(
     .eq("user_id", user.id)
     .eq("date", dateStr)
     .eq("status", "pending")
+    .eq("is_ad_hoc", false)
     .order("scheduled_start", { ascending: true, nullsFirst: true });
 
   if (error) throw new Error(error.message);
@@ -43,7 +44,7 @@ export async function getCarryOverCandidates(
 
 export async function prepareTomorrow(
   todayDateStr: string,
-  selectedTodoIds: string[],
+  selectedTaskIds: string[],
 ): Promise<
   ActionResult<{
     tomorrowDate: string;
@@ -52,8 +53,8 @@ export async function prepareTomorrow(
   }>
 > {
   try {
-    if (selectedTodoIds.length === 0) {
-      return { success: false, error: "繰越する Todo を1件以上選択してください" };
+    if (selectedTaskIds.length === 0) {
+      return { success: false, error: "繰越するタスクを1件以上選択してください" };
     }
 
     const { supabase, user } = await getAuthedUser();
@@ -74,17 +75,21 @@ export async function prepareTomorrow(
       .eq("user_id", user.id)
       .eq("date", todayDateStr)
       .eq("status", "pending")
-      .in("id", selectedTodoIds);
+      .eq("is_ad_hoc", false)
+      .in("task_id", selectedTaskIds)
+      .order("scheduled_start", { ascending: true, nullsFirst: true });
 
     if (todayError) {
       return { success: false, error: todayError.message };
     }
 
     const todayTodos = parseTodoRows(todayTodosRaw);
-    if (todayTodos.length !== selectedTodoIds.length) {
+    const foundTaskIds = new Set(todayTodos.map((t) => t.task_id));
+    const missingTasks = selectedTaskIds.filter((id) => !foundTaskIds.has(id));
+    if (todayTodos.length === 0 || missingTasks.length > 0) {
       return {
         success: false,
-        error: "選択した Todo の一部が見つかりません",
+        error: "選択したタスクの繰越対象が見つかりません",
       };
     }
 
@@ -108,12 +113,14 @@ export async function prepareTomorrow(
       tomorrowDate,
     );
 
-    const carryItems: CarryOverInput[] = todayTodos.map((t) => ({
-      todoId: t.id,
-      taskId: t.task_id,
-      plannedMinutes: t.planned_minutes,
-      title: t.tasks?.title ?? "（無題）",
-    }));
+    const carryItems = mergeCarryOverByTask(
+      todayTodos.map((t) => ({
+        id: t.id,
+        taskId: t.task_id,
+        plannedMinutes: t.planned_minutes,
+        title: t.tasks?.title ?? "（無題）",
+      })),
+    );
 
     const plan = planCarryOverPlacements(
       carryItems,
@@ -151,17 +158,19 @@ export async function prepareTomorrow(
 
         insertedTodoIds.push(inserted.id);
 
-        const { error: updateError } = await supabase
-          .from("todos")
-          .update({ status: "rolled_over" })
-          .eq("id", placement.todoId)
-          .eq("user_id", user.id);
+        for (const sourceTodoId of placement.sourceTodoIds) {
+          const { error: updateError } = await supabase
+            .from("todos")
+            .update({ status: "rolled_over" })
+            .eq("id", sourceTodoId)
+            .eq("user_id", user.id);
 
-        if (updateError) {
-          throw new Error(updateError.message);
+          if (updateError) {
+            throw new Error(updateError.message);
+          }
+
+          rolledOverTodoIds.push(sourceTodoId);
         }
-
-        rolledOverTodoIds.push(placement.todoId);
       }
     } catch (placementError) {
       if (insertedTodoIds.length > 0) {

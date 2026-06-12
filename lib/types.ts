@@ -42,7 +42,11 @@ export type BacklogTask = {
   estimate_minutes: number | null;
   due_date: string | null;
   description: string | null;
+  priority: number;
 };
+
+export const BACKLOG_SORT_MODES = ["project", "due_date", "priority"] as const;
+export type BacklogSortMode = (typeof BACKLOG_SORT_MODES)[number];
 
 export const TODO_STATUSES = ["pending", "done", "rolled_over"] as const;
 export type TodoStatus = (typeof TODO_STATUSES)[number];
@@ -62,6 +66,7 @@ export type Todo = {
   scheduled_start: string | null;
   planned_minutes: number;
   status: TodoStatus;
+  is_ad_hoc: boolean;
   tasks: Task | null;
 };
 
@@ -85,6 +90,7 @@ export type WorkSession = {
   ended_at: string | null;
   duration_minutes: number | null;
   source: WorkSessionSource | null;
+  label: string | null;
   todos: {
     id: string;
     tasks: { title: string } | null;

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { quickAddTodo } from "@/app/actions/todos";
+import { startAdHocSession } from "@/app/actions/sessions";
 import { useToast } from "@/components/ui/Toast";
 
 type Props = {
@@ -11,21 +11,21 @@ type Props = {
 
 export function QuickAddModal({ date, onAdded }: Props) {
   const [open, setOpen] = useState(false);
-  const [title, setTitle] = useState("");
+  const [label, setLabel] = useState("");
   const [loading, setLoading] = useState(false);
   const { showToast } = useToast();
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setLoading(true);
-    const result = await quickAddTodo(title, date);
+    const result = await startAdHocSession(label, date);
     setLoading(false);
     if (!result.success) {
       showToast(result.error);
       return;
     }
-    showToast("Todo を追加しました", "success");
-    setTitle("");
+    showToast("割込計測を開始しました", "success");
+    setLabel("");
     setOpen(false);
     onAdded?.();
   }
@@ -41,8 +41,8 @@ export function QuickAddModal({ date, onAdded }: Props) {
           color: "var(--color-accent-ink)",
           fontFamily: "var(--font-body)",
         }}
-        aria-label="快速追加"
-        title="快速追加（10分・Inbox）"
+        aria-label="割込計測"
+        title="割込計測（実績のみ・即開始）"
       >
         +
       </button>
@@ -52,7 +52,7 @@ export function QuickAddModal({ date, onAdded }: Props) {
           className="fixed inset-0 z-40 flex items-center justify-center p-4"
           role="dialog"
           aria-modal="true"
-          aria-labelledby="quick-add-title"
+          aria-labelledby="ad-hoc-session-title"
         >
           <button
             type="button"
@@ -69,23 +69,23 @@ export function QuickAddModal({ date, onAdded }: Props) {
             }}
           >
             <h2
-              id="quick-add-title"
+              id="ad-hoc-session-title"
               className="text-base font-medium"
               style={{ fontFamily: "var(--font-display)", color: "var(--color-ink)" }}
             >
-              快速追加
+              割込計測
             </h2>
             <p
               className="mt-1 text-xs"
               style={{ color: "var(--color-ink-muted)", fontFamily: "var(--font-body)" }}
             >
-              10分・Inbox に仮リーフを作成します
+              タスクを作らず実績だけ記録します。入力後すぐ計測が始まります。
             </p>
             <input
               type="text"
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              placeholder="やること"
+              value={label}
+              onChange={(e) => setLabel(e.target.value)}
+              placeholder="例: 〇〇社からの問合せ"
               autoFocus
               required
               className="mt-4 w-full rounded-[var(--radius-sm)] border px-3 py-2 text-sm outline-none focus:ring-2"
@@ -118,7 +118,7 @@ export function QuickAddModal({ date, onAdded }: Props) {
                   fontFamily: "var(--font-body)",
                 }}
               >
-                {loading ? "追加中…" : "追加"}
+                {loading ? "開始中…" : "計測開始"}
               </button>
             </div>
           </form>

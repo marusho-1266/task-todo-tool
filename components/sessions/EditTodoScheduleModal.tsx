@@ -1,13 +1,16 @@
 "use client";
 
 import { useState } from "react";
-import { deleteSession, editSessionTimes } from "@/app/actions/sessions";
+import { updateTodoSchedule, moveTodoToUnplaced } from "@/app/actions/todos";
 import { useToast } from "@/components/ui/Toast";
-import { getSessionDisplayTitle } from "@/lib/interrupt";
-import type { WorkSession } from "@/lib/types";
+import {
+  formatDateParam,
+  minutesFromDayStart,
+} from "@/lib/time";
+import type { Todo } from "@/lib/types";
 
 type Props = {
-  session: WorkSession;
+  todo: Todo;
   onClose: () => void;
   onSaved: () => void;
 };
@@ -17,60 +20,44 @@ function toLocalInputValue(d: Date): string {
   return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
 }
 
-export function EditSessionModal({ session, onClose, onSaved }: Props) {
+export function EditTodoScheduleModal({ todo, onClose, onSaved }: Props) {
   const { showToast } = useToast();
   const [loading, setLoading] = useState(false);
 
-  const defaultEnd = session.ended_at
-    ? new Date(session.ended_at)
-    : new Date();
+  const scheduledDate = new Date(todo.scheduled_start!);
+  const [scheduledAt, setScheduledAt] = useState(toLocalInputValue(scheduledDate));
+  const [plannedMinutes, setPlannedMinutes] = useState(todo.planned_minutes);
 
-  const [startedAt, setStartedAt] = useState(
-    toLocalInputValue(new Date(session.started_at)),
-  );
-  const [endedAt, setEndedAt] = useState(toLocalInputValue(defaultEnd));
-
-  async function handleDelete() {
-    if (!window.confirm("このセッションを削除しますか？実績分数からも差し引かれます。")) {
-      return;
-    }
+  async function handleRemove() {
+    if (!window.confirm("計画をタイムラインから外しますか？")) return;
     setLoading(true);
-    const result = await deleteSession(session.id);
+    const result = await moveTodoToUnplaced(todo.id);
     setLoading(false);
     if (!result.success) {
       showToast(result.error);
       return;
     }
-    showToast("セッションを削除しました", "success");
+    showToast("タイムラインから外しました", "success");
     onSaved();
     onClose();
   }
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    const start = new Date(startedAt);
-    const end = new Date(endedAt);
-    if (end <= start) {
-      showToast("終了時刻は開始時刻より後にしてください");
-      return;
-    }
+    const start = new Date(scheduledAt);
+    const date = formatDateParam(start);
+    const startMinutes = minutesFromDayStart(start.toISOString(), date);
     setLoading(true);
-    const result = await editSessionTimes(
-      session.id,
-      start.toISOString(),
-      end.toISOString(),
-    );
+    const result = await updateTodoSchedule(todo.id, date, startMinutes, plannedMinutes);
     setLoading(false);
     if (!result.success) {
       showToast(result.error);
       return;
     }
-    showToast("セッション時刻を更新しました", "success");
+    showToast("計画を更新しました", "success");
     onSaved();
     onClose();
   }
-
-  const title = getSessionDisplayTitle(session);
 
   return (
     <div
@@ -96,20 +83,20 @@ export function EditSessionModal({ session, onClose, onSaved }: Props) {
           className="text-base font-medium"
           style={{ fontFamily: "var(--font-display)", color: "var(--color-ink)" }}
         >
-          セッション時刻を修正
+          計画を修正
         </h2>
         <p
           className="mt-1 text-sm"
           style={{ color: "var(--color-ink-muted)", fontFamily: "var(--font-body)" }}
         >
-          {title}
+          {todo.tasks?.title ?? "タスク"}
         </p>
         <label className="mt-4 block text-xs" style={{ color: "var(--color-ink-muted)" }}>
           開始日時
           <input
             type="datetime-local"
-            value={startedAt}
-            onChange={(e) => setStartedAt(e.target.value)}
+            value={scheduledAt}
+            onChange={(e) => setScheduledAt(e.target.value)}
             required
             className="mt-1 w-full rounded-[var(--radius-sm)] border px-3 py-2 text-sm"
             style={{
@@ -120,11 +107,13 @@ export function EditSessionModal({ session, onClose, onSaved }: Props) {
           />
         </label>
         <label className="mt-3 block text-xs" style={{ color: "var(--color-ink-muted)" }}>
-          終了日時
+          予定分数
           <input
-            type="datetime-local"
-            value={endedAt}
-            onChange={(e) => setEndedAt(e.target.value)}
+            type="number"
+            min={5}
+            step={5}
+            value={plannedMinutes}
+            onChange={(e) => setPlannedMinutes(Number(e.target.value))}
             required
             className="mt-1 w-full rounded-[var(--radius-sm)] border px-3 py-2 text-sm"
             style={{
@@ -137,7 +126,7 @@ export function EditSessionModal({ session, onClose, onSaved }: Props) {
         <div className="mt-4 flex items-center justify-between gap-2">
           <button
             type="button"
-            onClick={handleDelete}
+            onClick={handleRemove}
             disabled={loading}
             className="rounded-[var(--radius-sm)] border px-3 py-1.5 text-sm disabled:opacity-50"
             style={{
@@ -145,7 +134,7 @@ export function EditSessionModal({ session, onClose, onSaved }: Props) {
               color: "var(--color-warn)",
             }}
           >
-            {loading ? "処理中…" : "削除"}
+            {loading ? "処理中…" : "外す"}
           </button>
           <div className="flex gap-2">
             <button
@@ -162,7 +151,7 @@ export function EditSessionModal({ session, onClose, onSaved }: Props) {
               disabled={loading}
               className="rounded-[var(--radius-sm)] px-3 py-1.5 text-sm font-medium disabled:opacity-50"
               style={{
-                background: "var(--color-accent)",
+                background: "var(--color-plan)",
                 color: "var(--color-accent-ink)",
               }}
             >

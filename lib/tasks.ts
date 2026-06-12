@@ -1,7 +1,8 @@
+import { isInterruptBucketTask } from "@/lib/interrupt";
 import { isBacklogStatus, type BacklogProject, type BacklogTask } from "@/lib/types";
 
 export const TASK_SELECT =
-  "id, title, project_id, parent_id, is_leaf, status, estimate_minutes, due_date, description" as const;
+  "id, title, project_id, parent_id, is_leaf, status, estimate_minutes, due_date, description, priority" as const;
 
 export const PROJECT_SELECT =
   "id, title, is_system, color, status, description, category" as const;
@@ -22,6 +23,7 @@ function parseBacklogTask(value: unknown): BacklogTask | null {
       typeof row.estimate_minutes === "number" ? row.estimate_minutes : null,
     due_date: typeof row.due_date === "string" ? row.due_date : null,
     description: typeof row.description === "string" ? row.description : null,
+    priority: typeof row.priority === "number" ? row.priority : 0,
   };
 }
 
@@ -45,7 +47,8 @@ export function parseBacklogTasks(data: unknown): BacklogTask[] {
   if (!Array.isArray(data)) return [];
   return data.flatMap((row) => {
     const task = parseBacklogTask(row);
-    return task ? [task] : [];
+    if (!task || isInterruptBucketTask(task)) return [];
+    return [task];
   });
 }
 
@@ -122,3 +125,36 @@ export function groupBacklogByProject(
 
   return groups;
 }
+
+export function sortBacklogByDueDate(tasks: BacklogTask[]): BacklogTask[] {
+  const active = tasks.filter((t) => t.status !== "done");
+  return [...active].sort((a, b) => {
+    if (a.due_date && b.due_date) return a.due_date.localeCompare(b.due_date);
+    if (a.due_date) return -1;
+    if (b.due_date) return 1;
+    return a.title.localeCompare(b.title);
+  });
+}
+
+export function sortBacklogByPriority(tasks: BacklogTask[]): BacklogTask[] {
+  const active = tasks.filter((t) => t.status !== "done");
+  return [...active].sort((a, b) => {
+    const diff = b.priority - a.priority;
+    if (diff !== 0) return diff;
+    return a.title.localeCompare(b.title);
+  });
+}
+
+export function buildFlatGroup(
+  tasks: BacklogTask[],
+): ReturnType<typeof groupBacklogByProject> {
+  const roots = tasks.filter((t) => !t.parent_id);
+  const childTasks = tasks.filter((t) => t.parent_id);
+  const children = new Map<string, BacklogTask[]>();
+  for (const root of roots) {
+    const kids = childTasks.filter((c) => c.parent_id === root.id);
+    if (kids.length > 0) children.set(root.id, kids);
+  }
+  return [{ project: null, tasks: roots, children }];
+}
+

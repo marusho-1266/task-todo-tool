@@ -1,14 +1,21 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Draggable, Droppable } from "@hello-pangea/dnd";
 import { deleteProject } from "@/app/actions/projects";
 import { deleteTask } from "@/app/actions/tasks";
 import {
   backlogTaskDraggableId,
+  buildFlatGroup,
   groupBacklogByProject,
+  sortBacklogByDueDate,
+  sortBacklogByPriority,
 } from "@/lib/tasks";
-import type { BacklogProject, BacklogTask } from "@/lib/types";
+import type { BacklogProject, BacklogSortMode, BacklogTask } from "@/lib/types";
+import {
+  persistSortMode,
+  readStoredSortMode,
+} from "@/lib/backlog-sidebar";
 import { useToast } from "@/components/ui/Toast";
 import { ProjectModal } from "@/components/backlog/ProjectModal";
 import { TaskModal } from "@/components/backlog/TaskModal";
@@ -48,20 +55,41 @@ function collectDraggableLeaves(
   return leaves;
 }
 
+const PRIORITY_LABELS = ["", "中", "高"] as const;
+
 function BacklogTaskRow({
   task,
   index,
   draggable,
+  showMeta,
   onEdit,
 }: {
   task: BacklogTask;
   index: number;
   draggable: boolean;
+  showMeta?: boolean;
   onEdit: (task: BacklogTask) => void;
 }) {
   const inner = (
     <div className="flex items-center justify-between gap-2">
       <span className="min-w-0 flex-1 truncate text-sm">{task.title}</span>
+      {showMeta && (
+        <span className="flex shrink-0 gap-1">
+          {task.priority > 0 && (
+            <span
+              className="rounded px-1 py-0.5 text-[10px] font-medium"
+              style={{ background: "var(--color-accent)", color: "var(--color-accent-ink)" }}
+            >
+              {PRIORITY_LABELS[task.priority]}
+            </span>
+          )}
+          {task.due_date && (
+            <span className="text-[10px]" style={{ color: "var(--color-ink-muted)" }}>
+              {task.due_date.slice(5)}
+            </span>
+          )}
+        </span>
+      )}
       <button
         type="button"
         onClick={() => onEdit(task)}
@@ -118,12 +146,16 @@ function BacklogTaskRow({
 function BacklogContent({
   groups,
   indexByTaskId,
+  showGroupHeaders,
+  showMeta,
   onEditProject,
   onEditTask,
   onNewChildTask,
 }: {
   groups: ReturnType<typeof groupBacklogByProject>;
   indexByTaskId: Map<string, number>;
+  showGroupHeaders: boolean;
+  showMeta: boolean;
   onEditProject: (project: BacklogProject) => void;
   onEditTask: (task: BacklogTask) => void;
   onNewChildTask: (parentId: string, projectId: string | null) => void;
@@ -146,24 +178,26 @@ function BacklogContent({
           ) : (
             groups.map((group) => (
               <section key={group.project?.id ?? "none"} className="mb-4 last:mb-0">
-                <div className="mb-2 flex items-center justify-between gap-2">
-                  <h3
-                    className="text-xs font-medium uppercase tracking-wider"
-                    style={{ color: "var(--color-ink-faint)", fontFamily: "var(--font-body)" }}
-                  >
-                    {group.project?.title ?? "プロジェクトなし"}
-                  </h3>
-                  {group.project && !group.project.is_system && (
-                    <button
-                      type="button"
-                      onClick={() => onEditProject(group.project!)}
-                      className="text-xs"
-                      style={{ color: "var(--color-ink-muted)" }}
+                {showGroupHeaders && (
+                  <div className="mb-2 flex items-center justify-between gap-2">
+                    <h3
+                      className="text-xs font-medium uppercase tracking-wider"
+                      style={{ color: "var(--color-ink-faint)", fontFamily: "var(--font-body)" }}
                     >
-                      編集
-                    </button>
-                  )}
-                </div>
+                      {group.project?.title ?? "プロジェクトなし"}
+                    </h3>
+                    {group.project && !group.project.is_system && (
+                      <button
+                        type="button"
+                        onClick={() => onEditProject(group.project!)}
+                        className="text-xs"
+                        style={{ color: "var(--color-ink-muted)" }}
+                      >
+                        編集
+                      </button>
+                    )}
+                  </div>
+                )}
 
                 <ul className="flex flex-col gap-2">
                   {group.tasks.map((task) => {
@@ -177,6 +211,7 @@ function BacklogContent({
                             task={task}
                             index={0}
                             draggable={false}
+                            showMeta={showMeta}
                             onEdit={onEditTask}
                           />
                           <ul
@@ -189,6 +224,7 @@ function BacklogContent({
                                 task={child}
                                 index={indexByTaskId.get(child.id) ?? 0}
                                 draggable
+                                showMeta={showMeta}
                                 onEdit={onEditTask}
                               />
                             ))}
@@ -213,6 +249,7 @@ function BacklogContent({
                         task={task}
                         index={indexByTaskId.get(task.id) ?? 0}
                         draggable
+                        showMeta={showMeta}
                         onEdit={onEditTask}
                       />
                     );
@@ -228,14 +265,24 @@ function BacklogContent({
   );
 }
 
+const SORT_MODE_LABELS: Record<BacklogSortMode, string> = {
+  project: "プロジェクト",
+  due_date: "期日順",
+  priority: "優先度順",
+};
+
 function SidebarHeader({
   onClose,
   onNewProject,
   onNewTask,
+  sortMode,
+  onSortChange,
 }: {
   onClose: () => void;
   onNewProject: () => void;
   onNewTask: () => void;
+  sortMode: BacklogSortMode;
+  onSortChange: (mode: BacklogSortMode) => void;
 }) {
   return (
     <header
@@ -278,6 +325,26 @@ function SidebarHeader({
           + タスク
         </button>
       </div>
+      <div className="flex gap-1">
+        {(["project", "due_date", "priority"] as const).map((mode) => {
+          const active = sortMode === mode;
+          return (
+            <button
+              key={mode}
+              type="button"
+              onClick={() => onSortChange(mode)}
+              className="flex-1 rounded-[var(--radius-sm)] border py-0.5 text-[10px] transition-colors"
+              style={{
+                borderColor: active ? "var(--color-accent)" : "var(--color-rule)",
+                background: active ? "var(--color-accent)" : "transparent",
+                color: active ? "var(--color-accent-ink)" : "var(--color-ink-muted)",
+              }}
+            >
+              {SORT_MODE_LABELS[mode]}
+            </button>
+          );
+        })}
+      </div>
     </header>
   );
 }
@@ -296,11 +363,26 @@ export function BacklogPanel({
   const [showNewTask, setShowNewTask] = useState(false);
   const [newTaskParentId, setNewTaskParentId] = useState<string | null>(null);
   const [newTaskProjectId, setNewTaskProjectId] = useState<string | null>(null);
+  const [sortMode, setSortMode] = useState<BacklogSortMode>("project");
 
-  const groups = useMemo(
-    () => groupBacklogByProject(projects, tasks),
-    [projects, tasks],
-  );
+  useEffect(() => {
+    const stored = readStoredSortMode();
+    if (stored) setSortMode(stored);
+  }, []);
+
+  const handleSortChange = (mode: BacklogSortMode) => {
+    setSortMode(mode);
+    persistSortMode(mode);
+  };
+
+  const groups = useMemo(() => {
+    if (sortMode === "project") return groupBacklogByProject(projects, tasks);
+    const sorted =
+      sortMode === "due_date"
+        ? sortBacklogByDueDate(tasks)
+        : sortBacklogByPriority(tasks);
+    return buildFlatGroup(sorted);
+  }, [projects, tasks, sortMode]);
 
   const draggableLeaves = useMemo(() => collectDraggableLeaves(groups), [groups]);
   const indexByTaskId = useMemo(
@@ -390,8 +472,14 @@ export function BacklogPanel({
             onClose={() => onOpenChange(false)}
             onNewProject={() => setShowNewProject(true)}
             onNewTask={openNewTask}
+            sortMode={sortMode}
+            onSortChange={handleSortChange}
           />
-          <BacklogContent {...contentProps} />
+          <BacklogContent
+            {...contentProps}
+            showGroupHeaders={sortMode === "project"}
+            showMeta={sortMode !== "project"}
+          />
         </aside>
       )}
 

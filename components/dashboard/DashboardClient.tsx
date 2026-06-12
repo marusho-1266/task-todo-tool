@@ -28,6 +28,7 @@ import { SessionBar } from "@/components/session-bar/SessionBar";
 import { Timeline } from "@/components/timeline/Timeline";
 import { UnplacedPanel } from "@/components/unplaced/UnplacedPanel";
 import { EditSessionModal } from "@/components/sessions/EditSessionModal";
+import { EditTodoScheduleModal } from "@/components/sessions/EditTodoScheduleModal";
 import { ManualSessionModal } from "@/components/sessions/ManualSessionModal";
 import { ThemeToggle } from "@/components/theme/ThemeToggle";
 
@@ -57,6 +58,7 @@ export function DashboardClient({
   const router = useRouter();
   const { showToast } = useToast();
   const [editSession, setEditSession] = useState<WorkSession | null>(null);
+  const [editTodo, setEditTodo] = useState<Todo | null>(null);
   const [showManualAdd, setShowManualAdd] = useState(false);
   const [showPrepareTomorrow, setShowPrepareTomorrow] = useState(false);
   const [backlogOpen, setBacklogOpen] = useState(true);
@@ -77,8 +79,14 @@ export function DashboardClient({
   const unplaced = todos.filter(
     (t) => !t.scheduled_start && t.status === "pending",
   );
+  const rolledOverUnplaced = todos.filter(
+    (t) => !t.scheduled_start && t.status === "rolled_over",
+  );
   const placed = todos.filter(
-    (t) => t.scheduled_start && t.status === "pending",
+    (t) =>
+      t.scheduled_start &&
+      (t.status === "pending" || t.status === "rolled_over") &&
+      !t.is_ad_hoc,
   );
 
   const refresh = useCallback(() => {
@@ -118,6 +126,7 @@ export function DashboardClient({
 
       const todo = todos.find((t) => t.id === draggableId);
       if (!todo) return;
+      if (todo.status === "rolled_over") return;
 
       if (destination.droppableId === "unplaced") {
         if (source.droppableId === "unplaced") return;
@@ -244,8 +253,12 @@ export function DashboardClient({
               activeSessionTodoId={activeSession?.todo_id ?? null}
               onUpdated={refresh}
               onEditSession={setEditSession}
+              onEditTodo={setEditTodo}
             />
-            <UnplacedPanel todos={unplaced} />
+            <UnplacedPanel
+              todos={unplaced}
+              rolledOverTodos={rolledOverUnplaced}
+            />
           </div>
         </div>
 
@@ -261,6 +274,14 @@ export function DashboardClient({
           <EditSessionModal
             session={editSession}
             onClose={() => setEditSession(null)}
+            onSaved={refresh}
+          />
+        )}
+
+        {editTodo && (
+          <EditTodoScheduleModal
+            todo={editTodo}
+            onClose={() => setEditTodo(null)}
             onSaved={refresh}
           />
         )}

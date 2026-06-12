@@ -12,11 +12,20 @@ export type MinuteBlock = {
   durationMinutes: number;
 };
 
+export type CarryOverSourceTodo = {
+  id: string;
+  taskId: string;
+  plannedMinutes: number;
+  title: string;
+};
+
 export type CarryOverInput = {
+  /** Representative todo for `rolled_from_todo_id` */
   todoId: string;
   taskId: string;
   plannedMinutes: number;
   title: string;
+  sourceTodoIds: string[];
 };
 
 export type CarryOverPlacement = {
@@ -24,6 +33,7 @@ export type CarryOverPlacement = {
   taskId: string;
   plannedMinutes: number;
   scheduledStartMinutes: number;
+  sourceTodoIds: string[];
 };
 
 export type PlacementPlan = {
@@ -85,6 +95,35 @@ function blockFromScheduled(
   };
 }
 
+/** Merges multiple same-task todos into one carry-over item (sums planned minutes). */
+export function mergeCarryOverByTask(
+  todos: CarryOverSourceTodo[],
+): CarryOverInput[] {
+  const order: string[] = [];
+  const byTask = new Map<string, CarryOverSourceTodo[]>();
+
+  for (const todo of todos) {
+    if (!byTask.has(todo.taskId)) {
+      order.push(todo.taskId);
+    }
+    const group = byTask.get(todo.taskId) ?? [];
+    group.push(todo);
+    byTask.set(todo.taskId, group);
+  }
+
+  return order.map((taskId) => {
+    const group = byTask.get(taskId)!;
+    const plannedMinutes = group.reduce((sum, t) => sum + t.plannedMinutes, 0);
+    return {
+      todoId: group[0].id,
+      taskId,
+      plannedMinutes,
+      title: group[0].title,
+      sourceTodoIds: group.map((t) => t.id),
+    };
+  });
+}
+
 export function existingBlocksFromTodos(
   todos: { scheduled_start: string; planned_minutes: number }[],
   dateStr: string,
@@ -122,6 +161,7 @@ export function planCarryOverPlacements(
           taskId: item.taskId,
           plannedMinutes: duration,
           scheduledStartMinutes: start,
+          sourceTodoIds: item.sourceTodoIds,
         };
         occupied.push(candidate);
         break;

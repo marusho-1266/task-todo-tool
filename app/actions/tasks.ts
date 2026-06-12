@@ -55,6 +55,7 @@ export async function createTask(input: {
   estimateMinutes?: number | null;
   dueDate?: string | null;
   description?: string | null;
+  priority?: number;
 }): Promise<ActionResult<{ id: string }>> {
   try {
     const trimmed = input.title.trim();
@@ -113,6 +114,7 @@ export async function createTask(input: {
         estimate_minutes: input.estimateMinutes ?? null,
         due_date: input.dueDate ?? null,
         description: input.description?.trim() || null,
+        priority: input.priority ?? 0,
       })
       .select("id")
       .single();
@@ -140,6 +142,7 @@ export async function updateTask(
     estimateMinutes?: number | null;
     dueDate?: string | null;
     projectId?: string | null;
+    priority?: number;
   },
 ): Promise<ActionResult> {
   try {
@@ -168,6 +171,7 @@ export async function updateTask(
       updates.estimate_minutes = fields.estimateMinutes;
     }
     if (fields.dueDate !== undefined) updates.due_date = fields.dueDate;
+    if (fields.priority !== undefined) updates.priority = fields.priority;
 
     if (fields.projectId !== undefined) {
       if (existing.parent_id) {

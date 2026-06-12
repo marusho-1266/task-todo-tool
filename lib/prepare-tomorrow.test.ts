@@ -2,9 +2,25 @@ import { describe, expect, it } from "vitest";
 import {
   blocksOverlap,
   getTimelineMaxMinutes,
+  mergeCarryOverByTask,
   planCarryOverPlacements,
   workDayStartMinutes,
 } from "@/lib/prepare-tomorrow";
+
+function carryItem(
+  todoId: string,
+  taskId: string,
+  plannedMinutes: number,
+  title: string,
+) {
+  return {
+    todoId,
+    taskId,
+    plannedMinutes,
+    title,
+    sourceTodoIds: [todoId],
+  };
+}
 
 describe("workDayStartMinutes", () => {
   it("converts 09:00 to timeline-relative minutes", () => {
@@ -45,14 +61,37 @@ describe("blocksOverlap", () => {
   });
 });
 
+describe("mergeCarryOverByTask", () => {
+  it("sums planned minutes for the same task", () => {
+    const merged = mergeCarryOverByTask([
+      { id: "a1", taskId: "t1", plannedMinutes: 90, title: "Same" },
+      { id: "a2", taskId: "t1", plannedMinutes: 120, title: "Same" },
+      { id: "b1", taskId: "t2", plannedMinutes: 30, title: "Other" },
+    ]);
+
+    expect(merged).toHaveLength(2);
+    expect(merged[0]).toMatchObject({
+      taskId: "t1",
+      plannedMinutes: 210,
+      sourceTodoIds: ["a1", "a2"],
+      todoId: "a1",
+    });
+    expect(merged[1]).toMatchObject({
+      taskId: "t2",
+      plannedMinutes: 30,
+      sourceTodoIds: ["b1"],
+    });
+  });
+});
+
 describe("planCarryOverPlacements", () => {
   const workStart = 180;
 
   it("places items sequentially from work start", () => {
     const plan = planCarryOverPlacements(
       [
-        { todoId: "a", taskId: "t1", plannedMinutes: 30, title: "A" },
-        { todoId: "b", taskId: "t2", plannedMinutes: 30, title: "B" },
+        carryItem("a", "t1", 30, "A"),
+        carryItem("b", "t2", 30, "B"),
       ],
       [],
       workStart,
@@ -66,7 +105,7 @@ describe("planCarryOverPlacements", () => {
 
   it("keeps original planned_minutes for long todos (D2)", () => {
     const plan = planCarryOverPlacements(
-      [{ todoId: "a", taskId: "t1", plannedMinutes: 60, title: "Long" }],
+      [carryItem("a", "t1", 60, "Long")],
       [],
       workStart,
     );
@@ -77,7 +116,7 @@ describe("planCarryOverPlacements", () => {
 
   it("skips occupied slots from existing blocks", () => {
     const plan = planCarryOverPlacements(
-      [{ todoId: "a", taskId: "t1", plannedMinutes: 30, title: "A" }],
+      [carryItem("a", "t1", 30, "A")],
       [{ startMinutes: 180, durationMinutes: 30 }],
       workStart,
     );
@@ -90,7 +129,7 @@ describe("planCarryOverPlacements", () => {
     const existing = [{ startMinutes: workStart, durationMinutes: max - workStart }];
 
     const plan = planCarryOverPlacements(
-      [{ todoId: "a", taskId: "t1", plannedMinutes: 30, title: "Overflow" }],
+      [carryItem("a", "t1", 30, "Overflow")],
       existing,
       workStart,
     );
@@ -105,8 +144,8 @@ describe("planCarryOverPlacements", () => {
 
     const plan = planCarryOverPlacements(
       [
-        { todoId: "a", taskId: "t1", plannedMinutes: 30, title: "Fits" },
-        { todoId: "b", taskId: "t2", plannedMinutes: 30, title: "No room" },
+        carryItem("a", "t1", 30, "Fits"),
+        carryItem("b", "t2", 30, "No room"),
       ],
       [],
       lastStart,

@@ -37,6 +37,7 @@ export function TaskModal({
   );
   const [dueDate, setDueDate] = useState(task?.due_date ?? "");
   const [description, setDescription] = useState(task?.description ?? "");
+  const [priority, setPriority] = useState<number>(task?.priority ?? 0);
 
   const isChild = Boolean(task?.parent_id ?? defaultParentId);
   const isParent = task ? !task.is_leaf : false;
@@ -65,6 +66,7 @@ export function TaskModal({
         estimateMinutes: estimate,
         dueDate: dueDate || null,
         projectId: isChild ? undefined : projectId || null,
+        priority,
       });
       setLoading(false);
       if (!result.success) {
@@ -80,6 +82,7 @@ export function TaskModal({
         estimateMinutes: estimate,
         dueDate: dueDate || null,
         description: description.trim() || null,
+        priority,
       });
       setLoading(false);
       if (!result.success) {
@@ -179,6 +182,31 @@ export function TaskModal({
                 style={{ borderColor: "var(--color-rule)", color: "var(--color-ink)" }}
               />
             </label>
+
+            <div className="mt-3">
+              <span className="text-xs" style={{ color: "var(--color-ink-muted)" }}>優先度</span>
+              <div className="mt-1 flex gap-1">
+                {([0, 1, 2] as const).map((level) => {
+                  const labels = ["低", "中", "高"] as const;
+                  const active = priority === level;
+                  return (
+                    <button
+                      key={level}
+                      type="button"
+                      onClick={() => setPriority(level)}
+                      className="flex-1 rounded-[var(--radius-sm)] border py-1 text-sm transition-colors"
+                      style={{
+                        borderColor: active ? "var(--color-accent)" : "var(--color-rule)",
+                        background: active ? "var(--color-accent)" : "transparent",
+                        color: active ? "var(--color-accent-ink)" : "var(--color-ink-muted)",
+                      }}
+                    >
+                      {labels[level]}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
           </>
         )}
 
