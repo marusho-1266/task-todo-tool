@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { Draggable, Droppable } from "@hello-pangea/dnd";
-import { deleteProject } from "@/app/actions/projects";
+import { deleteProject, reassignAndDeleteProject } from "@/app/actions/projects";
 import { deleteTask } from "@/app/actions/tasks";
 import {
   backlogTaskDraggableId,
@@ -63,16 +63,18 @@ function BacklogTaskRow({
   draggable,
   showMeta,
   onEdit,
+  isCompleted,
 }: {
   task: BacklogTask;
   index: number;
   draggable: boolean;
   showMeta?: boolean;
   onEdit: (task: BacklogTask) => void;
+  isCompleted?: boolean;
 }) {
   const inner = (
     <div className="flex items-center justify-between gap-2">
-      <span className="min-w-0 flex-1 truncate text-sm">{task.title}</span>
+      <span className={`min-w-0 flex-1 truncate text-sm ${isCompleted ? "line-through" : ""}`} style={isCompleted ? { color: "var(--color-ink-muted)" } : {}}>{task.title}</span>
       {showMeta && (
         <span className="flex shrink-0 gap-1">
           {task.priority > 0 && (
@@ -107,9 +109,10 @@ function BacklogTaskRow({
         className="rounded-[var(--radius-sm)] border px-3 py-2"
         style={{
           borderColor: "var(--color-rule)",
-          background: "var(--color-paper-2)",
+          background: isCompleted ? "var(--color-paper)" : "var(--color-paper-2)",
           fontFamily: "var(--font-body)",
-          color: "var(--color-ink-muted)",
+          color: isCompleted ? "var(--color-ink-muted)" : "var(--color-ink-muted)",
+          opacity: isCompleted ? 0.7 : 1,
         }}
       >
         <span className="text-[10px] font-medium uppercase tracking-wide">親</span>
@@ -133,7 +136,8 @@ function BacklogTaskRow({
               : "var(--color-rule)",
             background: "var(--color-paper)",
             fontFamily: "var(--font-body)",
-            color: "var(--color-ink)",
+            color: isCompleted ? "var(--color-ink-muted)" : "var(--color-ink)",
+            opacity: isCompleted ? 0.7 : 1,
           }}
         >
           {inner}
@@ -148,6 +152,7 @@ function BacklogContent({
   indexByTaskId,
   showGroupHeaders,
   showMeta,
+  showDone,
   onEditProject,
   onEditTask,
   onNewChildTask,
@@ -176,87 +181,91 @@ function BacklogContent({
               バックログにタスクがありません。「+ タスク」から追加できます。
             </p>
           ) : (
-            groups.map((group) => (
-              <section key={group.project?.id ?? "none"} className="mb-4 last:mb-0">
-                {showGroupHeaders && (
-                  <div className="mb-2 flex items-center justify-between gap-2">
-                    <h3
-                      className="text-xs font-medium uppercase tracking-wider"
-                      style={{ color: "var(--color-ink-faint)", fontFamily: "var(--font-body)" }}
-                    >
-                      {group.project?.title ?? "プロジェクトなし"}
-                    </h3>
-                    {group.project && !group.project.is_system && (
-                      <button
-                        type="button"
-                        onClick={() => onEditProject(group.project!)}
-                        className="text-xs"
-                        style={{ color: "var(--color-ink-muted)" }}
+            <>
+              {groups.map((group) => (
+                <section key={group.project?.id ?? "none"} className="mb-4 last:mb-0">
+                  {showGroupHeaders && (
+                    <div className="mb-2 flex items-center justify-between gap-2">
+                      <h3
+                        className="text-xs font-medium uppercase tracking-wider"
+                        style={{ color: "var(--color-ink-faint)", fontFamily: "var(--font-body)" }}
                       >
-                        編集
-                      </button>
-                    )}
-                  </div>
-                )}
+                        {group.project?.title ?? "プロジェクトなし"}
+                      </h3>
+                      {group.project && !group.project.is_system && (
+                        <button
+                          type="button"
+                          onClick={() => onEditProject(group.project!)}
+                          className="text-xs"
+                          style={{ color: "var(--color-ink-muted)" }}
+                        >
+                          編集
+                        </button>
+                      )}
+                    </div>
+                  )}
 
-                <ul className="flex flex-col gap-2">
-                  {group.tasks.map((task) => {
-                    const children = group.children.get(task.id) ?? [];
-                    const isParent = children.length > 0;
+                  <ul className="flex flex-col gap-2">
+                    {group.tasks.map((task) => {
+                      const children = group.children.get(task.id) ?? [];
+                      const isParent = children.length > 0;
 
-                    if (isParent) {
+                      if (isParent) {
+                        return (
+                          <li key={task.id} className="flex flex-col gap-1">
+                            <BacklogTaskRow
+                              task={task}
+                              index={0}
+                              draggable={false}
+                              showMeta={showMeta}
+                              onEdit={onEditTask}
+                            />
+                            <ul
+                              className="ml-3 flex flex-col gap-1 border-l pl-2"
+                              style={{ borderColor: "var(--color-rule)" }}
+                            >
+                              {children.map((child) => (
+                                <BacklogTaskRow
+                                  key={child.id}
+                                  task={child}
+                                  index={indexByTaskId.get(child.id) ?? 0}
+                                  draggable
+                                  showMeta={showMeta}
+                                  onEdit={onEditTask}
+                                  isCompleted={child.status === "done"}
+                                />
+                              ))}
+                            </ul>
+                            <button
+                              type="button"
+                              onClick={() => onNewChildTask(task.id, task.project_id)}
+                              className="ml-3 text-left text-xs"
+                              style={{ color: "var(--color-accent)" }}
+                            >
+                              + 子タスク
+                            </button>
+                          </li>
+                        );
+                      }
+
+                      if (!task.is_leaf) return null;
+
                       return (
-                        <li key={task.id} className="flex flex-col gap-1">
-                          <BacklogTaskRow
-                            task={task}
-                            index={0}
-                            draggable={false}
-                            showMeta={showMeta}
-                            onEdit={onEditTask}
-                          />
-                          <ul
-                            className="ml-3 flex flex-col gap-1 border-l pl-2"
-                            style={{ borderColor: "var(--color-rule)" }}
-                          >
-                            {children.map((child) => (
-                              <BacklogTaskRow
-                                key={child.id}
-                                task={child}
-                                index={indexByTaskId.get(child.id) ?? 0}
-                                draggable
-                                showMeta={showMeta}
-                                onEdit={onEditTask}
-                              />
-                            ))}
-                          </ul>
-                          <button
-                            type="button"
-                            onClick={() => onNewChildTask(task.id, task.project_id)}
-                            className="ml-3 text-left text-xs"
-                            style={{ color: "var(--color-accent)" }}
-                          >
-                            + 子タスク
-                          </button>
-                        </li>
+                        <BacklogTaskRow
+                          key={task.id}
+                          task={task}
+                          index={indexByTaskId.get(task.id) ?? 0}
+                          draggable
+                          showMeta={showMeta}
+                          onEdit={onEditTask}
+                          isCompleted={task.status === "done"}
+                        />
                       );
-                    }
-
-                    if (!task.is_leaf) return null;
-
-                    return (
-                      <BacklogTaskRow
-                        key={task.id}
-                        task={task}
-                        index={indexByTaskId.get(task.id) ?? 0}
-                        draggable
-                        showMeta={showMeta}
-                        onEdit={onEditTask}
-                      />
-                    );
-                  })}
-                </ul>
-              </section>
-            ))
+                    })}
+                  </ul>
+                </section>
+              ))}
+            </>
           )}
           {provided.placeholder}
         </div>
@@ -277,12 +286,16 @@ function SidebarHeader({
   onNewTask,
   sortMode,
   onSortChange,
+  showDone,
+  onShowDoneChange,
 }: {
   onClose: () => void;
   onNewProject: () => void;
   onNewTask: () => void;
   sortMode: BacklogSortMode;
   onSortChange: (mode: BacklogSortMode) => void;
+  showDone: boolean;
+  onShowDoneChange: (value: boolean) => void;
 }) {
   return (
     <header
@@ -344,6 +357,18 @@ function SidebarHeader({
             </button>
           );
         })}
+        <button
+          type="button"
+          onClick={() => onShowDoneChange(!showDone)}
+          className="rounded-[var(--radius-sm)] border px-2 py-0.5 text-[10px] transition-colors"
+          style={{
+            borderColor: showDone ? "var(--color-accent)" : "var(--color-rule)",
+            background: showDone ? "color-mix(in srgb, var(--color-accent) 12%, transparent)" : "transparent",
+            color: showDone ? "var(--color-accent)" : "var(--color-ink-muted)",
+          }}
+        >
+          完了も表示
+        </button>
       </div>
     </header>
   );
@@ -364,6 +389,7 @@ export function BacklogPanel({
   const [newTaskParentId, setNewTaskParentId] = useState<string | null>(null);
   const [newTaskProjectId, setNewTaskProjectId] = useState<string | null>(null);
   const [sortMode, setSortMode] = useState<BacklogSortMode>("project");
+  const [showDone, setShowDone] = useState(false);
 
   useEffect(() => {
     const stored = readStoredSortMode();
@@ -376,13 +402,13 @@ export function BacklogPanel({
   };
 
   const groups = useMemo(() => {
-    if (sortMode === "project") return groupBacklogByProject(projects, tasks);
+    if (sortMode === "project") return groupBacklogByProject(projects, tasks, showDone);
     const sorted =
       sortMode === "due_date"
-        ? sortBacklogByDueDate(tasks)
-        : sortBacklogByPriority(tasks);
-    return buildFlatGroup(sorted);
-  }, [projects, tasks, sortMode]);
+        ? sortBacklogByDueDate(tasks, showDone)
+        : sortBacklogByPriority(tasks, showDone);
+    return buildFlatGroup(sorted, showDone);
+  }, [projects, tasks, sortMode, showDone]);
 
   const draggableLeaves = useMemo(() => collectDraggableLeaves(groups), [groups]);
   const indexByTaskId = useMemo(
@@ -399,6 +425,9 @@ export function BacklogPanel({
   const contentProps = {
     groups,
     indexByTaskId,
+    showDone,
+    showGroupHeaders: sortMode === "project",
+    showMeta: sortMode !== "project",
     onEditProject: setEditProject,
     onEditTask: setEditTask,
     onNewChildTask: (parentId: string, projectId: string | null) => {
@@ -474,6 +503,8 @@ export function BacklogPanel({
             onNewTask={openNewTask}
             sortMode={sortMode}
             onSortChange={handleSortChange}
+            showDone={showDone}
+            onShowDoneChange={setShowDone}
           />
           <BacklogContent
             {...contentProps}
@@ -497,8 +528,21 @@ export function BacklogPanel({
           }}
           onDelete={async (id) => {
             const res = await deleteProject(id);
-            if (!res.success) showToast(res.error);
-            else {
+            if (!res.success) {
+              if (res.error === "タスクが紐づいているプロジェクトは削除できません") {
+                if (window.confirm("このプロジェクトにはタスクがあります。タスクをInboxに移動してから削除しますか？")) {
+                  const res2 = await reassignAndDeleteProject(id);
+                  if (!res2.success) showToast(res2.error);
+                  else {
+                    showToast("プロジェクトを削除しました", "success");
+                    setEditProject(null);
+                    onChanged();
+                  }
+                }
+              } else {
+                showToast(res.error);
+              }
+            } else {
               showToast("プロジェクトを削除しました", "success");
               setEditProject(null);
               onChanged();

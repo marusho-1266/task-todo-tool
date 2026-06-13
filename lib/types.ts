@@ -43,6 +43,7 @@ export type BacklogTask = {
   due_date: string | null;
   description: string | null;
   priority: number;
+  completed_at: string | null;
 };
 
 export const BACKLOG_SORT_MODES = ["project", "due_date", "priority"] as const;

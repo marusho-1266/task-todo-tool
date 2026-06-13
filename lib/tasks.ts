@@ -2,7 +2,7 @@ import { isInterruptBucketTask } from "@/lib/interrupt";
 import { isBacklogStatus, type BacklogProject, type BacklogTask } from "@/lib/types";
 
 export const TASK_SELECT =
-  "id, title, project_id, parent_id, is_leaf, status, estimate_minutes, due_date, description, priority" as const;
+  "id, title, project_id, parent_id, is_leaf, status, estimate_minutes, due_date, description, priority, completed_at" as const;
 
 export const PROJECT_SELECT =
   "id, title, is_system, color, status, description, category" as const;
@@ -24,6 +24,7 @@ function parseBacklogTask(value: unknown): BacklogTask | null {
     due_date: typeof row.due_date === "string" ? row.due_date : null,
     description: typeof row.description === "string" ? row.description : null,
     priority: typeof row.priority === "number" ? row.priority : 0,
+    completed_at: typeof row.completed_at === "string" ? row.completed_at : null,
   };
 }
 
@@ -76,12 +77,13 @@ export function parseBacklogTaskDraggableId(
 export function groupBacklogByProject(
   projects: BacklogProject[],
   tasks: BacklogTask[],
+  showDone: boolean = false,
 ): {
   project: BacklogProject | null;
   tasks: BacklogTask[];
   children: Map<string, BacklogTask[]>;
 }[] {
-  const activeTasks = tasks.filter((t) => t.status !== "done");
+  const activeTasks = showDone ? tasks : tasks.filter((t) => t.status !== "done");
   const parentIds = new Set(
     activeTasks.filter((t) => t.parent_id).map((t) => t.parent_id!),
   );
@@ -126,8 +128,8 @@ export function groupBacklogByProject(
   return groups;
 }
 
-export function sortBacklogByDueDate(tasks: BacklogTask[]): BacklogTask[] {
-  const active = tasks.filter((t) => t.status !== "done");
+export function sortBacklogByDueDate(tasks: BacklogTask[], showDone: boolean = false): BacklogTask[] {
+  const active = showDone ? tasks : tasks.filter((t) => t.status !== "done");
   return [...active].sort((a, b) => {
     if (a.due_date && b.due_date) return a.due_date.localeCompare(b.due_date);
     if (a.due_date) return -1;
@@ -136,8 +138,8 @@ export function sortBacklogByDueDate(tasks: BacklogTask[]): BacklogTask[] {
   });
 }
 
-export function sortBacklogByPriority(tasks: BacklogTask[]): BacklogTask[] {
-  const active = tasks.filter((t) => t.status !== "done");
+export function sortBacklogByPriority(tasks: BacklogTask[], showDone: boolean = false): BacklogTask[] {
+  const active = showDone ? tasks : tasks.filter((t) => t.status !== "done");
   return [...active].sort((a, b) => {
     const diff = b.priority - a.priority;
     if (diff !== 0) return diff;
@@ -147,8 +149,10 @@ export function sortBacklogByPriority(tasks: BacklogTask[]): BacklogTask[] {
 
 export function buildFlatGroup(
   tasks: BacklogTask[],
+  showDone: boolean = false,
 ): ReturnType<typeof groupBacklogByProject> {
-  const roots = tasks.filter((t) => !t.parent_id);
+  const allRoots = tasks.filter((t) => !t.parent_id);
+  const roots = showDone ? allRoots : allRoots.filter((t) => t.status !== "done");
   const childTasks = tasks.filter((t) => t.parent_id);
   const children = new Map<string, BacklogTask[]>();
   for (const root of roots) {

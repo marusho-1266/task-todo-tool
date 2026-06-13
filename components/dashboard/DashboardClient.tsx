@@ -1,6 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
 import {
   getDefaultBacklogSidebarOpen,
@@ -219,6 +220,17 @@ export function DashboardClient({
               >
                 {userEmail}
               </span>
+              <Link
+                href="/projects"
+                className="rounded-[var(--radius-sm)] border px-2.5 py-1 text-xs transition-colors hover:bg-[var(--color-paper-2)]"
+                style={{
+                  borderColor: "var(--color-rule)",
+                  color: "var(--color-ink-muted)",
+                  fontFamily: "var(--font-body)",
+                }}
+              >
+                プロジェクト管理
+              </Link>
               <form action={signOut}>
                 <button
                   type="submit"

@@ -165,7 +165,14 @@ export async function updateTask(
       if (!trimmed) return { success: false, error: "タイトルを入力してください" };
       updates.title = trimmed;
     }
-    if (fields.status !== undefined) updates.status = fields.status;
+    if (fields.status !== undefined) {
+      updates.status = fields.status;
+      if (fields.status === "done") {
+        updates.completed_at = new Date().toISOString();
+      } else {
+        updates.completed_at = null;
+      }
+    }
     if (fields.description !== undefined) updates.description = fields.description;
     if (fields.estimateMinutes !== undefined) {
       updates.estimate_minutes = fields.estimateMinutes;
