@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useRef } from "react";
 import { Droppable } from "@hello-pangea/dnd";
-import { moveTodoToUnplaced, updateTodoSchedule } from "@/app/actions/todos";
+import { updateTodoSchedule, deleteTodo } from "@/app/actions/todos";
 import { startSession } from "@/app/actions/sessions";
 import {
   TIMELINE_START_HOUR,
@@ -493,15 +493,16 @@ function PlacedBlock({
                   onPointerDown={(e) => e.stopPropagation()}
                   onClick={async (e) => {
                     e.stopPropagation();
-                    const res = await moveTodoToUnplaced(todo.id);
+                    if (!window.confirm("この計画を削除しますか？")) return;
+                    const res = await deleteTodo(todo.id);
                     if (!res.success) showToast(res.error);
                     else onUpdated();
                   }}
                   className="rounded px-1 py-0.5 text-xs leading-none"
                   style={{ color: "var(--color-ink-muted)" }}
-                  title="未配置へ戻す"
+                  title="計画を削除"
                 >
-                  外す
+                  削除
                 </button>
               </div>
             )}
@@ -555,15 +556,16 @@ function PlacedBlock({
                 onPointerDown={(e) => e.stopPropagation()}
                 onClick={async (e) => {
                   e.stopPropagation();
-                  const res = await moveTodoToUnplaced(todo.id);
+                  if (!window.confirm("この計画を削除しますか？")) return;
+                  const res = await deleteTodo(todo.id);
                   if (!res.success) showToast(res.error);
                   else onUpdated();
                 }}
                 className="rounded px-1 py-0.5 text-xs"
                 style={{ color: "var(--color-ink-muted)" }}
-                title="未配置へ戻す"
+                title="計画を削除"
               >
-                外す
+                削除
               </button>
             </div>
           )}

@@ -109,9 +109,7 @@ export async function updateTodoSchedule(
   }
 }
 
-export async function moveTodoToUnplaced(
-  todoId: string,
-): Promise<ActionResult> {
+export async function deleteTodo(todoId: string): Promise<ActionResult> {
   try {
     const { supabase, user } = await getAuthedUser();
 
@@ -125,12 +123,12 @@ export async function moveTodoToUnplaced(
     if (fetchError) return { success: false, error: fetchError.message };
     if (!existing) return { success: false, error: "Todo が見つかりません" };
     if (existing.status === "rolled_over") {
-      return { success: false, error: "繰越済みの Todo は変更できません" };
+      return { success: false, error: "繰越済みの Todo は削除できません" };
     }
 
     const { error } = await supabase
       .from("todos")
-      .update({ scheduled_start: null })
+      .delete()
       .eq("id", todoId)
       .eq("user_id", user.id);
 
@@ -141,35 +139,7 @@ export async function moveTodoToUnplaced(
   } catch (e) {
     return {
       success: false,
-      error: e instanceof Error ? e.message : "更新に失敗しました",
-    };
-  }
-}
-
-export async function addUnplacedTodo(
-  taskId: string,
-  date: string,
-  plannedMinutes = 30,
-): Promise<ActionResult> {
-  try {
-    const { supabase, user } = await getAuthedUser();
-
-    const { error } = await supabase.from("todos").insert({
-      user_id: user.id,
-      task_id: taskId,
-      date,
-      planned_minutes: plannedMinutes,
-      status: "pending",
-    });
-
-    if (error) return { success: false, error: error.message };
-
-    revalidatePath("/");
-    return { success: true };
-  } catch (e) {
-    return {
-      success: false,
-      error: e instanceof Error ? e.message : "追加に失敗しました",
+      error: e instanceof Error ? e.message : "削除に失敗しました",
     };
   }
 }

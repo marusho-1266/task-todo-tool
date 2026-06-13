@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { updateTodoSchedule, moveTodoToUnplaced } from "@/app/actions/todos";
+import { updateTodoSchedule } from "@/app/actions/todos";
 import { useToast } from "@/components/ui/Toast";
 import {
   formatDateParam,
@@ -27,20 +27,6 @@ export function EditTodoScheduleModal({ todo, onClose, onSaved }: Props) {
   const scheduledDate = new Date(todo.scheduled_start!);
   const [scheduledAt, setScheduledAt] = useState(toLocalInputValue(scheduledDate));
   const [plannedMinutes, setPlannedMinutes] = useState(todo.planned_minutes);
-
-  async function handleRemove() {
-    if (!window.confirm("計画をタイムラインから外しますか？")) return;
-    setLoading(true);
-    const result = await moveTodoToUnplaced(todo.id);
-    setLoading(false);
-    if (!result.success) {
-      showToast(result.error);
-      return;
-    }
-    showToast("タイムラインから外しました", "success");
-    onSaved();
-    onClose();
-  }
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -123,21 +109,8 @@ export function EditTodoScheduleModal({ todo, onClose, onSaved }: Props) {
             }}
           />
         </label>
-        <div className="mt-4 flex items-center justify-between gap-2">
+        <div className="mt-4 flex justify-end gap-2">
           <button
-            type="button"
-            onClick={handleRemove}
-            disabled={loading}
-            className="rounded-[var(--radius-sm)] border px-3 py-1.5 text-sm disabled:opacity-50"
-            style={{
-              borderColor: "var(--color-warn-border)",
-              color: "var(--color-warn)",
-            }}
-          >
-            {loading ? "処理中…" : "外す"}
-          </button>
-          <div className="flex gap-2">
-            <button
               type="button"
               onClick={onClose}
               disabled={loading}
@@ -157,7 +130,6 @@ export function EditTodoScheduleModal({ todo, onClose, onSaved }: Props) {
             >
               {loading ? "保存中…" : "保存"}
             </button>
-          </div>
         </div>
       </form>
     </div>

@@ -29,6 +29,28 @@ export async function getProjects(): Promise<BacklogProject[]> {
   return parseBacklogProjects(data);
 }
 
+export async function getProjectsWithTaskCount(): Promise<
+  (BacklogProject & { task_count: number })[]
+> {
+  const { supabase, user } = await getAuthedUser();
+
+  const { data, error } = await supabase
+    .from("projects")
+    .select(`${PROJECT_SELECT}, tasks(count)`)
+    .eq("user_id", user.id)
+    .is("archived_at", null)
+    .order("is_system", { ascending: false })
+    .order("title");
+
+  if (error) throw new Error(error.message);
+
+  const projects = parseBacklogProjects(data);
+  return projects.map((p, i) => ({
+    ...p,
+    task_count: data[i]?.tasks?.[0]?.count ?? 0,
+  }));
+}
+
 export async function createProject(
   title: string,
   category?: string,
@@ -149,6 +171,63 @@ export async function deleteProject(projectId: string): Promise<ActionResult> {
         error: "タスクが紐づいているプロジェクトは削除できません",
       };
     }
+
+    const { error } = await supabase
+      .from("projects")
+      .delete()
+      .eq("id", projectId)
+      .eq("user_id", user.id);
+
+    if (error) return { success: false, error: error.message };
+
+    revalidatePath("/");
+    return { success: true };
+  } catch (e) {
+    return {
+      success: false,
+      error: e instanceof Error ? e.message : "削除に失敗しました",
+    };
+  }
+}
+
+export async function reassignAndDeleteProject(projectId: string): Promise<ActionResult> {
+  try {
+    const { supabase, user } = await getAuthedUser();
+
+    const { data: existing } = await supabase
+      .from("projects")
+      .select("is_system")
+      .eq("id", projectId)
+      .eq("user_id", user.id)
+      .single();
+
+    if (!existing) {
+      return { success: false, error: "プロジェクトが見つかりません" };
+    }
+
+    if (existing.is_system) {
+      return { success: false, error: "システムプロジェクトは削除できません" };
+    }
+
+    const { data: inbox } = await supabase
+      .from("projects")
+      .select("id")
+      .eq("user_id", user.id)
+      .eq("is_system", true)
+      .eq("title", "Inbox")
+      .single();
+
+    if (!inbox) {
+      return { success: false, error: "Inboxプロジェクトが見つかりません" };
+    }
+
+    const { error: moveError } = await supabase
+      .from("tasks")
+      .update({ project_id: inbox.id })
+      .eq("project_id", projectId)
+      .eq("user_id", user.id);
+
+    if (moveError) return { success: false, error: moveError.message };
 
     const { error } = await supabase
       .from("projects")

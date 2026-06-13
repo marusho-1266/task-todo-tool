@@ -10,14 +10,8 @@ import {
 } from "@/lib/backlog-sidebar";
 import { DragDropContext, type DropResult } from "@hello-pangea/dnd";
 import { signOut } from "@/app/actions/auth";
-import {
-  addUnplacedTodoFromBacklog,
-  scheduleBacklogTask,
-} from "@/app/actions/tasks";
-import {
-  moveTodoToUnplaced,
-  updateTodoSchedule,
-} from "@/app/actions/todos";
+import { scheduleBacklogTask } from "@/app/actions/tasks";
+import { updateTodoSchedule } from "@/app/actions/todos";
 import { parseBacklogTaskDraggableId } from "@/lib/tasks";
 import { formatDisplayDate, isToday, slotIndexToMinutes } from "@/lib/time";
 import type { BacklogProject, BacklogTask, Todo, WorkSession } from "@/lib/types";
@@ -27,7 +21,6 @@ import { DateNav } from "@/components/dashboard/DateNav";
 import { PrepareTomorrowModal } from "@/components/prepare-tomorrow/PrepareTomorrowModal";
 import { SessionBar } from "@/components/session-bar/SessionBar";
 import { Timeline } from "@/components/timeline/Timeline";
-import { UnplacedPanel } from "@/components/unplaced/UnplacedPanel";
 import { EditSessionModal } from "@/components/sessions/EditSessionModal";
 import { EditTodoScheduleModal } from "@/components/sessions/EditTodoScheduleModal";
 import { ManualSessionModal } from "@/components/sessions/ManualSessionModal";
@@ -77,12 +70,6 @@ export function DashboardClient({
     persistBacklogSidebarOpen(open);
   }, []);
 
-  const unplaced = todos.filter(
-    (t) => !t.scheduled_start && t.status === "pending",
-  );
-  const rolledOverUnplaced = todos.filter(
-    (t) => !t.scheduled_start && t.status === "rolled_over",
-  );
   const placed = todos.filter(
     (t) =>
       t.scheduled_start &&
@@ -101,13 +88,6 @@ export function DashboardClient({
 
       const backlogTaskId = parseBacklogTaskDraggableId(draggableId);
       if (backlogTaskId) {
-        if (destination.droppableId === "unplaced") {
-          const res = await addUnplacedTodoFromBacklog(backlogTaskId, dateStr);
-          if (!res.success) showToast(res.error);
-          else refresh();
-          return;
-        }
-
         if (destination.droppableId.startsWith("slot-")) {
           const slotIndex = parseInt(
             destination.droppableId.replace("slot-", ""),
@@ -128,14 +108,6 @@ export function DashboardClient({
       const todo = todos.find((t) => t.id === draggableId);
       if (!todo) return;
       if (todo.status === "rolled_over") return;
-
-      if (destination.droppableId === "unplaced") {
-        if (source.droppableId === "unplaced") return;
-        const res = await moveTodoToUnplaced(draggableId);
-        if (!res.success) showToast(res.error);
-        else refresh();
-        return;
-      }
 
       if (destination.droppableId.startsWith("slot-")) {
         const slotIndex = parseInt(
@@ -256,7 +228,7 @@ export function DashboardClient({
             onOpenChange={handleBacklogOpenChange}
             onChanged={refresh}
           />
-          <div className="flex min-h-0 min-w-0 flex-1 flex-col lg:flex-row">
+          <div className="flex min-h-0 min-w-0 flex-1">
             <Timeline
               date={dateStr}
               placedTodos={placed}
@@ -266,10 +238,6 @@ export function DashboardClient({
               onUpdated={refresh}
               onEditSession={setEditSession}
               onEditTodo={setEditTodo}
-            />
-            <UnplacedPanel
-              todos={unplaced}
-              rolledOverTodos={rolledOverUnplaced}
             />
           </div>
         </div>
