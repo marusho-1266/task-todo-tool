@@ -46,7 +46,11 @@ export type BacklogTask = {
   completed_at: string | null;
 };
 
-export const BACKLOG_SORT_MODES = ["project", "due_date", "priority"] as const;
+export const BACKLOG_SORT_MODES = [
+  "project",
+  "due_date_priority",
+  "priority_due_date",
+] as const;
 export type BacklogSortMode = (typeof BACKLOG_SORT_MODES)[number];
 
 export const TODO_STATUSES = ["pending", "done", "rolled_over"] as const;

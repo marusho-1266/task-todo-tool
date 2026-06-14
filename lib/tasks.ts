@@ -128,21 +128,38 @@ export function groupBacklogByProject(
   return groups;
 }
 
-export function sortBacklogByDueDate(tasks: BacklogTask[], showDone: boolean = false): BacklogTask[] {
+export function sortBacklogByDueDateAndPriority(
+  tasks: BacklogTask[],
+  showDone: boolean = false,
+): BacklogTask[] {
   const active = showDone ? tasks : tasks.filter((t) => t.status !== "done");
   return [...active].sort((a, b) => {
-    if (a.due_date && b.due_date) return a.due_date.localeCompare(b.due_date);
+    if (a.due_date && b.due_date) {
+      const dateCompare = a.due_date.localeCompare(b.due_date);
+      if (dateCompare !== 0) return dateCompare;
+      const priorityDiff = b.priority - a.priority;
+      if (priorityDiff !== 0) return priorityDiff;
+      return a.title.localeCompare(b.title);
+    }
     if (a.due_date) return -1;
     if (b.due_date) return 1;
+    const priorityDiff = b.priority - a.priority;
+    if (priorityDiff !== 0) return priorityDiff;
     return a.title.localeCompare(b.title);
   });
 }
 
-export function sortBacklogByPriority(tasks: BacklogTask[], showDone: boolean = false): BacklogTask[] {
+export function sortBacklogByPriorityAndDueDate(
+  tasks: BacklogTask[],
+  showDone: boolean = false,
+): BacklogTask[] {
   const active = showDone ? tasks : tasks.filter((t) => t.status !== "done");
   return [...active].sort((a, b) => {
-    const diff = b.priority - a.priority;
-    if (diff !== 0) return diff;
+    const priorityDiff = b.priority - a.priority;
+    if (priorityDiff !== 0) return priorityDiff;
+    if (a.due_date && b.due_date) return a.due_date.localeCompare(b.due_date);
+    if (a.due_date) return -1;
+    if (b.due_date) return 1;
     return a.title.localeCompare(b.title);
   });
 }

@@ -1,3 +1,5 @@
+import type { BacklogSortMode } from "./types";
+
 export const BACKLOG_SIDEBAR_STORAGE_KEY = "task-todo-backlog-sidebar";
 
 export function readStoredBacklogSidebarOpen(): boolean | null {
@@ -21,14 +23,15 @@ export function persistBacklogSidebarOpen(open: boolean): void {
 
 const BACKLOG_SORT_STORAGE_KEY = "task-todo-backlog-sort";
 
-export function readStoredSortMode(): "project" | "due_date" | "priority" | null {
+export function readStoredSortMode(): BacklogSortMode | null {
   if (typeof window === "undefined") return null;
   const value = localStorage.getItem(BACKLOG_SORT_STORAGE_KEY);
-  if (value === "project" || value === "due_date" || value === "priority") return value;
+  const modes = ["project", "due_date_priority", "priority_due_date"];
+  if (modes.includes(value as string)) return value as BacklogSortMode;
   return null;
 }
 
-export function persistSortMode(mode: "project" | "due_date" | "priority"): void {
+export function persistSortMode(mode: BacklogSortMode): void {
   if (typeof window === "undefined") return;
   localStorage.setItem(BACKLOG_SORT_STORAGE_KEY, mode);
 }

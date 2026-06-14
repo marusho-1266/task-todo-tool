@@ -8,8 +8,8 @@ import {
   backlogTaskDraggableId,
   buildFlatGroup,
   groupBacklogByProject,
-  sortBacklogByDueDate,
-  sortBacklogByPriority,
+  sortBacklogByDueDateAndPriority,
+  sortBacklogByPriorityAndDueDate,
 } from "@/lib/tasks";
 import type { BacklogProject, BacklogSortMode, BacklogTask } from "@/lib/types";
 import {
@@ -161,6 +161,7 @@ function BacklogContent({
   indexByTaskId: Map<string, number>;
   showGroupHeaders: boolean;
   showMeta: boolean;
+  showDone: boolean;
   onEditProject: (project: BacklogProject) => void;
   onEditTask: (task: BacklogTask) => void;
   onNewChildTask: (parentId: string, projectId: string | null) => void;
@@ -276,8 +277,8 @@ function BacklogContent({
 
 const SORT_MODE_LABELS: Record<BacklogSortMode, string> = {
   project: "プロジェクト",
-  due_date: "期日順",
-  priority: "優先度順",
+  due_date_priority: "期日順",
+  priority_due_date: "優先度順",
 };
 
 function SidebarHeader({
@@ -339,7 +340,7 @@ function SidebarHeader({
         </button>
       </div>
       <div className="flex gap-1">
-        {(["project", "due_date", "priority"] as const).map((mode) => {
+        {(["project", "due_date_priority", "priority_due_date"] as const).map((mode) => {
           const active = sortMode === mode;
           return (
             <button
@@ -404,9 +405,9 @@ export function BacklogPanel({
   const groups = useMemo(() => {
     if (sortMode === "project") return groupBacklogByProject(projects, tasks, showDone);
     const sorted =
-      sortMode === "due_date"
-        ? sortBacklogByDueDate(tasks, showDone)
-        : sortBacklogByPriority(tasks, showDone);
+      sortMode === "due_date_priority"
+        ? sortBacklogByDueDateAndPriority(tasks, showDone)
+        : sortBacklogByPriorityAndDueDate(tasks, showDone);
     return buildFlatGroup(sorted, showDone);
   }, [projects, tasks, sortMode, showDone]);
 
