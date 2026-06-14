@@ -1,10 +1,9 @@
 import { isTodoStatus, type Task, type Todo } from "@/lib/types";
 
 export const INBOX_PROJECT_NAME = "Inbox";
-export const QUICK_ADD_PLANNED_MINUTES = 10;
 
 export const TODO_WITH_TASK_SELECT =
-  "id, user_id, task_id, date, scheduled_start, planned_minutes, status, tasks(id, title, project_id, actual_minutes, is_leaf)" as const;
+  "id, user_id, task_id, date, scheduled_start, planned_minutes, status, is_ad_hoc, tasks(id, title, project_id, actual_minutes, is_leaf)" as const;
 
 function parseTask(value: unknown): Task | null {
   if (!value || typeof value !== "object") return null;
@@ -50,6 +49,7 @@ function parseTodoRow(value: unknown): Todo | null {
       typeof row.scheduled_start === "string" ? row.scheduled_start : null,
     planned_minutes: row.planned_minutes,
     status: row.status,
+    is_ad_hoc: typeof row.is_ad_hoc === "boolean" ? row.is_ad_hoc : false,
     tasks,
   };
 }

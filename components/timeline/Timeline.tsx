@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useRef } from "react";
 import { Droppable } from "@hello-pangea/dnd";
-import { moveTodoToUnplaced, updateTodoSchedule } from "@/app/actions/todos";
+import { updateTodoSchedule, deleteTodo } from "@/app/actions/todos";
 import { startSession } from "@/app/actions/sessions";
 import {
   TIMELINE_START_HOUR,
@@ -25,6 +25,11 @@ import type { Todo, WorkSession } from "@/lib/types";
 import { useToast } from "@/components/ui/Toast";
 import { QuickAddModal } from "@/components/timeline/QuickAddModal";
 import { SessionBlock } from "@/components/timeline/SessionBlock";
+import {
+  buildTimelineCsv,
+  downloadTimelineCsv,
+  hasTimelineExportData,
+} from "@/lib/timeline-csv";
 
 type Props = {
   date: string;
@@ -34,6 +39,7 @@ type Props = {
   activeSessionTodoId: string | null;
   onUpdated: () => void;
   onEditSession: (session: WorkSession) => void;
+  onEditTodo?: (todo: Todo) => void;
 };
 
 export function Timeline({
@@ -44,6 +50,7 @@ export function Timeline({
   activeSessionTodoId,
   onUpdated,
   onEditSession,
+  onEditTodo,
 }: Props) {
   const { showToast } = useToast();
   const timelineRef = useRef<HTMLDivElement>(null);
@@ -57,6 +64,16 @@ export function Timeline({
   const slotCount = getSlotCount();
   const heightPx = getTimelineHeightPx();
 
+  const handleExportCsv = useCallback(() => {
+    if (!hasTimelineExportData(placedTodos, daySessions)) {
+      showToast("エクスポートするデータがありません");
+      return;
+    }
+    const csv = buildTimelineCsv(date, placedTodos, daySessions);
+    downloadTimelineCsv(csv, date);
+    showToast("CSVをダウンロードしました", "success");
+  }, [date, daySessions, placedTodos, showToast]);
+
   const handleBlockMoveStart = useCallback(
     (todo: Todo, e: React.PointerEvent) => {
       if ((e.target as HTMLElement).closest('[role="separator"]')) return;
@@ -64,8 +81,10 @@ export function Timeline({
       const startY = e.clientY;
       const origMinutes = minutesFromDayStart(todo.scheduled_start!, date);
       const el = (e.currentTarget as HTMLElement);
+      let hasDragged = false;
 
       const onMove = (ev: PointerEvent) => {
+        if (Math.abs(ev.clientY - startY) > 3) hasDragged = true;
         const deltaY = ev.clientY - startY;
         const newMinutes = snapMinutes(
           origMinutes + deltaY / PX_PER_MINUTE,
@@ -80,6 +99,10 @@ export function Timeline({
       const onUp = async (ev: PointerEvent) => {
         document.removeEventListener("pointermove", onMove);
         document.removeEventListener("pointerup", onUp);
+        if (!hasDragged) {
+          onEditTodo?.(todo);
+          return;
+        }
         const deltaY = ev.clientY - startY;
         const newMinutes = snapMinutes(
           origMinutes + deltaY / PX_PER_MINUTE,
@@ -101,7 +124,7 @@ export function Timeline({
       document.addEventListener("pointermove", onMove);
       document.addEventListener("pointerup", onUp);
     },
-    [date, onUpdated, showToast],
+    [date, onEditTodo, onUpdated, showToast],
   );
 
   return (
@@ -142,6 +165,19 @@ export function Timeline({
               右=実績
             </span>
           </div>
+          <button
+            type="button"
+            onClick={handleExportCsv}
+            className="rounded-[var(--radius-sm)] border px-2.5 py-1 text-xs transition-colors hover:bg-[var(--color-paper-2)]"
+            style={{
+              borderColor: "var(--color-rule)",
+              color: "var(--color-ink-muted)",
+              fontFamily: "var(--font-body)",
+            }}
+            title="タイムラインの計画・実績をCSVでダウンロード"
+          >
+            CSV
+          </button>
           <QuickAddModal date={date} onAdded={onUpdated} />
         </div>
       </header>
@@ -242,6 +278,7 @@ export function Timeline({
             const heightPx = todo.planned_minutes * PX_PER_MINUTE;
             const isOverlapping = overlappingIds.has(todo.id);
             const isActive = activeSessionTodoId === todo.id;
+            const isRolledOver = todo.status === "rolled_over";
             const title = todo.tasks?.title ?? "（無題）";
             const startDt = new Date(todo.scheduled_start);
             const timeLabel = formatTimeLabel(
@@ -258,6 +295,7 @@ export function Timeline({
                 heightPx={heightPx}
                 isOverlapping={isOverlapping}
                 isActive={isActive}
+                isRolledOver={isRolledOver}
                 activeSessionTodoId={activeSessionTodoId}
                 title={title}
                 timeLabel={timeLabel}
@@ -279,6 +317,7 @@ type BlockProps = {
   heightPx: number;
   isOverlapping: boolean;
   isActive: boolean;
+  isRolledOver: boolean;
   activeSessionTodoId: string | null;
   title: string;
   timeLabel: string;
@@ -299,6 +338,7 @@ function PlacedBlock({
   heightPx,
   isOverlapping,
   isActive,
+  isRolledOver,
   activeSessionTodoId,
   title,
   timeLabel,
@@ -384,43 +424,114 @@ function PlacedBlock({
   const isShort = heightPx < BLOCK_SHORT_LAYOUT_HEIGHT_PX;
   const blockTooltip = isShort
     ? formatPlanTooltip(timeLabel, todo.planned_minutes, title)
-    : undefined;
+    : isRolledOver
+      ? `繰越済 ${timeLabel}·${todo.planned_minutes}分 — ${title}`
+      : undefined;
 
   return (
     <div
       ref={blockRef}
       data-todo-block
-      className={`${PLAN_LANE_CLASS} cursor-grab rounded-[var(--radius-sm)] border border-dashed text-sm shadow-sm active:cursor-grabbing ${
-        isShort ? "overflow-x-hidden overflow-y-visible" : "overflow-hidden"
-      }`}
+      className={`${PLAN_LANE_CLASS} rounded-[var(--radius-sm)] border border-dashed text-sm ${
+        isRolledOver ? "" : "cursor-grab shadow-sm active:cursor-grabbing"
+      } ${isShort ? "overflow-x-hidden overflow-y-visible" : "overflow-hidden"}`}
       style={{
         top: topPx,
         height: heightPx,
-        borderColor: isOverlapping
-          ? "var(--color-warn-border)"
-          : isActive
-            ? "var(--color-plan)"
-            : "var(--color-plan-border)",
-        background: isOverlapping
-          ? "color-mix(in srgb, var(--color-warn-soft) 75%, transparent)"
-          : isActive
-            ? "color-mix(in srgb, var(--color-plan-soft) 90%, transparent)"
-            : "color-mix(in srgb, var(--color-plan) 16%, transparent)",
-        zIndex: isActive ? 20 : 10,
+        borderColor: isRolledOver
+          ? "var(--color-plan-border)"
+          : isOverlapping
+            ? "var(--color-warn-border)"
+            : isActive
+              ? "var(--color-plan)"
+              : "var(--color-plan-border)",
+        background: isRolledOver
+          ? "color-mix(in srgb, var(--color-plan) 8%, transparent)"
+          : isOverlapping
+            ? "color-mix(in srgb, var(--color-warn-soft) 75%, transparent)"
+            : isActive
+              ? "color-mix(in srgb, var(--color-plan-soft) 90%, transparent)"
+              : "color-mix(in srgb, var(--color-plan) 16%, transparent)",
+        opacity: isRolledOver ? 0.55 : 1,
+        zIndex: isActive ? 20 : isRolledOver ? 8 : 10,
         fontFamily: "var(--font-body)",
       }}
       title={blockTooltip}
-      onPointerDown={(e) => onMoveStart(todo, e)}
+      onPointerDown={isRolledOver ? undefined : (e) => onMoveStart(todo, e)}
     >
       {isShort ? (
         <div className="relative h-full min-h-0 w-full">
           <div className="absolute inset-x-0 top-1/2 flex -translate-y-1/2 items-center gap-1 px-1.5 py-1">
             <span
               className="min-w-0 flex-1 truncate text-xs font-medium leading-none"
-              style={{ color: "var(--color-ink)" }}
+              style={{ color: isRolledOver ? "var(--color-ink-muted)" : "var(--color-ink)" }}
             >
               {title}
             </span>
+            {!isRolledOver && (
+              <div className="flex shrink-0 gap-0.5">
+                {activeSessionTodoId !== todo.id && (
+                  <button
+                    type="button"
+                    onPointerDown={(e) => e.stopPropagation()}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleStart();
+                    }}
+                    className="rounded px-1 py-0.5 text-xs font-medium leading-none"
+                    style={{
+                      background: "var(--color-plan)",
+                      color: "var(--color-accent-ink)",
+                    }}
+                    title="計測開始"
+                  >
+                    ▶
+                  </button>
+                )}
+                <button
+                  type="button"
+                  onPointerDown={(e) => e.stopPropagation()}
+                  onClick={async (e) => {
+                    e.stopPropagation();
+                    if (!window.confirm("この計画を削除しますか？")) return;
+                    const res = await deleteTodo(todo.id);
+                    if (!res.success) showToast(res.error);
+                    else onUpdated();
+                  }}
+                  className="rounded px-1 py-0.5 text-xs leading-none"
+                  style={{ color: "var(--color-ink-muted)" }}
+                  title="計画を削除"
+                >
+                  削除
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
+      ) : (
+      <div className="flex h-full flex-col px-2 py-1.5">
+        <div className="flex items-start justify-between gap-1">
+          <div className="min-w-0 flex-1">
+            <span
+              className="text-[10px] font-medium uppercase tracking-wider"
+              style={{ color: "var(--color-plan)" }}
+            >
+              {isRolledOver ? "繰越済" : "計画"}
+            </span>
+            <span
+              className="block truncate text-xs tabular-nums"
+              style={{ color: "var(--color-ink-muted)" }}
+            >
+              {timeLabel} · {todo.planned_minutes}分
+            </span>
+            <span
+              className="block truncate font-medium leading-tight"
+              style={{ color: isRolledOver ? "var(--color-ink-muted)" : "var(--color-ink)" }}
+            >
+              {title}
+            </span>
+          </div>
+          {!isRolledOver && (
             <div className="flex shrink-0 gap-0.5">
               {activeSessionTodoId !== todo.id && (
                 <button
@@ -430,7 +541,7 @@ function PlacedBlock({
                     e.stopPropagation();
                     handleStart();
                   }}
-                  className="rounded px-1 py-0.5 text-xs font-medium leading-none"
+                  className="rounded px-1.5 py-0.5 text-xs font-medium"
                   style={{
                     background: "var(--color-plan)",
                     color: "var(--color-accent-ink)",
@@ -445,91 +556,35 @@ function PlacedBlock({
                 onPointerDown={(e) => e.stopPropagation()}
                 onClick={async (e) => {
                   e.stopPropagation();
-                  const res = await moveTodoToUnplaced(todo.id);
+                  if (!window.confirm("この計画を削除しますか？")) return;
+                  const res = await deleteTodo(todo.id);
                   if (!res.success) showToast(res.error);
                   else onUpdated();
                 }}
-                className="rounded px-1 py-0.5 text-xs leading-none"
+                className="rounded px-1 py-0.5 text-xs"
                 style={{ color: "var(--color-ink-muted)" }}
-                title="未配置へ戻す"
+                title="計画を削除"
               >
-                外す
+                削除
               </button>
             </div>
-          </div>
+          )}
         </div>
-      ) : (
-      <div className="flex h-full flex-col px-2 py-1.5">
-        <div className="flex items-start justify-between gap-1">
-          <div className="min-w-0 flex-1">
-            <span
-              className="text-[10px] font-medium uppercase tracking-wider"
-              style={{ color: "var(--color-plan)" }}
-            >
-              計画
-            </span>
-            <span
-              className="block truncate text-xs tabular-nums"
-              style={{ color: "var(--color-ink-muted)" }}
-            >
-              {timeLabel} · {todo.planned_minutes}分
-            </span>
-            <span
-              className="block truncate font-medium leading-tight"
-              style={{ color: "var(--color-ink)" }}
-            >
-              {title}
-            </span>
-          </div>
-          <div className="flex shrink-0 gap-0.5">
-            {activeSessionTodoId !== todo.id && (
-              <button
-                type="button"
-                onPointerDown={(e) => e.stopPropagation()}
-                onClick={(e) => {
-                  e.stopPropagation();
-                  handleStart();
-                }}
-                className="rounded px-1.5 py-0.5 text-xs font-medium"
-                style={{
-                  background: "var(--color-plan)",
-                  color: "var(--color-accent-ink)",
-                }}
-                title="計測開始"
-              >
-                ▶
-              </button>
-            )}
-            <button
-              type="button"
-              onPointerDown={(e) => e.stopPropagation()}
-              onClick={async (e) => {
-                e.stopPropagation();
-                const res = await moveTodoToUnplaced(todo.id);
-                if (!res.success) showToast(res.error);
-                else onUpdated();
-              }}
-              className="rounded px-1 py-0.5 text-xs"
-              style={{ color: "var(--color-ink-muted)" }}
-              title="未配置へ戻す"
-            >
-              外す
-            </button>
-          </div>
-        </div>
-        {isOverlapping && (
+        {isOverlapping && !isRolledOver && (
           <span className="mt-auto text-xs" style={{ color: "var(--color-warn)" }}>
             重なり
           </span>
         )}
       </div>
       )}
-      <div
-        role="separator"
-        aria-label="リサイズ"
-        onPointerDown={handleResizeStart}
-        className="absolute right-0 bottom-0 left-0 h-2 cursor-ns-resize"
-      />
+      {!isRolledOver && (
+        <div
+          role="separator"
+          aria-label="リサイズ"
+          onPointerDown={handleResizeStart}
+          className="absolute right-0 bottom-0 left-0 h-2 cursor-ns-resize"
+        />
+      )}
     </div>
   );
 }

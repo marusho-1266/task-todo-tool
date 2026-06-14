@@ -19,6 +19,7 @@ const mockTodos: Todo[] = [
     scheduled_start: "2026-05-28T00:00:00.000Z",
     planned_minutes: 30,
     status: "pending",
+    is_ad_hoc: false,
     tasks: {
       id: "preview-task-1",
       title: "設計レビュー",
@@ -35,6 +36,7 @@ const mockTodos: Todo[] = [
     scheduled_start: "2026-05-28T01:00:00.000Z",
     planned_minutes: 45,
     status: "pending",
+    is_ad_hoc: false,
     tasks: {
       id: "preview-task-2",
       title: "問合せ対応",

@@ -1,7 +1,7 @@
 import { isValidWorkSessionSource, type WorkSession } from "@/lib/types";
 
 export const WORK_SESSION_SELECT =
-  "id, task_id, todo_id, started_at, ended_at, duration_minutes, source, todos(id, tasks(title))" as const;
+  "id, task_id, todo_id, started_at, ended_at, duration_minutes, source, label, todos(id, tasks(title))" as const;
 
 function parseWorkSession(value: unknown): WorkSession | null {
   if (!value || typeof value !== "object") return null;
@@ -39,6 +39,7 @@ function parseWorkSession(value: unknown): WorkSession | null {
     duration_minutes:
       typeof row.duration_minutes === "number" ? row.duration_minutes : null,
     source: isValidWorkSessionSource(row.source) ? row.source : null,
+    label: typeof row.label === "string" ? row.label : null,
     todos,
   };
 }

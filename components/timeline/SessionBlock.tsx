@@ -19,6 +19,7 @@ import {
   SNAP_MINUTES,
   snapMinutes,
 } from "@/lib/time";
+import { getSessionDisplayTitle } from "@/lib/interrupt";
 import type { WorkSession } from "@/lib/types";
 
 type Props = {
@@ -84,7 +85,7 @@ export function SessionBlock({
   const heightPx = Math.max(durationMin * PX_PER_MINUTE, SNAP_MINUTES * PX_PER_MINUTE);
   const startDt = new Date(session.started_at);
   const timeLabel = formatTimeLabel(startDt.getHours(), startDt.getMinutes());
-  const title = session.todos?.tasks?.title ?? "（無題）";
+  const title = getSessionDisplayTitle(session);
   const durationDisplay = Math.round(durationMin);
   const canManipulate = !isActive && !!session.ended_at;
   const isShort = heightPx < BLOCK_SHORT_LAYOUT_HEIGHT_PX;

@@ -185,7 +185,7 @@ WITH CHECK (auth.uid() = user_id)
 | **リーフタスク**（子なし） | 可 | 可（Todo 経由） |
 
 - 見積・期限・実績は **リーフ** に持つ。親は子の合計を表示
-- 快速追加時: 仮リーフ + Todo 同時作成（デフォルト Inbox）
+- 割込計測時: システムリーフ `（割込記録）` + `is_ad_hoc` Todo + `work_sessions.label`
 
 **推奨インデックス:** `(user_id)`, `(user_id, project_id)`, `(parent_id)`
 
@@ -202,8 +202,9 @@ WITH CHECK (auth.uid() = user_id)
 | `task_id` | タスクID | `uuid` | | FK → `tasks.id`。**NOT NULL** |
 | `date` | 対象日 | `date` | | カレンダー表示の日付 |
 | `scheduled_start` | 予定開始日時 | `timestamptz` | ○ | **NULL = 未配置 Todo** |
-| `planned_minutes` | 予定時間（分） | `integer` | | ブロック長。通常 30、快速追加 10 等 |
+| `planned_minutes` | 予定時間（分） | `integer` | | ブロック長。通常 30。割込計測は 0 |
 | `status` | ステータス | `text` | | `pending` / `done` / `rolled_over` 等 |
+| `is_ad_hoc` | 割込計測用 | `boolean` | | デフォルト `false`。`true` は計画ブロック非表示・繰越除外 |
 | `recurring_rule_id` | 定期ルールID | `uuid` | ○ | FK → `recurring_rules.id`（v1） |
 | `rolled_from_todo_id` | 繰越元Todo ID | `uuid` | ○ | FK → `todos.id` |
 | `created_at` | 作成日時 | `timestamptz` | | |
@@ -217,9 +218,11 @@ WITH CHECK (auth.uid() = user_id)
 
 **繰越（明日を準備）**
 
-1. 翌日に **新規 Todo** を作成（同一 `task_id`）
-2. 今日側 Todo は `status = rolled_over` 等で非アクティブ化
-3. `rolled_from_todo_id` で追跡
+1. 選択単位は **タスク**。同一 `task_id` の pending Todo が複数ある場合は **分数を合算** し翌日 1 件に複写
+2. 翌日に **新規 Todo** を作成（同一 `task_id`、始業時刻から 30分仮配置）
+3. 対象の今日側 Todo はすべて `status = rolled_over` で非アクティブ化（計測・DnD 不可）
+4. 当日画面では `rolled_over` の計画をタイムラインに読み取り専用表示（履歴として残す）
+5. `rolled_from_todo_id` は代表 Todo で追跡
 
 **推奨インデックス:** `(user_id, date)`, `(task_id)`
 
@@ -239,6 +242,7 @@ WITH CHECK (auth.uid() = user_id)
 | `ended_at` | 終了日時 | `timestamptz` | ○ | **NULL = 計測中** |
 | `duration_minutes` | 作業時間（分） | `integer` | ○ | 停止時に算出・確定 |
 | `source` | 記録種別 | `text` | ○ | `timer` / `manual` / `edited` |
+| `label` | 表示ラベル | `text` | ○ | 割込計測のタイトル。UI・CSV で優先 |
 | `created_at` | 作成日時 | `timestamptz` | | |
 | `updated_at` | 更新日時 | `timestamptz` | | |
 

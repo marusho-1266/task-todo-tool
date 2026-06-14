@@ -1,22 +1,28 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useCallback, useState } from "react";
+import Link from "next/link";
+import { useCallback, useEffect, useState } from "react";
+import {
+  getDefaultBacklogSidebarOpen,
+  persistBacklogSidebarOpen,
+  readStoredBacklogSidebarOpen,
+} from "@/lib/backlog-sidebar";
 import { DragDropContext, type DropResult } from "@hello-pangea/dnd";
 import { signOut } from "@/app/actions/auth";
-import {
-  moveTodoToUnplaced,
-  updateTodoSchedule,
-} from "@/app/actions/todos";
+import { scheduleBacklogTask } from "@/app/actions/tasks";
+import { updateTodoSchedule } from "@/app/actions/todos";
+import { parseBacklogTaskDraggableId } from "@/lib/tasks";
 import { formatDisplayDate, isToday, slotIndexToMinutes } from "@/lib/time";
-import type { Todo, WorkSession } from "@/lib/types";
+import type { BacklogProject, BacklogTask, Todo, WorkSession } from "@/lib/types";
 import { useToast } from "@/components/ui/Toast";
+import { BacklogPanel } from "@/components/dashboard/BacklogPanel";
 import { DateNav } from "@/components/dashboard/DateNav";
-import { BacklogStub } from "@/components/dashboard/BacklogStub";
+import { PrepareTomorrowModal } from "@/components/prepare-tomorrow/PrepareTomorrowModal";
 import { SessionBar } from "@/components/session-bar/SessionBar";
 import { Timeline } from "@/components/timeline/Timeline";
-import { UnplacedPanel } from "@/components/unplaced/UnplacedPanel";
 import { EditSessionModal } from "@/components/sessions/EditSessionModal";
+import { EditTodoScheduleModal } from "@/components/sessions/EditTodoScheduleModal";
 import { ManualSessionModal } from "@/components/sessions/ManualSessionModal";
 import { ThemeToggle } from "@/components/theme/ThemeToggle";
 
@@ -27,6 +33,9 @@ type Props = {
   activeSession: WorkSession | null;
   daySessions: WorkSession[];
   userEmail: string;
+  projects: BacklogProject[];
+  backlogTasks: BacklogTask[];
+  carryOverCandidates: Todo[];
 };
 
 export function DashboardClient({
@@ -36,17 +45,36 @@ export function DashboardClient({
   activeSession,
   daySessions,
   userEmail,
+  projects,
+  backlogTasks,
+  carryOverCandidates,
 }: Props) {
   const router = useRouter();
   const { showToast } = useToast();
   const [editSession, setEditSession] = useState<WorkSession | null>(null);
+  const [editTodo, setEditTodo] = useState<Todo | null>(null);
   const [showManualAdd, setShowManualAdd] = useState(false);
+  const [showPrepareTomorrow, setShowPrepareTomorrow] = useState(false);
+  const [backlogOpen, setBacklogOpen] = useState(true);
 
-  const unplaced = todos.filter(
-    (t) => !t.scheduled_start && t.status === "pending",
-  );
+  useEffect(() => {
+    // Mount-only sync from localStorage; initial state is true for SSR/hydration match.
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- external store (localStorage)
+    setBacklogOpen(
+      readStoredBacklogSidebarOpen() ?? getDefaultBacklogSidebarOpen(),
+    );
+  }, []);
+
+  const handleBacklogOpenChange = useCallback((open: boolean) => {
+    setBacklogOpen(open);
+    persistBacklogSidebarOpen(open);
+  }, []);
+
   const placed = todos.filter(
-    (t) => t.scheduled_start && t.status === "pending",
+    (t) =>
+      t.scheduled_start &&
+      (t.status === "pending" || t.status === "rolled_over") &&
+      !t.is_ad_hoc,
   );
 
   const refresh = useCallback(() => {
@@ -58,16 +86,28 @@ export function DashboardClient({
       const { draggableId, destination, source } = result;
       if (!destination) return;
 
-      const todo = todos.find((t) => t.id === draggableId);
-      if (!todo) return;
-
-      if (destination.droppableId === "unplaced") {
-        if (source.droppableId === "unplaced") return;
-        const res = await moveTodoToUnplaced(draggableId);
-        if (!res.success) showToast(res.error);
-        else refresh();
+      const backlogTaskId = parseBacklogTaskDraggableId(draggableId);
+      if (backlogTaskId) {
+        if (destination.droppableId.startsWith("slot-")) {
+          const slotIndex = parseInt(
+            destination.droppableId.replace("slot-", ""),
+            10,
+          );
+          const minutes = slotIndexToMinutes(slotIndex);
+          const res = await scheduleBacklogTask(
+            backlogTaskId,
+            dateStr,
+            minutes,
+          );
+          if (!res.success) showToast(res.error);
+          else refresh();
+        }
         return;
       }
+
+      const todo = todos.find((t) => t.id === draggableId);
+      if (!todo) return;
+      if (todo.status === "rolled_over") return;
 
       if (destination.droppableId.startsWith("slot-")) {
         const slotIndex = parseInt(
@@ -91,7 +131,7 @@ export function DashboardClient({
   return (
     <DragDropContext onDragEnd={onDragEnd}>
       <div
-        className="flex min-h-full flex-1 flex-col"
+        className="flex h-dvh min-h-0 flex-col overflow-hidden"
         style={{ background: "var(--color-paper)" }}
       >
         {activeSession && (
@@ -120,6 +160,20 @@ export function DashboardClient({
             <div className="flex flex-wrap items-center gap-3">
               <ThemeToggle />
               <DateNav selectedDate={selectedDate} />
+              {isToday(selectedDate) && (
+                <button
+                  type="button"
+                  onClick={() => setShowPrepareTomorrow(true)}
+                  className="rounded-[var(--radius-sm)] px-2.5 py-1 text-xs font-medium"
+                  style={{
+                    background: "var(--color-accent)",
+                    color: "var(--color-accent-ink)",
+                    fontFamily: "var(--font-body)",
+                  }}
+                >
+                  明日を準備
+                </button>
+              )}
               <button
                 type="button"
                 onClick={() => setShowManualAdd(true)}
@@ -138,6 +192,17 @@ export function DashboardClient({
               >
                 {userEmail}
               </span>
+              <Link
+                href="/projects"
+                className="rounded-[var(--radius-sm)] border px-2.5 py-1 text-xs transition-colors hover:bg-[var(--color-paper-2)]"
+                style={{
+                  borderColor: "var(--color-rule)",
+                  color: "var(--color-ink-muted)",
+                  fontFamily: "var(--font-body)",
+                }}
+              >
+                プロジェクト管理
+              </Link>
               <form action={signOut}>
                 <button
                   type="submit"
@@ -155,25 +220,48 @@ export function DashboardClient({
           </div>
         </header>
 
-        <div className="mx-auto flex w-full max-w-7xl flex-1 flex-col lg:flex-row">
-          <Timeline
-            date={dateStr}
-            placedTodos={placed}
-            daySessions={daySessions}
-            activeSessionId={activeSession?.id ?? null}
-            activeSessionTodoId={activeSession?.todo_id ?? null}
-            onUpdated={refresh}
-            onEditSession={setEditSession}
+        <div className="mx-auto flex min-h-0 w-full max-w-7xl flex-1">
+          <BacklogPanel
+            projects={projects}
+            tasks={backlogTasks}
+            open={backlogOpen}
+            onOpenChange={handleBacklogOpenChange}
+            onChanged={refresh}
           />
-          <UnplacedPanel todos={unplaced} />
+          <div className="flex min-h-0 min-w-0 flex-1">
+            <Timeline
+              date={dateStr}
+              placedTodos={placed}
+              daySessions={daySessions}
+              activeSessionId={activeSession?.id ?? null}
+              activeSessionTodoId={activeSession?.todo_id ?? null}
+              onUpdated={refresh}
+              onEditSession={setEditSession}
+              onEditTodo={setEditTodo}
+            />
+          </div>
         </div>
 
-        <BacklogStub />
+        {showPrepareTomorrow && (
+          <PrepareTomorrowModal
+            todayDateStr={dateStr}
+            initialCandidates={carryOverCandidates}
+            onClose={() => setShowPrepareTomorrow(false)}
+          />
+        )}
 
         {editSession && (
           <EditSessionModal
             session={editSession}
             onClose={() => setEditSession(null)}
+            onSaved={refresh}
+          />
+        )}
+
+        {editTodo && (
+          <EditTodoScheduleModal
+            todo={editTodo}
+            onClose={() => setEditTodo(null)}
             onSaved={refresh}
           />
         )}

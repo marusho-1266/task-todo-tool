@@ -1,4 +1,4 @@
--- On auth.users insert: create profile + system projects (Inbox, 問合せ・差し込み)
+-- On auth.users insert: create profile + system projects (Inbox)
 
 CREATE OR REPLACE FUNCTION public.handle_new_user()
 RETURNS TRIGGER
@@ -22,8 +22,7 @@ BEGIN
 
     INSERT INTO public.projects (user_id, title, status, is_system)
     VALUES
-      (NEW.id, 'Inbox', 'not_started', true),
-      (NEW.id, '問合せ・差し込み', 'not_started', true);
+      (NEW.id, 'Inbox', 'not_started', true);
   EXCEPTION
     WHEN OTHERS THEN
       RAISE LOG 'handle_new_user(): failed inserting into public.profiles or public.projects for user_id=%: %',

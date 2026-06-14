@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { deleteSession, editSessionTimes } from "@/app/actions/sessions";
 import { useToast } from "@/components/ui/Toast";
+import { getSessionDisplayTitle } from "@/lib/interrupt";
 import type { WorkSession } from "@/lib/types";
 
 type Props = {
@@ -69,7 +70,7 @@ export function EditSessionModal({ session, onClose, onSaved }: Props) {
     onClose();
   }
 
-  const title = session.todos?.tasks?.title ?? "セッション";
+  const title = getSessionDisplayTitle(session);
 
   return (
     <div

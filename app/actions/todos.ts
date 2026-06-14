@@ -8,7 +8,7 @@ import {
   snapMinutes,
   SNAP_MINUTES,
 } from "@/lib/time";
-import { parseTodoRows, TODO_WITH_TASK_SELECT, INBOX_PROJECT_NAME, QUICK_ADD_PLANNED_MINUTES } from "@/lib/todos";
+import { parseTodoRows, TODO_WITH_TASK_SELECT } from "@/lib/todos";
 import { createClient } from "@/lib/supabase/server";
 import type { ActionResult, Todo } from "@/lib/types";
 
@@ -75,6 +75,19 @@ export async function updateTodoSchedule(
       }
     }
 
+    const { data: existing, error: fetchError } = await supabase
+      .from("todos")
+      .select("status")
+      .eq("id", todoId)
+      .eq("user_id", user.id)
+      .maybeSingle();
+
+    if (fetchError) return { success: false, error: fetchError.message };
+    if (!existing) return { success: false, error: "Todo が見つかりません" };
+    if (existing.status === "rolled_over") {
+      return { success: false, error: "繰越済みの Todo は変更できません" };
+    }
+
     const { error } = await supabase
       .from("todos")
       .update({
@@ -96,15 +109,26 @@ export async function updateTodoSchedule(
   }
 }
 
-export async function moveTodoToUnplaced(
-  todoId: string,
-): Promise<ActionResult> {
+export async function deleteTodo(todoId: string): Promise<ActionResult> {
   try {
     const { supabase, user } = await getAuthedUser();
 
+    const { data: existing, error: fetchError } = await supabase
+      .from("todos")
+      .select("status")
+      .eq("id", todoId)
+      .eq("user_id", user.id)
+      .maybeSingle();
+
+    if (fetchError) return { success: false, error: fetchError.message };
+    if (!existing) return { success: false, error: "Todo が見つかりません" };
+    if (existing.status === "rolled_over") {
+      return { success: false, error: "繰越済みの Todo は削除できません" };
+    }
+
     const { error } = await supabase
       .from("todos")
-      .update({ scheduled_start: null })
+      .delete()
       .eq("id", todoId)
       .eq("user_id", user.id);
 
@@ -115,107 +139,7 @@ export async function moveTodoToUnplaced(
   } catch (e) {
     return {
       success: false,
-      error: e instanceof Error ? e.message : "更新に失敗しました",
-    };
-  }
-}
-
-export async function quickAddTodo(
-  title: string,
-  date: string,
-): Promise<ActionResult<{ todoId: string }>> {
-  try {
-    const trimmed = title.trim();
-    if (!trimmed) return { success: false, error: "タイトルを入力してください" };
-
-    const { supabase, user } = await getAuthedUser();
-
-    const { data: inbox } = await supabase
-      .from("projects")
-      .select("id")
-      .eq("user_id", user.id)
-      .eq("is_system", true)
-      .eq("title", INBOX_PROJECT_NAME)
-      .maybeSingle();
-
-    if (!inbox) {
-      return {
-        success: false,
-        error: `${INBOX_PROJECT_NAME} プロジェクトが見つかりません`,
-      };
-    }
-
-    const { data: task, error: taskError } = await supabase
-      .from("tasks")
-      .insert({
-        user_id: user.id,
-        project_id: inbox.id,
-        title: trimmed,
-        status: "not_started",
-        is_leaf: true,
-      })
-      .select("id")
-      .single();
-
-    if (taskError || !task) {
-      return { success: false, error: taskError?.message ?? "タスク作成失敗" };
-    }
-
-    const { data: todo, error: todoError } = await supabase
-      .from("todos")
-      .insert({
-        user_id: user.id,
-        task_id: task.id,
-        date,
-        planned_minutes: QUICK_ADD_PLANNED_MINUTES,
-        status: "pending",
-      })
-      .select("id")
-      .single();
-
-    if (todoError || !todo) {
-      await supabase
-        .from("tasks")
-        .delete()
-        .eq("id", task.id)
-        .eq("user_id", user.id);
-      return { success: false, error: todoError?.message ?? "Todo 作成失敗" };
-    }
-
-    revalidatePath("/");
-    return { success: true, data: { todoId: todo.id } };
-  } catch (e) {
-    return {
-      success: false,
-      error: e instanceof Error ? e.message : "追加に失敗しました",
-    };
-  }
-}
-
-export async function addUnplacedTodo(
-  taskId: string,
-  date: string,
-  plannedMinutes = 30,
-): Promise<ActionResult> {
-  try {
-    const { supabase, user } = await getAuthedUser();
-
-    const { error } = await supabase.from("todos").insert({
-      user_id: user.id,
-      task_id: taskId,
-      date,
-      planned_minutes: plannedMinutes,
-      status: "pending",
-    });
-
-    if (error) return { success: false, error: error.message };
-
-    revalidatePath("/");
-    return { success: true };
-  } catch (e) {
-    return {
-      success: false,
-      error: e instanceof Error ? e.message : "追加に失敗しました",
+      error: e instanceof Error ? e.message : "削除に失敗しました",
     };
   }
 }
@@ -228,7 +152,7 @@ export async function getTodosForDate(date: string): Promise<Todo[]> {
     .select(TODO_WITH_TASK_SELECT)
     .eq("user_id", user.id)
     .eq("date", date)
-    .in("status", ["pending", "done"])
+    .in("status", ["pending", "done", "rolled_over"])
     .order("scheduled_start", { ascending: true, nullsFirst: false });
 
   if (error) throw new Error(error.message);
