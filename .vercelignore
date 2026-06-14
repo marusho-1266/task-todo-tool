@@ -31,4 +31,3 @@ doc/
 .prettierignore
 .prettierrc
 eslint.config.mjs
-postcss.config.mjs
