@@ -1,22 +1,20 @@
-import { minutesFromDayStart } from "@/lib/time";
 import type { Todo } from "@/lib/types";
 
 export function todosOverlap(
   a: { scheduled_start: string; planned_minutes: number },
   b: { scheduled_start: string; planned_minutes: number },
-  dateStr: string,
 ): boolean {
-  const aStart = minutesFromDayStart(a.scheduled_start, dateStr);
-  const aEnd = aStart + a.planned_minutes;
-  const bStart = minutesFromDayStart(b.scheduled_start, dateStr);
-  const bEnd = bStart + b.planned_minutes;
+  const aStart = new Date(a.scheduled_start).getTime();
+  const aEnd = aStart + a.planned_minutes * 60_000;
+  const bStart = new Date(b.scheduled_start).getTime();
+  const bEnd = bStart + b.planned_minutes * 60_000;
   return aStart < bEnd && bStart < aEnd;
 }
 
 export function findOverlappingTodo(
   candidate: { id: string; scheduled_start: string; planned_minutes: number },
   todos: Todo[],
-  dateStr: string,
+  _dateStr?: string,
 ): Todo | null {
   for (const todo of todos) {
     if (todo.id === candidate.id) continue;
@@ -25,7 +23,6 @@ export function findOverlappingTodo(
       todosOverlap(
         { scheduled_start: candidate.scheduled_start, planned_minutes: candidate.planned_minutes },
         { scheduled_start: todo.scheduled_start, planned_minutes: todo.planned_minutes },
-        dateStr,
       )
     ) {
       return todo;
@@ -34,7 +31,7 @@ export function findOverlappingTodo(
   return null;
 }
 
-export function getOverlappingIds(todos: Todo[], dateStr: string): Set<string> {
+export function getOverlappingIds(todos: Todo[], _dateStr?: string): Set<string> {
   const placed = todos.filter(
     (t) => t.scheduled_start && t.status === "pending",
   );
@@ -52,7 +49,6 @@ export function getOverlappingIds(todos: Todo[], dateStr: string): Set<string> {
             scheduled_start: placed[j].scheduled_start!,
             planned_minutes: placed[j].planned_minutes,
           },
-          dateStr,
         )
       ) {
         overlapping.add(placed[i].id);

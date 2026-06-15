@@ -211,7 +211,6 @@ export function validatePlacementsOnDate(
         todosOverlap(
           { scheduled_start: candidate.scheduled_start, planned_minutes: candidate.planned_minutes },
           { scheduled_start: other.scheduled_start, planned_minutes: other.planned_minutes },
-          dateStr,
         )
       ) {
         return false;
