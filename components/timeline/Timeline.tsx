@@ -7,6 +7,7 @@ import { startSession } from "@/app/actions/sessions";
 import {
   TIMELINE_START_HOUR,
   TIMELINE_END_HOUR,
+  datetimeFromMinutes,
   getSlotCount,
   getTimelineHeightPx,
   minutesFromDayStart,
@@ -111,10 +112,11 @@ export function Timeline({
           (TIMELINE_END_HOUR - TIMELINE_START_HOUR) * 60 -
           todo.planned_minutes;
         const clamped = Math.max(0, Math.min(newMinutes, maxMinutes));
+        const scheduledStartIso = datetimeFromMinutes(date, clamped).toISOString();
         const result = await updateTodoSchedule(
           todo.id,
           date,
-          clamped,
+          scheduledStartIso,
           todo.planned_minutes,
         );
         if (!result.success) showToast(result.error);
@@ -404,11 +406,10 @@ function PlacedBlock({
         resizeStart.current.height + delta,
       );
       const newMinutes = snapMinutes(newHeightPx / PX_PER_MINUTE);
-      const startMinutes = minutesFromDayStart(todo.scheduled_start!, date);
       const result = await updateTodoSchedule(
         todo.id,
         date,
-        startMinutes,
+        todo.scheduled_start!,
         newMinutes,
       );
       if (!result.success) showToast(result.error);

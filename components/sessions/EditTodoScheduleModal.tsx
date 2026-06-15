@@ -4,8 +4,10 @@ import { useState } from "react";
 import { updateTodoSchedule } from "@/app/actions/todos";
 import { useToast } from "@/components/ui/Toast";
 import {
+  datetimeFromMinutes,
   formatDateParam,
   minutesFromDayStart,
+  snapMinutes,
 } from "@/lib/time";
 import type { Todo } from "@/lib/types";
 
@@ -32,9 +34,10 @@ export function EditTodoScheduleModal({ todo, onClose, onSaved }: Props) {
     e.preventDefault();
     const start = new Date(scheduledAt);
     const date = formatDateParam(start);
-    const startMinutes = minutesFromDayStart(start.toISOString(), date);
+    const rawMinutes = minutesFromDayStart(start.toISOString(), date);
+    const scheduledStartIso = datetimeFromMinutes(date, snapMinutes(rawMinutes)).toISOString();
     setLoading(true);
-    const result = await updateTodoSchedule(todo.id, date, startMinutes, plannedMinutes);
+    const result = await updateTodoSchedule(todo.id, date, scheduledStartIso, plannedMinutes);
     setLoading(false);
     if (!result.success) {
       showToast(result.error);

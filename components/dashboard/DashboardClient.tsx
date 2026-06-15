@@ -13,7 +13,7 @@ import { signOut } from "@/app/actions/auth";
 import { scheduleBacklogTask } from "@/app/actions/tasks";
 import { updateTodoSchedule } from "@/app/actions/todos";
 import { parseBacklogTaskDraggableId } from "@/lib/tasks";
-import { formatDisplayDate, isToday, slotIndexToMinutes } from "@/lib/time";
+import { datetimeFromMinutes, formatDisplayDate, isToday, slotIndexToMinutes } from "@/lib/time";
 import type { BacklogProject, BacklogTask, Todo, WorkSession } from "@/lib/types";
 import { useToast } from "@/components/ui/Toast";
 import { BacklogPanel } from "@/components/dashboard/BacklogPanel";
@@ -115,10 +115,11 @@ export function DashboardClient({
           10,
         );
         const minutes = slotIndexToMinutes(slotIndex);
+        const scheduledStartIso = datetimeFromMinutes(dateStr, minutes).toISOString();
         const res = await updateTodoSchedule(
           draggableId,
           dateStr,
-          minutes,
+          scheduledStartIso,
           todo.planned_minutes,
         );
         if (!res.success) showToast(res.error);

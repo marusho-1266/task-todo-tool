@@ -3,7 +3,6 @@
 import { revalidatePath } from "next/cache";
 import { findOverlappingTodo } from "@/lib/overlap";
 import {
-  datetimeFromMinutes,
   formatDateParam,
   snapMinutes,
   SNAP_MINUTES,
@@ -41,20 +40,15 @@ async function fetchPlacedTodosForDate(
 export async function updateTodoSchedule(
   todoId: string,
   date: string,
-  startMinutes: number | null,
+  scheduledStartIso: string | null,
   plannedMinutes: number,
 ): Promise<ActionResult> {
   try {
     const { supabase, user } = await getAuthedUser();
 
-    const snappedMinutes =
-      startMinutes === null ? null : snapMinutes(startMinutes);
     const clampedMinutes = Math.max(SNAP_MINUTES, snapMinutes(plannedMinutes));
 
-    let scheduledStart: string | null = null;
-    if (snappedMinutes !== null) {
-      scheduledStart = datetimeFromMinutes(date, snappedMinutes).toISOString();
-    }
+    const scheduledStart = scheduledStartIso;
 
     if (scheduledStart) {
       const placed = await fetchPlacedTodosForDate(supabase, user.id, date);
