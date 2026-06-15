@@ -3,7 +3,6 @@
 import { revalidatePath } from "next/cache";
 import { findOverlappingTodo } from "@/lib/overlap";
 import {
-  datetimeFromMinutes,
   snapMinutes,
   SNAP_MINUTES,
 } from "@/lib/time";
@@ -285,7 +284,7 @@ export async function deleteTask(taskId: string): Promise<ActionResult> {
 export async function scheduleBacklogTask(
   taskId: string,
   date: string,
-  startMinutes: number,
+  scheduledStartIso: string,
 ): Promise<ActionResult> {
   try {
     const { supabase, user } = await getAuthedUser();
@@ -306,8 +305,7 @@ export async function scheduleBacklogTask(
       SNAP_MINUTES,
       snapMinutes(task.estimate_minutes ?? 30),
     );
-    const snappedStart = snapMinutes(startMinutes);
-    const scheduledStart = datetimeFromMinutes(date, snappedStart).toISOString();
+    const scheduledStart = scheduledStartIso;
 
     const { data: placedRaw } = await supabase
       .from("todos")

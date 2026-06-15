@@ -94,10 +94,11 @@ export function DashboardClient({
             10,
           );
           const minutes = slotIndexToMinutes(slotIndex);
+          const scheduledStartIso = datetimeFromMinutes(dateStr, minutes).toISOString();
           const res = await scheduleBacklogTask(
             backlogTaskId,
             dateStr,
-            minutes,
+            scheduledStartIso,
           );
           if (!res.success) showToast(res.error);
           else refresh();
