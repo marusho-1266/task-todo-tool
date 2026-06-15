@@ -1,7 +1,9 @@
 import { todosOverlap } from "@/lib/overlap";
 import {
   datetimeFromMinutes,
+  datetimeFromMinutesWithOffset,
   minutesFromDayStart,
+  minutesFromDayStartWithOffset,
   SNAP_MINUTES,
   TIMELINE_END_HOUR,
   TIMELINE_START_HOUR,
@@ -127,10 +129,15 @@ export function mergeCarryOverByTask(
 export function existingBlocksFromTodos(
   todos: { scheduled_start: string; planned_minutes: number }[],
   dateStr: string,
+  utcOffsetMinutes?: number,
 ): MinuteBlock[] {
-  return todos.map((t) =>
-    blockFromScheduled(t.scheduled_start, t.planned_minutes, dateStr),
-  );
+  return todos.map((t) => {
+    const startMinutes =
+      utcOffsetMinutes !== undefined
+        ? minutesFromDayStartWithOffset(t.scheduled_start, dateStr, utcOffsetMinutes)
+        : minutesFromDayStart(t.scheduled_start, dateStr);
+    return { startMinutes, durationMinutes: t.planned_minutes };
+  });
 }
 
 export function planCarryOverPlacements(

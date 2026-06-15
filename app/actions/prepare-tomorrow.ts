@@ -8,7 +8,7 @@ import {
   planCarryOverPlacements,
   workDayStartMinutes,
 } from "@/lib/prepare-tomorrow";
-import { datetimeFromMinutes } from "@/lib/time";
+import { datetimeFromMinutesWithOffset } from "@/lib/time";
 import { parseTodoRows, TODO_WITH_TASK_SELECT } from "@/lib/todos";
 import { createClient } from "@/lib/supabase/server";
 import type { ActionResult, Todo } from "@/lib/types";
@@ -45,6 +45,7 @@ export async function getCarryOverCandidates(
 export async function prepareTomorrow(
   todayDateStr: string,
   selectedTaskIds: string[],
+  utcOffsetMinutes: number,
 ): Promise<
   ActionResult<{
     tomorrowDate: string;
@@ -111,6 +112,7 @@ export async function prepareTomorrow(
         planned_minutes: t.planned_minutes,
       })),
       tomorrowDate,
+      utcOffsetMinutes,
     );
 
     const carryItems = mergeCarryOverByTask(
@@ -133,9 +135,10 @@ export async function prepareTomorrow(
 
     try {
       for (const placement of plan.placements) {
-        const scheduledStart = datetimeFromMinutes(
+        const scheduledStart = datetimeFromMinutesWithOffset(
           tomorrowDate,
           placement.scheduledStartMinutes,
+          utcOffsetMinutes,
         ).toISOString();
 
         const { data: inserted, error: insertError } = await supabase

@@ -58,6 +58,33 @@ export function minutesFromDayStart(
   return Math.max(0, (dt.getTime() - dayStart.getTime()) / 60_000);
 }
 
+/** UTC-offset-aware version for server-side calculations. utcOffsetMinutes = +540 for JST. */
+export function minutesFromDayStartWithOffset(
+  iso: string,
+  dateStr: string,
+  utcOffsetMinutes: number,
+): number {
+  const dt = new Date(iso);
+  const [y, m, d] = dateStr.split("-").map(Number);
+  const dayStartMs =
+    Date.UTC(y, m - 1, d, TIMELINE_START_HOUR, 0, 0, 0) -
+    utcOffsetMinutes * 60_000;
+  return Math.max(0, (dt.getTime() - dayStartMs) / 60_000);
+}
+
+/** UTC-offset-aware version for server-side calculations. utcOffsetMinutes = +540 for JST. */
+export function datetimeFromMinutesWithOffset(
+  dateStr: string,
+  minutes: number,
+  utcOffsetMinutes: number,
+): Date {
+  const [y, m, d] = dateStr.split("-").map(Number);
+  const total = TIMELINE_START_HOUR * 60 + snapMinutes(minutes);
+  const utcMs =
+    Date.UTC(y, m - 1, d, 0, 0, 0, 0) + (total - utcOffsetMinutes) * 60_000;
+  return new Date(utcMs);
+}
+
 export function scheduledEndMinutes(
   scheduledStart: string,
   plannedMinutes: number,

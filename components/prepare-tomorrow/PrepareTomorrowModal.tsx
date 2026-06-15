@@ -104,7 +104,8 @@ export function PrepareTomorrowModal({
     e.preventDefault();
     setLoading(true);
     try {
-      const result = await prepareTomorrow(todayDateStr, [...selectedTaskIds]);
+      const utcOffsetMinutes = -new Date().getTimezoneOffset();
+      const result = await prepareTomorrow(todayDateStr, [...selectedTaskIds], utcOffsetMinutes);
 
       if (!result.success) {
         showToast(result.error);
