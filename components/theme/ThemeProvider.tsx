@@ -10,6 +10,7 @@ import {
 import {
   applyTheme,
   persistTheme,
+  persistThemeCookie,
   type Theme,
 } from "@/lib/theme";
 
@@ -33,21 +34,24 @@ function getThemeSnapshot(): Theme {
   return document.documentElement.classList.contains("dark") ? "dark" : "light";
 }
 
-function getServerThemeSnapshot(): Theme {
-  return "light";
-}
-
-export function ThemeProvider({ children }: { children: ReactNode }) {
+export function ThemeProvider({
+  children,
+  initialTheme,
+}: {
+  children: ReactNode;
+  initialTheme: Theme;
+}) {
   const theme = useSyncExternalStore(
     subscribe,
     getThemeSnapshot,
-    getServerThemeSnapshot,
+    () => initialTheme,
   );
 
   const toggleTheme = useCallback(() => {
     const next: Theme = theme === "dark" ? "light" : "dark";
     applyTheme(next);
     persistTheme(next);
+    persistThemeCookie(next);
   }, [theme]);
 
   return (

@@ -3,7 +3,7 @@ import { createClient } from "@/lib/supabase/server";
 import { parseWorkSessions, WORK_SESSION_SELECT } from "@/lib/sessions";
 import { parseBacklogProjects, parseBacklogTasks, PROJECT_SELECT, TASK_SELECT } from "@/lib/tasks";
 import { parseTodoRows, TODO_WITH_TASK_SELECT } from "@/lib/todos";
-import { dayBounds, formatDateParam, isToday, parseDateParam } from "@/lib/time";
+import { dayBounds, formatDateParam, getTodayJST, isToday, parseDateParam } from "@/lib/time";
 import { ToastProvider } from "@/components/ui/Toast";
 import { DashboardClient } from "@/components/dashboard/DashboardClient";
 
@@ -26,7 +26,7 @@ export default async function HomePage({ searchParams }: PageProps) {
   const params = await searchParams;
   const selectedDate = parseDateParam(params.date);
   const dateStr = formatDateParam(selectedDate);
-  const todayStr = formatDateParam(new Date());
+  const todayStr = formatDateParam(getTodayJST());
 
   const [
     { data: todosRaw, error: todosError },

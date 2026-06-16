@@ -1,3 +1,10 @@
+/** Returns today's date in JST (UTC+9), safe to call from server where TZ may be UTC. */
+export function getTodayJST(): Date {
+  const jstMs = Date.now() + 9 * 60 * 60 * 1000;
+  const jst = new Date(jstMs);
+  return new Date(jst.getUTCFullYear(), jst.getUTCMonth(), jst.getUTCDate());
+}
+
 /** Timeline display: 06:00–22:00 */
 export const TIMELINE_START_HOUR = 6;
 export const TIMELINE_END_HOUR = 22;
@@ -22,9 +29,7 @@ export function formatDateParam(date: Date): string {
 
 export function parseDateParam(value: string | undefined): Date {
   if (!value || !/^\d{4}-\d{2}-\d{2}$/.test(value)) {
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    return today;
+    return getTodayJST();
   }
   const [y, m, d] = value.split("-").map(Number);
   return new Date(y, m - 1, d);
@@ -40,8 +45,7 @@ export function formatDisplayDate(date: Date): string {
 }
 
 export function isToday(date: Date): boolean {
-  const today = new Date();
-  return formatDateParam(date) === formatDateParam(today);
+  return formatDateParam(date) === formatDateParam(getTodayJST());
 }
 
 export function snapMinutes(minutes: number): number {
@@ -131,11 +135,12 @@ export function durationMinutesBetween(start: Date, end: Date): number {
   return Math.max(1, Math.round((end.getTime() - start.getTime()) / 60_000));
 }
 
-/** Local calendar day bounds for session queries (00:00:00.000 – 23:59:59.999). */
+/** JST calendar day bounds for session queries (00:00:00.000 JST – 23:59:59.999 JST). */
 export function dayBounds(dateStr: string): { start: Date; end: Date } {
   const [y, m, d] = dateStr.split("-").map(Number);
+  const JST_OFFSET_MS = 9 * 60 * 60 * 1000;
   return {
-    start: new Date(y, m - 1, d, 0, 0, 0, 0),
-    end: new Date(y, m - 1, d, 23, 59, 59, 999),
+    start: new Date(Date.UTC(y, m - 1, d, 0, 0, 0, 0) - JST_OFFSET_MS),
+    end: new Date(Date.UTC(y, m - 1, d, 23, 59, 59, 999) - JST_OFFSET_MS),
   };
 }

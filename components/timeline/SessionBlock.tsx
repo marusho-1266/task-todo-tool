@@ -13,6 +13,7 @@ import {
   TIMELINE_END_HOUR,
   TIMELINE_START_HOUR,
   datetimeFromMinutes,
+  formatDateParam,
   formatTimeLabel,
   minutesFromDayStart,
   PX_PER_MINUTE,
@@ -81,7 +82,8 @@ export function SessionBlock({
   const durationMin = isActive
     ? liveMinutes
     : sessionDurationMinutes(session);
-  const topPx = minutesFromDayStart(session.started_at, date) * PX_PER_MINUTE;
+  const sessionDate = formatDateParam(new Date(session.started_at));
+  const topPx = minutesFromDayStart(session.started_at, sessionDate) * PX_PER_MINUTE;
   const heightPx = Math.max(durationMin * PX_PER_MINUTE, SNAP_MINUTES * PX_PER_MINUTE);
   const startDt = new Date(session.started_at);
   const timeLabel = formatTimeLabel(startDt.getHours(), startDt.getMinutes());
@@ -102,7 +104,8 @@ export function SessionBlock({
     dragMovedRef.current = false;
 
     const startY = e.clientY;
-    const origStartMinutes = minutesFromDayStart(session.started_at, date);
+    const sessionDate = formatDateParam(new Date(session.started_at));
+    const origStartMinutes = minutesFromDayStart(session.started_at, sessionDate);
     const durationMs =
       new Date(session.ended_at).getTime() - new Date(session.started_at).getTime();
     const maxStartMinutes =
@@ -133,7 +136,7 @@ export function SessionBlock({
       const deltaY = ev.clientY - startY;
       const newMinutes = snapMinutes(origStartMinutes + deltaY / PX_PER_MINUTE);
       const clamped = Math.max(0, Math.min(newMinutes, maxStartMinutes));
-      const newStart = datetimeFromMinutes(date, clamped);
+      const newStart = datetimeFromMinutes(sessionDate, clamped);
       const newEnd = new Date(newStart.getTime() + durationMs);
       const result = await editSessionTimes(
         session.id,
@@ -158,7 +161,8 @@ export function SessionBlock({
     dragMovedRef.current = true;
     resizeStart.current = { y: e.clientY, height: heightPx };
 
-    const startMinutes = minutesFromDayStart(session.started_at, date);
+    const sessionDate = formatDateParam(new Date(session.started_at));
+    const startMinutes = minutesFromDayStart(session.started_at, sessionDate);
     const maxDurationMinutes =
       (TIMELINE_END_HOUR - TIMELINE_START_HOUR) * 60 - startMinutes;
 
@@ -190,7 +194,7 @@ export function SessionBlock({
       );
       let newDurationMinutes = snapMinutes(newHeightPx / PX_PER_MINUTE);
       newDurationMinutes = Math.min(newDurationMinutes, maxDurationMinutes);
-      const newStart = datetimeFromMinutes(date, startMinutes);
+      const newStart = datetimeFromMinutes(sessionDate, startMinutes);
       const newEnd = new Date(newStart.getTime() + newDurationMinutes * 60_000);
       const result = await editSessionTimes(
         session.id,
