@@ -1,17 +1,19 @@
-# Spec: Issue-11 計測開始ボタンのカーソル対応
+# Spec: Issue-13 明日を準備 — 繰越先日付の選択
 
 ## Objective
 
-計測開始ボタンにマウスを合わせた際、カーソルが通常のままであるため、ユーザーが「クリック可能」なボタンだと認識しづらい。ボタンホバー時のカーソルをポインター（pointer）に変更することで、UI/UXを改善する。
+「明日を準備」は翌日（+1日）固定でTodoを繰越す。翌日が休みのときや任意の未来日に繰越したい場合に対応できない。
 
-**対象ユーザー：** task-todo-tool を使用する全ユーザー  
-**成功の定義：** 計測開始ボタン（▶）にホバー時、カーソルが自動的にポインターに変わること
+**改善点:** モーダル内に日付セレクタを追加し、ユーザーが繰越先日付を自由に選べるようにする。
+
+**対象ユーザー:** task-todo-tool を使用する全ユーザー  
+**成功の定義:** 「明日を準備」で任意の未来日に繰越しを実行できる
 
 ## Tech Stack
 
 - Next.js (App Router) + TypeScript + React
 - Tailwind CSS (styling)
-- @hello-pangea/dnd (drag & drop)
+- Supabase (Postgres + Auth + RLS)
 
 ## Commands
 
@@ -20,75 +22,120 @@
 | `npm run dev` | 開発サーバー起動 |
 | `npm run build` | 本番ビルド |
 | `npm run lint` | ESLint |
+| `npm test` | ユニットテスト（vitest） |
 
 ## Project Structure
 
+変更対象は以下の2ファイルのみ:
+
 ```
 components/
-├── timeline/
-│   └── Timeline.tsx          ← 計測開始ボタンを含む主要コンポーネント
-└── timeline/
-    └── QuickAddModal.tsx     ← 割込計測の計測開始ボタン
+└── prepare-tomorrow/
+    └── PrepareTomorrowModal.tsx   ← 日付セレクタを追加
+
+app/actions/
+└── prepare-tomorrow.ts            ← targetDateStr 引数を受け取るよう変更
 ```
+
+`lib/prepare-tomorrow.ts` の `addDaysToDateStr` はそのまま流用。新規ヘルパー追加なし。
+
+## 仕様詳細
+
+### UI の変更（PrepareTomorrowModal）
+
+ヘッダーの「○月○日のカレンダーに反映します」の部分を日付セレクタに変更する。
+
+```
+明日を準備
+
+反映先: [日付入力欄  YYYY-MM-DD  ▼]
+```
+
+- `<input type="date">` で実装
+- **初期値:** 翌日（`addDaysToDateStr(todayDateStr, 1)`）—— 現行と同じ
+- **最小値 (`min`):** `addDaysToDateStr(todayDateStr, 1)`（今日以前は選択不可）
+- **最大値 (`max`):** 制限なし
+- ユーザーが選択した日付を `targetDateStr` として state 管理
+
+### ロジックの変更（Server Action）
+
+`prepareTomorrow` の引数に `targetDateStr` を追加し、内部で固定していた `addDaysToDateStr(todayDateStr, 1)` を置き換える。
+
+```ts
+// 変更前
+export async function prepareTomorrow(
+  todayDateStr: string,
+  selectedTaskIds: string[],
+  utcOffsetMinutes: number,
+)
+
+// 変更後
+export async function prepareTomorrow(
+  todayDateStr: string,
+  selectedTaskIds: string[],
+  utcOffsetMinutes: number,
+  targetDateStr: string,   // ← 追加
+)
+```
+
+- `targetDateStr <= todayDateStr` の場合はエラーを返す（ガード）
+- トースト・遷移先の日付表示も `targetDateStr` を使う
 
 ## Code Style
 
-計測開始ボタンは現在、以下のように `cursor` クラスが**未指定**です：
+### PrepareTomorrowModal（変更点）
 
 ```tsx
-// ❌ 現在（cursor 指定なし）
-<button
-  className="rounded px-1 py-0.5 text-xs font-medium"
-  style={{ background: "var(--color-plan)" }}
->
-  ▶
-</button>
+const defaultTarget = addDaysToDateStr(todayDateStr, 1);
+const [targetDateStr, setTargetDateStr] = useState(defaultTarget);
 
-// ✅ 修正後（cursor-pointer を追加）
-<button
-  className="rounded px-1 py-0.5 text-xs font-medium cursor-pointer"
-  style={{ background: "var(--color-plan)" }}
->
-  ▶
-</button>
+// ヘッダー部分
+<input
+  type="date"
+  min={defaultTarget}
+  value={targetDateStr}
+  onChange={(e) => setTargetDateStr(e.target.value)}
+/>
 ```
 
-Tailwind CSS の `cursor-pointer` クラスを className に追加してください。
+`handleSubmit` 内の `prepareTomorrow` 呼び出しに `targetDateStr` を追加する。
 
 ## Testing Strategy
 
 ### Unit Tests
-- ボタンが存在することを確認
-- className に `cursor-pointer` が含まれることを確認
+
+既存の `lib/prepare-tomorrow.test.ts` への追加はなし（純粋関数の変更がないため）。
 
 ### Manual Testing
-1. タイムラインの計画ブロック上の計測開始ボタン（▶）にマウスを合わせた時、カーソルがポインターに変わることを確認
-2. 短いブロック（高さが小さい計画）と通常サイズのブロックの両方で確認
-3. モーダル内の「割込計測」ボタンにマウスを合わせた時、カーソルがポインターに変わることを確認
+
+1. 「明日を準備」を開くと初期値が翌日になっていること
+2. 日付を3日後に変更して「反映」→ 3日後のカレンダーへ遷移し、Todoが作成されること
+3. 今日以前の日付は選択不可（`min` 制約）であること
+4. 繰越後のトーストに選択した日付が表示されること
 
 ## Boundaries
 
 - **Always do:**
-  - ボタンホバー時のカーソルを「pointer」に統一する
-  - 機能的な動作は変更しない
-  - 他のボタンへの影響を最小化する
+  - 初期値は翌日（既存の動作を維持）
+  - 今日以前の日付は選択不可
 
 - **Ask first:**
-  - 他のボタンの cursor スタイルを一括変更する場合
-  - hover エフェクト（スケール変更など）を追加する場合
+  - 土日・祝日の自動検出・警告を追加する場合（別 Issue で対応）
+  - カレンダーUIに切り替える場合
 
 - **Never do:**
-  - 機能を変更する
-  - デザイントークン（色、フォント）を変更する
-  - テスト不要なボタンを作成する
+  - 特定の日付（土日等）を選択不可にする（ユーザーの選択権を奪わない）
+  - 既存の `addDaysToDateStr` のロジックを変更する
 
 ## Success Criteria
 
-1. ✅ `components/timeline/Timeline.tsx` の 2 つの計測開始ボタンに `cursor-pointer` クラスが追加される
-2. ✅ `components/timeline/QuickAddModal.tsx` の計測開始ボタンに `cursor-pointer` クラスが追加される
-3. ✅ 開発環境で視覚的に確認：ホバー時にカーソルがポインターに変わる
-4. ✅ ESLint エラーなし、ビルド成功
+1. ✅ `PrepareTomorrowModal` に日付セレクタが追加される
+2. ✅ 初期値は翌日（既存動作を維持）
+3. ✅ 今日以前は選択不可
+4. ✅ 選択した任意の未来日に繰越しが実行される
+5. ✅ 遷移先・トーストが選択した日付を使う
+6. ✅ ESLint エラーなし、`npm run build` 成功
 
 ## Open Questions
 
-なし（要件は明確）
+- 土日・祝日の自動検出はスコープ外（別 Issue で検討）
