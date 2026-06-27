@@ -46,6 +46,7 @@ export async function prepareTomorrow(
   todayDateStr: string,
   selectedTaskIds: string[],
   utcOffsetMinutes: number,
+  targetDateStr: string,
 ): Promise<
   ActionResult<{
     tomorrowDate: string;
@@ -58,8 +59,12 @@ export async function prepareTomorrow(
       return { success: false, error: "繰越するタスクを1件以上選択してください" };
     }
 
+    if (targetDateStr <= todayDateStr) {
+      return { success: false, error: "繰越先は今日より後の日付を選択してください" };
+    }
+
     const { supabase, user } = await getAuthedUser();
-    const tomorrowDate = addDaysToDateStr(todayDateStr, 1);
+    const tomorrowDate = targetDateStr;
 
     const { data: profile } = await supabase
       .from("profiles")

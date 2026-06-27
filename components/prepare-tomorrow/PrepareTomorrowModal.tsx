@@ -77,11 +77,12 @@ export function PrepareTomorrowModal({
     [candidates],
   );
 
-  const tomorrowDateStr = addDaysToDateStr(todayDateStr, 1);
-  const tomorrowLabel = useMemo(() => {
-    const [y, m, d] = tomorrowDateStr.split("-").map(Number);
+  const minDateStr = addDaysToDateStr(todayDateStr, 1);
+  const [targetDateStr, setTargetDateStr] = useState(minDateStr);
+  const targetLabel = useMemo(() => {
+    const [y, m, d] = targetDateStr.split("-").map(Number);
     return formatDisplayDate(new Date(y, m - 1, d));
-  }, [tomorrowDateStr]);
+  }, [targetDateStr]);
 
   function toggleTask(taskId: string) {
     setSelectedTaskIds((prev) => {
@@ -105,7 +106,7 @@ export function PrepareTomorrowModal({
     setLoading(true);
     try {
       const utcOffsetMinutes = -new Date().getTimezoneOffset();
-      const result = await prepareTomorrow(todayDateStr, [...selectedTaskIds], utcOffsetMinutes);
+      const result = await prepareTomorrow(todayDateStr, [...selectedTaskIds], utcOffsetMinutes, targetDateStr);
 
       if (!result.success) {
         showToast(result.error);
@@ -120,7 +121,7 @@ export function PrepareTomorrowModal({
           "success",
         );
       } else {
-        showToast(`${placedCount}件を明日のカレンダーに反映しました`, "success");
+        showToast(`${placedCount}件を${targetLabel}のカレンダーに反映しました`, "success");
       }
 
       onClose();
@@ -175,12 +176,35 @@ export function PrepareTomorrowModal({
           >
             明日を準備
           </h2>
-          <p
-            className="mt-1 text-sm"
-            style={{ color: "var(--color-ink-muted)", fontFamily: "var(--font-body)" }}
-          >
-            {tomorrowLabel} のカレンダーに反映します
-          </p>
+          <div className="mt-2 flex items-center gap-2">
+            <label
+              htmlFor="target-date"
+              className="text-sm"
+              style={{ color: "var(--color-ink-muted)", fontFamily: "var(--font-body)" }}
+            >
+              反映先:
+            </label>
+            <input
+              id="target-date"
+              type="date"
+              min={minDateStr}
+              value={targetDateStr}
+              onChange={(e) => setTargetDateStr(e.target.value)}
+              className="rounded border px-2 py-0.5 text-sm"
+              style={{
+                borderColor: "var(--color-rule)",
+                background: "var(--color-paper)",
+                color: "var(--color-ink)",
+                fontFamily: "var(--font-body)",
+              }}
+            />
+            <span
+              className="text-sm"
+              style={{ color: "var(--color-ink-muted)", fontFamily: "var(--font-body)" }}
+            >
+              {targetLabel}
+            </span>
+          </div>
         </div>
 
         <div className="flex-1 overflow-y-auto px-5 py-4">
