@@ -85,6 +85,7 @@ export async function updateTodoSchedule(
     const { error } = await supabase
       .from("todos")
       .update({
+        date: date,
         scheduled_start: scheduledStart,
         planned_minutes: clampedMinutes,
       })
