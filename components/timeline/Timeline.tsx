@@ -479,7 +479,7 @@ function PlacedBlock({
                       e.stopPropagation();
                       handleStart();
                     }}
-                    className="rounded px-1 py-0.5 text-xs font-medium leading-none"
+                    className="rounded px-1 py-0.5 text-xs font-medium leading-none cursor-pointer"
                     style={{
                       background: "var(--color-plan)",
                       color: "var(--color-accent-ink)",
@@ -542,7 +542,7 @@ function PlacedBlock({
                     e.stopPropagation();
                     handleStart();
                   }}
-                  className="rounded px-1.5 py-0.5 text-xs font-medium"
+                  className="rounded px-1.5 py-0.5 text-xs font-medium cursor-pointer"
                   style={{
                     background: "var(--color-plan)",
                     color: "var(--color-accent-ink)",

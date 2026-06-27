@@ -111,7 +111,7 @@ export function QuickAddModal({ date, onAdded }: Props) {
               <button
                 type="submit"
                 disabled={loading}
-                className="rounded-[var(--radius-sm)] px-3 py-1.5 text-sm font-medium disabled:opacity-50"
+                className="rounded-[var(--radius-sm)] px-3 py-1.5 text-sm font-medium disabled:opacity-50 cursor-pointer"
                 style={{
                   background: "var(--color-accent)",
                   color: "var(--color-accent-ink)",
