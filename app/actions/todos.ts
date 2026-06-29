@@ -50,8 +50,27 @@ export async function updateTodoSchedule(
 
     const scheduledStart = scheduledStartIso;
 
+    // オーバーラップチェックとステータス確認を並列実行
+    const [placed, existingResult] = await Promise.all([
+      scheduledStart
+        ? fetchPlacedTodosForDate(supabase, user.id, date)
+        : Promise.resolve([] as Todo[]),
+      supabase
+        .from("todos")
+        .select("status")
+        .eq("id", todoId)
+        .eq("user_id", user.id)
+        .maybeSingle(),
+    ]);
+
+    const { data: existing, error: fetchError } = existingResult;
+    if (fetchError) return { success: false, error: fetchError.message };
+    if (!existing) return { success: false, error: "Todo が見つかりません" };
+    if (existing.status === "rolled_over") {
+      return { success: false, error: "繰越済みの Todo は変更できません" };
+    }
+
     if (scheduledStart) {
-      const placed = await fetchPlacedTodosForDate(supabase, user.id, date);
       const overlap = findOverlappingTodo(
         {
           id: todoId,
@@ -67,19 +86,6 @@ export async function updateTodoSchedule(
           error: `「${overlap.tasks?.title ?? "Todo"}」と時間が重なります。別の時間帯を選んでください。`,
         };
       }
-    }
-
-    const { data: existing, error: fetchError } = await supabase
-      .from("todos")
-      .select("status")
-      .eq("id", todoId)
-      .eq("user_id", user.id)
-      .maybeSingle();
-
-    if (fetchError) return { success: false, error: fetchError.message };
-    if (!existing) return { success: false, error: "Todo が見つかりません" };
-    if (existing.status === "rolled_over") {
-      return { success: false, error: "繰越済みの Todo は変更できません" };
     }
 
     const { error } = await supabase

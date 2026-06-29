@@ -289,13 +289,24 @@ export async function scheduleBacklogTask(
   try {
     const { supabase, user } = await getAuthedUser();
 
-    const { data: task } = await supabase
-      .from("tasks")
-      .select("id, is_leaf, estimate_minutes")
-      .eq("id", taskId)
-      .eq("user_id", user.id)
-      .single();
+    // タスク取得と配置済みTodo取得を並列実行
+    const [taskResult, placedRaw] = await Promise.all([
+      supabase
+        .from("tasks")
+        .select("id, is_leaf, estimate_minutes")
+        .eq("id", taskId)
+        .eq("user_id", user.id)
+        .single(),
+      supabase
+        .from("todos")
+        .select(TODO_WITH_TASK_SELECT)
+        .eq("user_id", user.id)
+        .eq("date", date)
+        .not("scheduled_start", "is", null)
+        .eq("status", "pending"),
+    ]);
 
+    const task = taskResult.data;
     if (!task) return { success: false, error: "タスクが見つかりません" };
     if (!task.is_leaf) {
       return { success: false, error: "親タスクは Todo に配置できません" };
@@ -307,15 +318,7 @@ export async function scheduleBacklogTask(
     );
     const scheduledStart = scheduledStartIso;
 
-    const { data: placedRaw } = await supabase
-      .from("todos")
-      .select(TODO_WITH_TASK_SELECT)
-      .eq("user_id", user.id)
-      .eq("date", date)
-      .not("scheduled_start", "is", null)
-      .eq("status", "pending");
-
-    const placed = parseTodoRows(placedRaw);
+    const placed = parseTodoRows(placedRaw.data);
     const overlap = findOverlappingTodo(
       {
         id: "new",
