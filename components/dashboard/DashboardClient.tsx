@@ -13,7 +13,7 @@ import { signOut } from "@/app/actions/auth";
 import { scheduleBacklogTask } from "@/app/actions/tasks";
 import { updateTodoSchedule } from "@/app/actions/todos";
 import { parseBacklogTaskDraggableId } from "@/lib/tasks";
-import { datetimeFromMinutes, formatDisplayDate, isToday, slotIndexToMinutes } from "@/lib/time";
+import { datetimeFromMinutes, formatDisplayDate, isToday, slotIndexToMinutes, snapMinutes, SNAP_MINUTES } from "@/lib/time";
 import type { BacklogProject, BacklogTask, Todo, WorkSession } from "@/lib/types";
 import { useToast } from "@/components/ui/Toast";
 import { BacklogPanel } from "@/components/dashboard/BacklogPanel";
@@ -106,7 +106,7 @@ export function DashboardClient({
 
   const onDragEnd = useCallback(
     async (result: DropResult) => {
-      const { draggableId, destination, source } = result;
+      const { draggableId, destination } = result;
       if (!destination) return;
 
       const backlogTaskId = parseBacklogTaskDraggableId(draggableId);
@@ -118,13 +118,49 @@ export function DashboardClient({
           );
           const minutes = slotIndexToMinutes(slotIndex);
           const scheduledStartIso = datetimeFromMinutes(dateStr, minutes).toISOString();
+
+          // バックログタスクを一時 Todo として即時追加（オプティミスティック更新）
+          const backlogTask = backlogTasks.find((t) => t.id === backlogTaskId);
+          const tempId = `optimistic-${backlogTaskId}-${Date.now()}`;
+          if (backlogTask) {
+            const plannedMinutes = Math.max(
+              SNAP_MINUTES,
+              snapMinutes(backlogTask.estimate_minutes ?? 30),
+            );
+            setLocalTodos((current) => [
+              ...current,
+              {
+                id: tempId,
+                user_id: "",
+                task_id: backlogTaskId,
+                date: dateStr,
+                scheduled_start: scheduledStartIso,
+                planned_minutes: plannedMinutes,
+                status: "pending" as const,
+                is_ad_hoc: false,
+                tasks: {
+                  id: backlogTaskId,
+                  title: backlogTask.title,
+                  project_id: backlogTask.project_id,
+                  actual_minutes: 0,
+                  is_leaf: backlogTask.is_leaf,
+                },
+              },
+            ]);
+          }
+
           const res = await scheduleBacklogTask(
             backlogTaskId,
             dateStr,
             scheduledStartIso,
           );
-          if (!res.success) showToast(res.error);
-          else refresh();
+          if (!res.success) {
+            // 失敗時は一時 Todo を削除
+            setLocalTodos((current) => current.filter((t) => t.id !== tempId));
+            showToast(res.error);
+          } else {
+            refresh();
+          }
         }
         return;
       }
@@ -140,6 +176,8 @@ export function DashboardClient({
         );
         const minutes = slotIndexToMinutes(slotIndex);
         const scheduledStartIso = datetimeFromMinutes(dateStr, minutes).toISOString();
+        // 未配置→タイムライン DnD も即時 UI 更新
+        handleOptimisticTodoUpdate(draggableId, scheduledStartIso, todo.planned_minutes);
         const res = await updateTodoSchedule(
           draggableId,
           dateStr,
@@ -147,10 +185,10 @@ export function DashboardClient({
           todo.planned_minutes,
         );
         if (!res.success) showToast(res.error);
-        else refresh();
+        refresh();
       }
     },
-    [dateStr, refresh, showToast, localTodos],
+    [backlogTasks, dateStr, handleOptimisticTodoUpdate, refresh, setLocalTodos, showToast, localTodos],
   );
 
   return (
