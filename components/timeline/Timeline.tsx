@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useRef } from "react";
+import { useCallback, useEffect, useMemo, useRef } from "react";
 import { Droppable } from "@hello-pangea/dnd";
 import { updateTodoSchedule, deleteTodo } from "@/app/actions/todos";
 import { startSession } from "@/app/actions/sessions";
@@ -57,12 +57,16 @@ export function Timeline({
 }: Props) {
   const { showToast } = useToast();
   const timelineRef = useRef<HTMLDivElement>(null);
-  const overlappingIds = getOverlappingIds(placedTodos, date);
+  const overlappingIds = useMemo(
+    () => getOverlappingIds(placedTodos, date),
+    [placedTodos, date],
+  );
 
-  const hours: number[] = [];
-  for (let h = TIMELINE_START_HOUR; h < TIMELINE_END_HOUR; h++) {
-    hours.push(h);
-  }
+  const hours = useMemo(() => {
+    const h: number[] = [];
+    for (let i = TIMELINE_START_HOUR; i < TIMELINE_END_HOUR; i++) h.push(i);
+    return h;
+  }, []);
 
   const slotCount = getSlotCount();
   const heightPx = getTimelineHeightPx();

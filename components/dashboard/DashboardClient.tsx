@@ -2,7 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import {
   getDefaultBacklogSidebarOpen,
   persistBacklogSidebarOpen,
@@ -89,11 +89,15 @@ export function DashboardClient({
     persistBacklogSidebarOpen(open);
   }, []);
 
-  const placed = localTodos.filter(
-    (t) =>
-      t.scheduled_start &&
-      (t.status === "pending" || t.status === "rolled_over") &&
-      !t.is_ad_hoc,
+  const placed = useMemo(
+    () =>
+      localTodos.filter(
+        (t) =>
+          t.scheduled_start &&
+          (t.status === "pending" || t.status === "rolled_over") &&
+          !t.is_ad_hoc,
+      ),
+    [localTodos],
   );
 
   const refresh = useCallback(() => {
