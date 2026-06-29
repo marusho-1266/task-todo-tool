@@ -57,6 +57,25 @@ export function DashboardClient({
   const [showPrepareTomorrow, setShowPrepareTomorrow] = useState(false);
   const [backlogOpen, setBacklogOpen] = useState(true);
 
+  // ローカルコピーで即時 UI 更新（オプティミスティック更新）
+  const [localTodos, setLocalTodos] = useState<Todo[]>(todos);
+  useEffect(() => {
+    // router.refresh() 後にサーバーの確定値で同期
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- sync from server props
+    setLocalTodos(todos);
+  }, [todos]);
+
+  const handleOptimisticTodoUpdate = useCallback(
+    (todoId: string, scheduled_start: string | null, planned_minutes: number) => {
+      setLocalTodos((current) =>
+        current.map((t) =>
+          t.id === todoId ? { ...t, scheduled_start, planned_minutes } : t,
+        ),
+      );
+    },
+    [],
+  );
+
   useEffect(() => {
     // Mount-only sync from localStorage; initial state is true for SSR/hydration match.
     // eslint-disable-next-line react-hooks/set-state-in-effect -- external store (localStorage)
@@ -70,7 +89,7 @@ export function DashboardClient({
     persistBacklogSidebarOpen(open);
   }, []);
 
-  const placed = todos.filter(
+  const placed = localTodos.filter(
     (t) =>
       t.scheduled_start &&
       (t.status === "pending" || t.status === "rolled_over") &&
@@ -106,7 +125,7 @@ export function DashboardClient({
         return;
       }
 
-      const todo = todos.find((t) => t.id === draggableId);
+      const todo = localTodos.find((t) => t.id === draggableId);
       if (!todo) return;
       if (todo.status === "rolled_over") return;
 
@@ -127,7 +146,7 @@ export function DashboardClient({
         else refresh();
       }
     },
-    [dateStr, refresh, showToast, todos],
+    [dateStr, refresh, showToast, localTodos],
   );
 
   return (
@@ -240,6 +259,7 @@ export function DashboardClient({
               onUpdated={refresh}
               onEditSession={setEditSession}
               onEditTodo={setEditTodo}
+              onOptimisticUpdate={handleOptimisticTodoUpdate}
             />
           </div>
         </div>

@@ -41,6 +41,7 @@ type Props = {
   onUpdated: () => void;
   onEditSession: (session: WorkSession) => void;
   onEditTodo?: (todo: Todo) => void;
+  onOptimisticUpdate?: (todoId: string, scheduled_start: string | null, planned_minutes: number) => void;
 };
 
 export function Timeline({
@@ -52,6 +53,7 @@ export function Timeline({
   onUpdated,
   onEditSession,
   onEditTodo,
+  onOptimisticUpdate,
 }: Props) {
   const { showToast } = useToast();
   const timelineRef = useRef<HTMLDivElement>(null);
@@ -113,6 +115,8 @@ export function Timeline({
           todo.planned_minutes;
         const clamped = Math.max(0, Math.min(newMinutes, maxMinutes));
         const scheduledStartIso = datetimeFromMinutes(date, clamped).toISOString();
+        // 即時 UI 更新（サーバー応答を待たない）
+        onOptimisticUpdate?.(todo.id, scheduledStartIso, todo.planned_minutes);
         const result = await updateTodoSchedule(
           todo.id,
           date,
@@ -126,7 +130,7 @@ export function Timeline({
       document.addEventListener("pointermove", onMove);
       document.addEventListener("pointerup", onUp);
     },
-    [date, onEditTodo, onUpdated, showToast],
+    [date, onEditTodo, onOptimisticUpdate, onUpdated, showToast],
   );
 
   return (
@@ -303,6 +307,7 @@ export function Timeline({
                 timeLabel={timeLabel}
                 onMoveStart={handleBlockMoveStart}
                 onUpdated={onUpdated}
+                onOptimisticUpdate={onOptimisticUpdate}
               />
             );
           })}
@@ -325,6 +330,7 @@ type BlockProps = {
   timeLabel: string;
   onMoveStart: (todo: Todo, e: React.PointerEvent) => void;
   onUpdated: () => void;
+  onOptimisticUpdate?: (todoId: string, scheduled_start: string | null, planned_minutes: number) => void;
 };
 
 type DocumentPointerListeners = {
@@ -346,6 +352,7 @@ function PlacedBlock({
   timeLabel,
   onMoveStart,
   onUpdated,
+  onOptimisticUpdate,
 }: BlockProps) {
   const { showToast } = useToast();
   const resizeStart = useRef({ y: 0, height: 0 });
@@ -406,6 +413,8 @@ function PlacedBlock({
         resizeStart.current.height + delta,
       );
       const newMinutes = snapMinutes(newHeightPx / PX_PER_MINUTE);
+      // 即時 UI 更新（サーバー応答を待たない）
+      onOptimisticUpdate?.(todo.id, todo.scheduled_start!, newMinutes);
       const result = await updateTodoSchedule(
         todo.id,
         date,
