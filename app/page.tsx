@@ -86,7 +86,7 @@ export default async function HomePage({ searchParams }: PageProps) {
           .eq("is_ad_hoc", false)
           .order("scheduled_start", { ascending: true, nullsFirst: true })
       : Promise.resolve({ data: [], error: null }),
-    fetchCalendarEvents(dateStr),
+    hasProviderToken ? fetchCalendarEvents(dateStr) : Promise.resolve([]),
   ]);
 
   if (todosError) throw new Error(todosError.message);

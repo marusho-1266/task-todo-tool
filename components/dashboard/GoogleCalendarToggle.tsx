@@ -19,7 +19,7 @@ export function GoogleCalendarToggle({ hasProviderToken, onChange }: Props) {
     setEnabled(initial);
     setMounted(true);
     onChange(initial);
-  }, []);
+  }, [onChange]);
 
   if (!hasProviderToken || !mounted) return null;
 

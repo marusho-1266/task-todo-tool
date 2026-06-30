@@ -1,6 +1,6 @@
 "use client";
 
-import { PX_PER_MINUTE } from "@/lib/time";
+import { PX_PER_MINUTE, TIMELINE_START_HOUR } from "@/lib/time";
 import type { CalendarEvent } from "@/lib/types";
 
 type Props = {
@@ -18,9 +18,8 @@ export function CalendarEventBlock({ event }: Props) {
   const top = event.startMinutes * PX_PER_MINUTE;
   const height = Math.max(event.durationMinutes * PX_PER_MINUTE, 18);
 
-  const BASE_HOUR = 6;
-  const startLabel = formatTime(event.startMinutes, BASE_HOUR);
-  const endLabel = formatTime(event.startMinutes + event.durationMinutes, BASE_HOUR);
+  const startLabel = formatTime(event.startMinutes, TIMELINE_START_HOUR);
+  const endLabel = formatTime(event.startMinutes + event.durationMinutes, TIMELINE_START_HOUR);
   const tooltip = `${event.title}\n${startLabel}〜${endLabel}`;
 
   return (

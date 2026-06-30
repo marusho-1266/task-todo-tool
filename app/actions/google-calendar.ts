@@ -20,6 +20,13 @@ export async function fetchCalendarEvents(
   dateStr: string,
 ): Promise<CalendarEvent[]> {
   const supabase = await createClient();
+
+  // getUser() でサーバーサイド認証検証（Cookie改ざん対策）
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return [];
+
   const {
     data: { session },
   } = await supabase.auth.getSession();
@@ -43,8 +50,11 @@ export async function fetchCalendarEvents(
       `https://www.googleapis.com/calendar/v3/calendars/primary/events?${params}`,
       { headers: { Authorization: `Bearer ${providerToken}` }, cache: "no-store" },
     );
+    if (!res.ok) {
+      console.error("[google-calendar] API error:", res.status);
+      return [];
+    }
     data = (await res.json()) as GCalResponse;
-    if (!res.ok) return [];
   } catch {
     return [];
   }
@@ -57,8 +67,9 @@ export async function fetchCalendarEvents(
     .map((e) => {
       const startDt = new Date(e.start.dateTime!);
       const endDt = new Date(e.end.dateTime!);
-      const startMinutes =
-        startDt.getHours() * 60 + startDt.getMinutes() - startOfDay;
+      const JST_OFFSET = 9 * 60;
+      const utcMinutes = startDt.getUTCHours() * 60 + startDt.getUTCMinutes();
+      const startMinutes = (utcMinutes + JST_OFFSET) % (24 * 60) - startOfDay;
       const durationMinutes = Math.round(
         (endDt.getTime() - startDt.getTime()) / 60000,
       );
