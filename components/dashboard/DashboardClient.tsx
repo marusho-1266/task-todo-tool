@@ -25,6 +25,7 @@ import { EditSessionModal } from "@/components/sessions/EditSessionModal";
 import { EditTodoScheduleModal } from "@/components/sessions/EditTodoScheduleModal";
 import { ManualSessionModal } from "@/components/sessions/ManualSessionModal";
 import { ThemeToggle } from "@/components/theme/ThemeToggle";
+import { GoogleCalendarToggle } from "@/components/dashboard/GoogleCalendarToggle";
 
 type Props = {
   selectedDate: Date;
@@ -60,6 +61,7 @@ export function DashboardClient({
   const [showManualAdd, setShowManualAdd] = useState(false);
   const [showPrepareTomorrow, setShowPrepareTomorrow] = useState(false);
   const [backlogOpen, setBacklogOpen] = useState(true);
+  const [gcalEnabled, setGcalEnabled] = useState(false);
 
   // ローカルコピーで即時 UI 更新（オプティミスティック更新）
   const [localTodos, setLocalTodos] = useState<Todo[]>(todos);
@@ -241,6 +243,10 @@ export function DashboardClient({
                   明日を準備
                 </button>
               )}
+              <GoogleCalendarToggle
+                hasProviderToken={hasProviderToken}
+                onChange={setGcalEnabled}
+              />
               <button
                 type="button"
                 onClick={() => setShowManualAdd(true)}
@@ -306,6 +312,7 @@ export function DashboardClient({
               onEditSession={setEditSession}
               onEditTodo={setEditTodo}
               onOptimisticUpdate={handleOptimisticTodoUpdate}
+              calendarEvents={gcalEnabled ? calendarEvents : []}
             />
           </div>
         </div>
