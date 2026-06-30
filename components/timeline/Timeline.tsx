@@ -22,10 +22,11 @@ import {
   formatPlanTooltip,
   PLAN_LANE_CLASS,
 } from "@/lib/timeline-blocks";
-import type { Todo, WorkSession } from "@/lib/types";
+import type { CalendarEvent, Todo, WorkSession } from "@/lib/types";
 import { useToast } from "@/components/ui/Toast";
 import { QuickAddModal } from "@/components/timeline/QuickAddModal";
 import { SessionBlock } from "@/components/timeline/SessionBlock";
+import { CalendarEventBlock } from "@/components/timeline/CalendarEventBlock";
 import {
   buildTimelineCsv,
   downloadTimelineCsv,
@@ -42,6 +43,7 @@ type Props = {
   onEditSession: (session: WorkSession) => void;
   onEditTodo?: (todo: Todo) => void;
   onOptimisticUpdate?: (todoId: string, scheduled_start: string | null, planned_minutes: number) => void;
+  calendarEvents?: CalendarEvent[];
 };
 
 export function Timeline({
@@ -54,6 +56,7 @@ export function Timeline({
   onEditSession,
   onEditTodo,
   onOptimisticUpdate,
+  calendarEvents = [],
 }: Props) {
   const { showToast } = useToast();
   const timelineRef = useRef<HTMLDivElement>(null);
@@ -315,6 +318,13 @@ export function Timeline({
               />
             );
           })}
+
+          {/* Calendar event blocks — read-only, outside DnD */}
+          {calendarEvents
+            .filter((e) => !e.isAllDay)
+            .map((e) => (
+              <CalendarEventBlock key={e.id} event={e} />
+            ))}
         </div>
       </div>
     </section>
