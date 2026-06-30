@@ -6,6 +6,7 @@ import { parseTodoRows, TODO_WITH_TASK_SELECT } from "@/lib/todos";
 import { dayBounds, formatDateParam, getTodayJST, isToday, parseDateParam } from "@/lib/time";
 import { ToastProvider } from "@/components/ui/Toast";
 import { DashboardClient } from "@/components/dashboard/DashboardClient";
+import { fetchCalendarEvents } from "@/app/actions/google-calendar";
 
 export const dynamic = "force-dynamic";
 
@@ -28,6 +29,9 @@ export default async function HomePage({ searchParams }: PageProps) {
   const dateStr = formatDateParam(selectedDate);
   const todayStr = formatDateParam(getTodayJST());
 
+  const { data: { session } } = await supabase.auth.getSession();
+  const hasProviderToken = !!session?.provider_token;
+
   const [
     { data: todosRaw, error: todosError },
     { data: activeSessionRaw, error: activeSessionError },
@@ -35,6 +39,7 @@ export default async function HomePage({ searchParams }: PageProps) {
     { data: projectsRaw, error: projectsError },
     { data: tasksRaw, error: tasksError },
     { data: carryOverRaw, error: carryOverError },
+    calendarEvents,
   ] = await Promise.all([
     supabase
       .from("todos")
@@ -81,6 +86,7 @@ export default async function HomePage({ searchParams }: PageProps) {
           .eq("is_ad_hoc", false)
           .order("scheduled_start", { ascending: true, nullsFirst: true })
       : Promise.resolve({ data: [], error: null }),
+    fetchCalendarEvents(dateStr),
   ]);
 
   if (todosError) throw new Error(todosError.message);
@@ -118,6 +124,8 @@ export default async function HomePage({ searchParams }: PageProps) {
         projects={projects}
         backlogTasks={backlogTasks}
         carryOverCandidates={carryOverCandidates}
+        calendarEvents={calendarEvents}
+        hasProviderToken={hasProviderToken}
       />
     </ToastProvider>
   );

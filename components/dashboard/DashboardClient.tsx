@@ -14,7 +14,7 @@ import { scheduleBacklogTask } from "@/app/actions/tasks";
 import { updateTodoSchedule } from "@/app/actions/todos";
 import { parseBacklogTaskDraggableId } from "@/lib/tasks";
 import { datetimeFromMinutes, formatDisplayDate, isToday, slotIndexToMinutes, snapMinutes, SNAP_MINUTES } from "@/lib/time";
-import type { BacklogProject, BacklogTask, Todo, WorkSession } from "@/lib/types";
+import type { BacklogProject, BacklogTask, CalendarEvent, Todo, WorkSession } from "@/lib/types";
 import { useToast } from "@/components/ui/Toast";
 import { BacklogPanel } from "@/components/dashboard/BacklogPanel";
 import { DateNav } from "@/components/dashboard/DateNav";
@@ -36,6 +36,8 @@ type Props = {
   projects: BacklogProject[];
   backlogTasks: BacklogTask[];
   carryOverCandidates: Todo[];
+  calendarEvents: CalendarEvent[];
+  hasProviderToken: boolean;
 };
 
 export function DashboardClient({
@@ -48,6 +50,8 @@ export function DashboardClient({
   projects,
   backlogTasks,
   carryOverCandidates,
+  calendarEvents,
+  hasProviderToken,
 }: Props) {
   const router = useRouter();
   const { showToast } = useToast();
