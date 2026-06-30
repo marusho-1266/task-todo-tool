@@ -109,3 +109,11 @@ export type Profile = {
 export type ActionResult<T = void> =
   | { success: true; data?: T }
   | { success: false; error: string };
+
+export type CalendarEvent = {
+  id: string;
+  title: string;
+  startMinutes: number;
+  durationMinutes: number;
+  isAllDay: boolean;
+};
