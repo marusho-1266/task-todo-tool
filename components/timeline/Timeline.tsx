@@ -323,7 +323,7 @@ export function Timeline({
           {calendarEvents
             .filter((e) => !e.isAllDay)
             .map((e) => (
-              <CalendarEventBlock key={e.id} event={e} />
+              <CalendarEventBlock key={e.id} event={e} date={date} onStarted={onUpdated} />
             ))}
         </div>
       </div>
