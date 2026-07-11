@@ -85,11 +85,11 @@
 **Description:** 「現在の JST 時刻がタイムライン起点(06:00)から何分か」を返す純粋関数(例: `getNowTimelineMinutes(now?: Date): number | null`、範囲外は null)を追加する。テストを先に書く。
 
 **Acceptance criteria:**
-- [ ] JST 06:00 → 0、22:00 以降・06:00 未満 → null、境界値(05:59 / 06:00 / 21:59 / 22:00)が正しい
-- [ ] `Date` を引数注入できテストが時刻に依存しない
+- [x] JST 06:00 → 0、22:00 以降・06:00 未満 → null、境界値(05:59 / 06:00 / 21:59 / 22:00)が正しい
+- [x] `Date` を引数注入できテストが時刻に依存しない
 
 **Verification:**
-- [ ] `npm test`(新規 `lib/time.test.ts` を含め全件パス)
+- [x] `npm test`(新規 `lib/time.test.ts` 7 件を含め全 27 件パス)
 
 **Dependencies:** None
 **Files likely touched:**

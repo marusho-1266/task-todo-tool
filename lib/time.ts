@@ -48,6 +48,18 @@ export function isToday(date: Date): boolean {
   return formatDateParam(date) === formatDateParam(getTodayJST());
 }
 
+/**
+ * 現在時刻(JST)のタイムライン起点(TIMELINE_START_HOUR)からの経過分を返す。
+ * 表示範囲(06:00–22:00)外の時刻は null。`now` は主にテスト用の注入ポイント。
+ */
+export function getNowTimelineMinutes(now: Date = new Date()): number | null {
+  const jst = new Date(now.getTime() + 9 * 60 * 60 * 1000);
+  const totalMinutes = jst.getUTCHours() * 60 + jst.getUTCMinutes();
+  const offset = totalMinutes - TIMELINE_START_HOUR * 60;
+  if (offset < 0 || offset >= getTimelineTotalMinutes()) return null;
+  return offset;
+}
+
 export function snapMinutes(minutes: number): number {
   return Math.round(minutes / SNAP_MINUTES) * SNAP_MINUTES;
 }
