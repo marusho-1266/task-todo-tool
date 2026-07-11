@@ -2,7 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   getDefaultBacklogSidebarOpen,
   persistBacklogSidebarOpen,
@@ -10,6 +10,7 @@ import {
 } from "@/lib/backlog-sidebar";
 import { DragDropContext, type DropResult } from "@hello-pangea/dnd";
 import { signOut } from "@/app/actions/auth";
+import { fetchCalendarEvents } from "@/app/actions/google-calendar";
 import { scheduleBacklogTask } from "@/app/actions/tasks";
 import { updateTodoSchedule } from "@/app/actions/todos";
 import { parseBacklogTaskDraggableId } from "@/lib/tasks";
@@ -37,9 +38,11 @@ type Props = {
   projects: BacklogProject[];
   backlogTasks: BacklogTask[];
   carryOverCandidates: Todo[];
-  calendarEvents: CalendarEvent[];
   hasProviderToken: boolean;
 };
+
+// Google Calendar 予定のクライアント側キャッシュ有効期間
+const CALENDAR_CACHE_TTL_MS = 5 * 60 * 1000;
 
 export function DashboardClient({
   selectedDate,
@@ -51,7 +54,6 @@ export function DashboardClient({
   projects,
   backlogTasks,
   carryOverCandidates,
-  calendarEvents,
   hasProviderToken,
 }: Props) {
   const router = useRouter();
@@ -62,6 +64,35 @@ export function DashboardClient({
   const [showPrepareTomorrow, setShowPrepareTomorrow] = useState(false);
   const [backlogOpen, setBacklogOpen] = useState(true);
   const [gcalEnabled, setGcalEnabled] = useState(false);
+
+  // Google Calendar 予定はトグル ON 時にのみクライアントから遅延取得する。
+  // 日付単位でキャッシュし、TTL 内は router.refresh() 後も再取得しない。
+  const [calendarEvents, setCalendarEvents] = useState<CalendarEvent[]>([]);
+  const calendarCacheRef = useRef<
+    Map<string, { events: CalendarEvent[]; fetchedAt: number }>
+  >(new Map());
+
+  useEffect(() => {
+    if (!gcalEnabled || !hasProviderToken) return;
+
+    const cached = calendarCacheRef.current.get(dateStr);
+    if (cached && Date.now() - cached.fetchedAt < CALENDAR_CACHE_TTL_MS) {
+      setCalendarEvents(cached.events);
+      return;
+    }
+
+    // 取得完了まで前の日付の予定を出さない
+    setCalendarEvents([]);
+    let cancelled = false;
+    fetchCalendarEvents(dateStr).then((events) => {
+      if (cancelled) return;
+      calendarCacheRef.current.set(dateStr, { events, fetchedAt: Date.now() });
+      setCalendarEvents(events);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [gcalEnabled, hasProviderToken, dateStr]);
 
   // ローカルコピーで即時 UI 更新（オプティミスティック更新）
   const [localTodos, setLocalTodos] = useState<Todo[]>(todos);

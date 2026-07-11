@@ -50,15 +50,15 @@
 **Description:** `app/page.tsx` の `Promise.all` から `fetchCalendarEvents` を外し、`DashboardClient` で `gcalEnabled && hasProviderToken` のとき `useEffect` から Server Action を呼ぶ。結果は `useRef` の Map(キー: `dateStr`、TTL 5 分)にキャッシュし、`useState` で描画に反映する。`Timeline` への渡し方(`gcalEnabled ? events : []`)は維持。
 
 **Acceptance criteria:**
-- [ ] `app/page.tsx` が `fetchCalendarEvents` を呼ばない(`hasProviderToken` の算出・受け渡しは維持)
-- [ ] トグル OFF ではカレンダー取得リクエストが一切発生しない
-- [ ] トグル ON で予定が表示され、同一日付は 5 分以内なら再取得しない(`router.refresh()` 後も再取得なし)
-- [ ] 日付切替時、キャッシュ未取得の日付のみ取得する
+- [x] `app/page.tsx` が `fetchCalendarEvents` を呼ばない(`hasProviderToken` の算出・受け渡しは維持)
+- [x] トグル OFF ではカレンダー取得リクエストが一切発生しない(effect が `gcalEnabled && hasProviderToken` 時のみ実行)
+- [x] トグル ON で予定が表示され、同一日付は 5 分以内なら再取得しない(`router.refresh()` 後も再取得なし)
+- [x] 日付切替時、キャッシュ未取得の日付のみ取得する
 
 **Verification:**
-- [ ] `npm run build` 成功
-- [ ] `npm run lint` 成功
-- [ ] 手動: dev サーバーで Network タブを見ながら「初期表示(OFF)→ トグル ON → ブロック移動 → 日付切替」を実施し、Server Action 呼び出しが「ON 直後と新規日付のみ」であること
+- [x] `npm run build` 成功
+- [x] `npm run lint` 成功(変更ファイルに指摘なし。既存の 2 errors は別ファイル・変更前から存在)
+- [ ] 手動: dev サーバーで Network タブを見ながら「初期表示(OFF)→ トグル ON → ブロック移動 → 日付切替」を実施し、Server Action 呼び出しが「ON 直後と新規日付のみ」であること(ユーザー確認待ち)
 
 **Dependencies:** None
 **Files likely touched:**
