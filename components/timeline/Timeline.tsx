@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useRef } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Droppable } from "@hello-pangea/dnd";
 import { updateTodoSchedule, deleteTodo } from "@/app/actions/todos";
 import { startSession } from "@/app/actions/sessions";
@@ -8,8 +8,11 @@ import {
   TIMELINE_START_HOUR,
   TIMELINE_END_HOUR,
   datetimeFromMinutes,
+  formatDateParam,
+  getNowTimelineMinutes,
   getSlotCount,
   getTimelineHeightPx,
+  getTodayJST,
   minutesFromDayStart,
   PX_PER_MINUTE,
   SNAP_MINUTES,
@@ -60,6 +63,30 @@ export function Timeline({
 }: Props) {
   const { showToast } = useToast();
   const timelineRef = useRef<HTMLDivElement>(null);
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
+
+  // 現在時刻ライン（今日表示時のみ・1分毎更新）。SSR とのずれを避けるためマウント後に計算する。
+  const isTodayView = date === formatDateParam(getTodayJST());
+  const [nowMinutes, setNowMinutes] = useState<number | null>(null);
+  useEffect(() => {
+    if (!isTodayView) return;
+    const update = () => setNowMinutes(getNowTimelineMinutes());
+    update();
+    const id = setInterval(update, 60_000);
+    return () => clearInterval(id);
+  }, [isTodayView]);
+
+  // 今日の初期表示時、現在時刻ラインが上から 1/3 に来る位置へスクロール
+  useEffect(() => {
+    if (!isTodayView) return;
+    const container = scrollContainerRef.current;
+    const minutes = getNowTimelineMinutes();
+    if (!container || minutes === null) return;
+    container.scrollTop = Math.max(
+      0,
+      minutes * PX_PER_MINUTE - container.clientHeight / 3,
+    );
+  }, [isTodayView]);
   const overlappingIds = useMemo(
     () => getOverlappingIds(placedTodos, date),
     [placedTodos, date],
@@ -195,12 +222,27 @@ export function Timeline({
         </div>
       </header>
 
-      <div className="relative flex-1 overflow-y-auto p-4">
+      <div ref={scrollContainerRef} className="relative flex-1 overflow-y-auto p-4">
         <div
           ref={timelineRef}
           className="relative mx-auto max-w-2xl"
           style={{ height: heightPx }}
         >
+          {/* 現在時刻ライン（今日表示時のみ） */}
+          {isTodayView && nowMinutes !== null && (
+            <div
+              className="pointer-events-none absolute right-0 left-12 z-30"
+              style={{ top: nowMinutes * PX_PER_MINUTE }}
+            >
+              <div className="relative h-[2px]" style={{ background: "#ef4444" }}>
+                <span
+                  className="absolute top-1/2 -left-1 h-2 w-2 -translate-y-1/2 rounded-full"
+                  style={{ background: "#ef4444" }}
+                />
+              </div>
+            </div>
+          )}
+
           {/* Hour labels + 15-min grid */}
           {hours.map((hour) => (
             <div key={hour}>

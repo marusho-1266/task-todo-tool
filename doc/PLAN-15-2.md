@@ -103,14 +103,14 @@
 **Description:** `Timeline.tsx` に赤い現在時刻ラインを追加(今日表示時のみ、1 分毎更新、`pointer-events-none`、マウント後にのみ描画)。初期マウント時(および今日への日付切替時)に、スクロールコンテナ(`overflow-y-auto` の div)をラインが上から 1/3 の位置に来るようスクロールする。
 
 **Acceptance criteria:**
-- [ ] 今日を表示中、現在時刻の位置(`分 × PX_PER_MINUTE`)に赤ライン + 左端ドットが表示される
-- [ ] 過去・未来の日付、および 06:00–22:00 範囲外の時刻では非表示
-- [ ] 1 分経過でラインが移動する(`setInterval` 60s、unmount で clear)
-- [ ] 今日の初期表示で現在時刻付近(上から約 1/3)へ自動スクロールされる
+- [x] 今日を表示中、現在時刻の位置(`分 × PX_PER_MINUTE`)に赤ライン + 左端ドットが表示される
+- [x] 過去・未来の日付、および 06:00–22:00 範囲外の時刻では非表示(`isTodayView` ガード + `getNowTimelineMinutes` が範囲外で null)
+- [x] 1 分経過でラインが移動する(`setInterval` 60s、unmount で clear)
+- [x] 今日の初期表示で現在時刻付近(上から約 1/3)へ自動スクロールされる
 
 **Verification:**
-- [ ] `npm run build` / `npm run lint` 成功
-- [ ] 手動: 今日表示・別日表示・日付を今日へ戻す、の 3 パターンで表示とスクロールを確認。既存の DnD・リサイズがライン上でも動作すること(pointer-events-none)
+- [x] `npm run build` / `npm run lint` 成功
+- [ ] 手動: 今日表示・別日表示・日付を今日へ戻す、の 3 パターンで表示とスクロールを確認。既存の DnD・リサイズがライン上でも動作すること(pointer-events-none)(ユーザー確認待ち)
 
 **Dependencies:** Task 3
 **Files likely touched:**
