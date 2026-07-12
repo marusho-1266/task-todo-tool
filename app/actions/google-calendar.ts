@@ -1,7 +1,7 @@
 "use server";
 
 import { createClient } from "@/lib/supabase/server";
-import { TIMELINE_START_HOUR, TIMELINE_END_HOUR } from "@/lib/time";
+import { TIMELINE_START_HOUR, TIMELINE_END_HOUR, JST_OFFSET_MS } from "@/lib/time";
 import type { CalendarEvent } from "@/lib/types";
 
 type GCalEvent = {
@@ -18,7 +18,7 @@ type GCalResponse = {
 
 export async function fetchCalendarEvents(
   dateStr: string,
-): Promise<CalendarEvent[]> {
+): Promise<CalendarEvent[] | null> {
   const supabase = await createClient();
 
   // getUser() でサーバーサイド認証検証（Cookie改ざん対策）
@@ -51,12 +51,13 @@ export async function fetchCalendarEvents(
       { headers: { Authorization: `Bearer ${providerToken}` }, cache: "no-store" },
     );
     if (!res.ok) {
+      // 401/トークン失効などの一時的な取得失敗は null を返し、呼び出し側でのキャッシュを避ける
       console.error("[google-calendar] API error:", res.status);
-      return [];
+      return null;
     }
     data = (await res.json()) as GCalResponse;
   } catch {
-    return [];
+    return null;
   }
 
   const items = data.items ?? [];
@@ -67,9 +68,9 @@ export async function fetchCalendarEvents(
     .map((e) => {
       const startDt = new Date(e.start.dateTime!);
       const endDt = new Date(e.end.dateTime!);
-      const JST_OFFSET = 9 * 60;
+      const jstOffsetMinutes = JST_OFFSET_MS / 60_000;
       const utcMinutes = startDt.getUTCHours() * 60 + startDt.getUTCMinutes();
-      const startMinutes = (utcMinutes + JST_OFFSET) % (24 * 60) - startOfDay;
+      const startMinutes = (utcMinutes + jstOffsetMinutes) % (24 * 60) - startOfDay;
       const durationMinutes = Math.round(
         (endDt.getTime() - startDt.getTime()) / 60000,
       );

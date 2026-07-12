@@ -1,6 +1,9 @@
+/** JST is UTC+9 with no daylight saving time. */
+export const JST_OFFSET_MS = 9 * 60 * 60 * 1000;
+
 /** Returns today's date in JST (UTC+9), safe to call from server where TZ may be UTC. */
 export function getTodayJST(): Date {
-  const jstMs = Date.now() + 9 * 60 * 60 * 1000;
+  const jstMs = Date.now() + JST_OFFSET_MS;
   const jst = new Date(jstMs);
   return new Date(jst.getUTCFullYear(), jst.getUTCMonth(), jst.getUTCDate());
 }
@@ -53,7 +56,7 @@ export function isToday(date: Date): boolean {
  * 表示範囲(06:00–22:00)外の時刻は null。`now` は主にテスト用の注入ポイント。
  */
 export function getNowTimelineMinutes(now: Date = new Date()): number | null {
-  const jst = new Date(now.getTime() + 9 * 60 * 60 * 1000);
+  const jst = new Date(now.getTime() + JST_OFFSET_MS);
   const totalMinutes = jst.getUTCHours() * 60 + jst.getUTCMinutes();
   const offset = totalMinutes - TIMELINE_START_HOUR * 60;
   if (offset < 0 || offset >= getTimelineTotalMinutes()) return null;
@@ -150,7 +153,6 @@ export function durationMinutesBetween(start: Date, end: Date): number {
 /** JST calendar day bounds for session queries (00:00:00.000 JST – 23:59:59.999 JST). */
 export function dayBounds(dateStr: string): { start: Date; end: Date } {
   const [y, m, d] = dateStr.split("-").map(Number);
-  const JST_OFFSET_MS = 9 * 60 * 60 * 1000;
   return {
     start: new Date(Date.UTC(y, m - 1, d, 0, 0, 0, 0) - JST_OFFSET_MS),
     end: new Date(Date.UTC(y, m - 1, d, 23, 59, 59, 999) - JST_OFFSET_MS),

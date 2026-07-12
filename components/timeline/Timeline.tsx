@@ -8,12 +8,12 @@ import {
   TIMELINE_START_HOUR,
   TIMELINE_END_HOUR,
   datetimeFromMinutes,
-  formatDateParam,
   getNowTimelineMinutes,
   getSlotCount,
   getTimelineHeightPx,
-  getTodayJST,
+  isToday,
   minutesFromDayStart,
+  parseDateParam,
   PX_PER_MINUTE,
   SNAP_MINUTES,
   formatTimeLabel,
@@ -65,16 +65,7 @@ export function Timeline({
   const timelineRef = useRef<HTMLDivElement>(null);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
 
-  // 現在時刻ライン（今日表示時のみ・1分毎更新）。SSR とのずれを避けるためマウント後に計算する。
-  const isTodayView = date === formatDateParam(getTodayJST());
-  const [nowMinutes, setNowMinutes] = useState<number | null>(null);
-  useEffect(() => {
-    if (!isTodayView) return;
-    const update = () => setNowMinutes(getNowTimelineMinutes());
-    update();
-    const id = setInterval(update, 60_000);
-    return () => clearInterval(id);
-  }, [isTodayView]);
+  const isTodayView = isToday(parseDateParam(date));
 
   // 今日の初期表示時、現在時刻ラインが上から 1/3 に来る位置へスクロール
   useEffect(() => {
@@ -229,19 +220,7 @@ export function Timeline({
           style={{ height: heightPx }}
         >
           {/* 現在時刻ライン（今日表示時のみ） */}
-          {isTodayView && nowMinutes !== null && (
-            <div
-              className="pointer-events-none absolute right-0 left-12 z-30"
-              style={{ top: nowMinutes * PX_PER_MINUTE }}
-            >
-              <div className="relative h-[2px]" style={{ background: "#ef4444" }}>
-                <span
-                  className="absolute top-1/2 -left-1 h-2 w-2 -translate-y-1/2 rounded-full"
-                  style={{ background: "#ef4444" }}
-                />
-              </div>
-            </div>
-          )}
+          {isTodayView && <CurrentTimeLine />}
 
           {/* Hour labels + 15-min grid */}
           {hours.map((hour) => (
@@ -370,6 +349,34 @@ export function Timeline({
         </div>
       </div>
     </section>
+  );
+}
+
+// 現在時刻ライン専用の葉コンポーネント。1分毎の再レンダーをここに閉じ込め、
+// 親の Timeline（全 todo ブロック + Droppable スロット）が毎分再レンダーされるのを防ぐ。
+function CurrentTimeLine() {
+  const [nowMinutes, setNowMinutes] = useState<number | null>(null);
+  useEffect(() => {
+    const update = () => setNowMinutes(getNowTimelineMinutes());
+    update();
+    const id = setInterval(update, 60_000);
+    return () => clearInterval(id);
+  }, []);
+
+  if (nowMinutes === null) return null;
+
+  return (
+    <div
+      className="pointer-events-none absolute right-0 left-12 z-30"
+      style={{ top: nowMinutes * PX_PER_MINUTE }}
+    >
+      <div className="relative h-[2px]" style={{ background: "var(--color-danger)" }}>
+        <span
+          className="absolute top-1/2 -left-1 h-2 w-2 -translate-y-1/2 rounded-full"
+          style={{ background: "var(--color-danger)" }}
+        />
+      </div>
+    </div>
   );
 }
 

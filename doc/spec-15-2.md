@@ -31,6 +31,8 @@
 
 注意: 本作業中、エージェントは `supabasepass.md` の内容を読まない・出力しない。
 
+**対応済み(2026-07-12)**: `git rm --cached` + `.gitignore` 追加はコミット済み(`4c3d80c`)。Supabase ダッシュボード(Connect 画面)から DB パスワードをローテーション実施済み。本アプリのコードは `NEXT_PUBLIC_SUPABASE_URL` / `NEXT_PUBLIC_SUPABASE_ANON_KEY`(`lib/supabase/client.ts`, `server.ts`)のみを使用し DB パスワードには依存しないため、Vercel 側の環境変数変更は不要と判断。
+
 ### 2. Google Calendar 取得の非ブロック化
 
 現状: `app/page.tsx:89` で `fetchCalendarEvents(dateStr)` を `Promise.all` に含めており、Google API の応答時間(数百 ms〜)が毎回ページ表示と全操作後の `router.refresh()` に乗る。トグル OFF でも取得している(`DashboardClient.tsx:315` で表示だけ抑制)。
@@ -106,13 +108,13 @@ const topPx = nowOffsetMinutes * PX_PER_MINUTE;
 
 ## Success Criteria
 
-1. `supabasepass.md` が git 追跡外になり `.gitignore` に登録されている(+ ユーザーによるローテーション実施)
+1. `supabasepass.md` が git 追跡外になり `.gitignore` に登録されている(+ ユーザーによるローテーション実施) — ✅ 対応済み(2026-07-12)
 2. 初期表示および全ての Server Action 後の `router.refresh()` で Google Calendar API が呼ばれない(トグル ON の初回とキャッシュ失効時のみ呼ばれる)
 3. 今日のタイムラインに現在時刻ラインが表示され 1 分毎に更新される。初期表示で現在時刻へ自動スクロールする
 4. `npm run build`・`npm test`・`npm run lint` がすべて成功する
 
 ## Open Questions
 
-1. Supabase 認証情報のローテーションはユーザー側作業になるが、タイミングはコミット前後どちらでも良いか?(推奨: 対処コミット後すぐ)
+1. ~~Supabase 認証情報のローテーションはユーザー側作業になるが、タイミングはコミット前後どちらでも良いか?~~ → 2026-07-12 に DB パスワードをローテーション実施済み。解決。
 2. 自動スクロールの位置(現在時刻を上から 1/3 に置く)で良いか? 中央寄せの好みがあれば指定を。
 3. GCal キャッシュ TTL 5 分で良いか?(レビュー提案の 1〜5 分の上限を採用)

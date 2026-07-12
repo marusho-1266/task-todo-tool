@@ -86,8 +86,14 @@ export function DashboardClient({
     let cancelled = false;
     fetchCalendarEvents(dateStr).then((events) => {
       if (cancelled) return;
+      if (events === null) {
+        // 取得失敗時はキャッシュに書き込まず、次回の effect 実行時に再試行させる
+        return;
+      }
       calendarCacheRef.current.set(dateStr, { events, fetchedAt: Date.now() });
       setCalendarEvents(events);
+    }).catch(() => {
+      // 呼び出し自体が reject した場合もキャッシュに書き込まず、次回の effect 実行時に再試行させる
     });
     return () => {
       cancelled = true;

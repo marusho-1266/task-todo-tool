@@ -42,6 +42,7 @@ html.dark {
   --color-actual: oklch(72% 0.12 145);
   --color-warn-soft: oklch(30% 0.06 55);
   --color-warn: oklch(72% 0.14 55);
+  --color-danger: oklch(68% 0.19 25);
 }
 
 /* Native form controls — dropdown options must follow theme tokens */
