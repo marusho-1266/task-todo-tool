@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useRef } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Droppable } from "@hello-pangea/dnd";
 import { updateTodoSchedule, deleteTodo } from "@/app/actions/todos";
 import { startSession } from "@/app/actions/sessions";
@@ -8,9 +8,12 @@ import {
   TIMELINE_START_HOUR,
   TIMELINE_END_HOUR,
   datetimeFromMinutes,
+  getNowTimelineMinutes,
   getSlotCount,
   getTimelineHeightPx,
+  isToday,
   minutesFromDayStart,
+  parseDateParam,
   PX_PER_MINUTE,
   SNAP_MINUTES,
   formatTimeLabel,
@@ -60,6 +63,21 @@ export function Timeline({
 }: Props) {
   const { showToast } = useToast();
   const timelineRef = useRef<HTMLDivElement>(null);
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
+
+  const isTodayView = isToday(parseDateParam(date));
+
+  // 今日の初期表示時、現在時刻ラインが上から 1/3 に来る位置へスクロール
+  useEffect(() => {
+    if (!isTodayView) return;
+    const container = scrollContainerRef.current;
+    const minutes = getNowTimelineMinutes();
+    if (!container || minutes === null) return;
+    container.scrollTop = Math.max(
+      0,
+      minutes * PX_PER_MINUTE - container.clientHeight / 3,
+    );
+  }, [isTodayView]);
   const overlappingIds = useMemo(
     () => getOverlappingIds(placedTodos, date),
     [placedTodos, date],
@@ -195,12 +213,15 @@ export function Timeline({
         </div>
       </header>
 
-      <div className="relative flex-1 overflow-y-auto p-4">
+      <div ref={scrollContainerRef} className="relative flex-1 overflow-y-auto p-4">
         <div
           ref={timelineRef}
           className="relative mx-auto max-w-2xl"
           style={{ height: heightPx }}
         >
+          {/* 現在時刻ライン（今日表示時のみ） */}
+          {isTodayView && <CurrentTimeLine />}
+
           {/* Hour labels + 15-min grid */}
           {hours.map((hour) => (
             <div key={hour}>
@@ -328,6 +349,34 @@ export function Timeline({
         </div>
       </div>
     </section>
+  );
+}
+
+// 現在時刻ライン専用の葉コンポーネント。1分毎の再レンダーをここに閉じ込め、
+// 親の Timeline（全 todo ブロック + Droppable スロット）が毎分再レンダーされるのを防ぐ。
+function CurrentTimeLine() {
+  const [nowMinutes, setNowMinutes] = useState<number | null>(null);
+  useEffect(() => {
+    const update = () => setNowMinutes(getNowTimelineMinutes());
+    update();
+    const id = setInterval(update, 60_000);
+    return () => clearInterval(id);
+  }, []);
+
+  if (nowMinutes === null) return null;
+
+  return (
+    <div
+      className="pointer-events-none absolute right-0 left-12 z-30"
+      style={{ top: nowMinutes * PX_PER_MINUTE }}
+    >
+      <div className="relative h-[2px]" style={{ background: "var(--color-danger)" }}>
+        <span
+          className="absolute top-1/2 -left-1 h-2 w-2 -translate-y-1/2 rounded-full"
+          style={{ background: "var(--color-danger)" }}
+        />
+      </div>
+    </div>
   );
 }
 
