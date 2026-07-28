@@ -1,8 +1,8 @@
 {
   ".claude/settings.json": {
-    "mtime": 1781480977.0605955,
-    "ast_hash": "4f23915261cd986d9b4120126a1bdbed",
-    "semantic_hash": "4f23915261cd986d9b4120126a1bdbed"
+    "mtime": 1785218698.7401142,
+    "ast_hash": "ed4faee30e80ca548bfdac4750b3c60b",
+    "semantic_hash": ""
   },
   ".claude/settings.local.json": {
     "mtime": 1781568804.5996983,
@@ -25,9 +25,9 @@
     "semantic_hash": "4a3d77205476c6988c82e76d01b3aa8f"
   },
   "app/actions/google-calendar.ts": {
-    "mtime": 1782955879.2184732,
-    "ast_hash": "725c6f081672b12f6f566338a81f958a",
-    "semantic_hash": "725c6f081672b12f6f566338a81f958a"
+    "mtime": 1785218756.394849,
+    "ast_hash": "444c9fa17940dc3d30f2dc5ba45ea627",
+    "semantic_hash": ""
   },
   "app/actions/prepare-tomorrow.ts": {
     "mtime": 1782955879.225551,
@@ -80,9 +80,9 @@
     "semantic_hash": "47192880437f1593be215cc6125c7a32"
   },
   "app/page.tsx": {
-    "mtime": 1782955879.262044,
-    "ast_hash": "c31a379481b7212c09f83f5839d776cc",
-    "semantic_hash": "c31a379481b7212c09f83f5839d776cc"
+    "mtime": 1785218756.4719,
+    "ast_hash": "d0f5f4158b3d55fca83348c1ec6dfbda",
+    "semantic_hash": ""
   },
   "app/projects/page.tsx": {
     "mtime": 1781480978.1513317,
@@ -105,9 +105,9 @@
     "semantic_hash": "a3291c46f39b1b7924efc7d1847aeaca"
   },
   "components/dashboard/DashboardClient.tsx": {
-    "mtime": 1782955879.2676246,
-    "ast_hash": "5c9200dd86e09ec886ba488ebab3bb82",
-    "semantic_hash": "5c9200dd86e09ec886ba488ebab3bb82"
+    "mtime": 1785219489.5824616,
+    "ast_hash": "c7f63358ea894de4f32151e88f0b388b",
+    "semantic_hash": ""
   },
   "components/dashboard/DateNav.tsx": {
     "mtime": 1780962078.4800618,
@@ -180,9 +180,9 @@
     "semantic_hash": "9668b5271b2805786154affd0c95f14f"
   },
   "components/timeline/Timeline.tsx": {
-    "mtime": 1782970767.753247,
-    "ast_hash": "2d3875521a4ba6e0421923bb25dec239",
-    "semantic_hash": "2d3875521a4ba6e0421923bb25dec239"
+    "mtime": 1785219486.0412946,
+    "ast_hash": "f0c3ffc56da367acfd7f4964af6529bc",
+    "semantic_hash": ""
   },
   "components/ui/Toast.tsx": {
     "mtime": 1780962078.6528845,
@@ -220,9 +220,9 @@
     "semantic_hash": "bc68af74a5b2e06d8bb2536131354cf5"
   },
   "lib/sessions.ts": {
-    "mtime": 1781480978.543466,
-    "ast_hash": "c430ac65863b6b69c6854cdf2940834f",
-    "semantic_hash": "c430ac65863b6b69c6854cdf2940834f"
+    "mtime": 1785219441.5412142,
+    "ast_hash": "d30f94fb2379652a128ecb9f87421438",
+    "semantic_hash": ""
   },
   "lib/supabase/client.ts": {
     "mtime": 1780962078.7792132,
@@ -250,9 +250,9 @@
     "semantic_hash": "6abd6e10ed9de0c54ed301a6d11b2c86"
   },
   "lib/time.ts": {
-    "mtime": 1781571205.980762,
-    "ast_hash": "fa63d501b0458bc41899de2d6e90dcd9",
-    "semantic_hash": "fa63d501b0458bc41899de2d6e90dcd9"
+    "mtime": 1785218756.7430263,
+    "ast_hash": "76990d88ccc029d131636f9a45a4aa59",
+    "semantic_hash": ""
   },
   "lib/timeline-blocks.ts": {
     "mtime": 1780962078.8597434,
@@ -260,14 +260,14 @@
     "semantic_hash": "4183f8967812e0de2dbd4a189b57c415"
   },
   "lib/timeline-csv.test.ts": {
-    "mtime": 1781480978.5796564,
-    "ast_hash": "3ce5ae06f9f5abaf6e178dce42f1ea6c",
-    "semantic_hash": "3ce5ae06f9f5abaf6e178dce42f1ea6c"
+    "mtime": 1785219559.6824942,
+    "ast_hash": "abddc5e23e9eae14b3d63d0d44607442",
+    "semantic_hash": ""
   },
   "lib/timeline-csv.ts": {
-    "mtime": 1781480978.5933733,
-    "ast_hash": "0bdeae83998961f69fcc0f6fbfc4207c",
-    "semantic_hash": "0bdeae83998961f69fcc0f6fbfc4207c"
+    "mtime": 1785219467.9963849,
+    "ast_hash": "11dd3b2fc56ab0d817027957ad6585ce",
+    "semantic_hash": ""
   },
   "lib/todos.ts": {
     "mtime": 1781480978.5933733,
@@ -275,9 +275,9 @@
     "semantic_hash": "acbda4cb69f8bc5a0c8197970024bbc7"
   },
   "lib/types.ts": {
-    "mtime": 1782955879.3475575,
-    "ast_hash": "b3d084551c4763cedbd83769104bd3f4",
-    "semantic_hash": "b3d084551c4763cedbd83769104bd3f4"
+    "mtime": 1785219433.2679548,
+    "ast_hash": "ae6a4d5302a4a22d32f2356161552da5",
+    "semantic_hash": ""
   },
   "middleware.ts": {
     "mtime": 1780962078.900053,
@@ -363,5 +363,1170 @@
     "mtime": 1781480978.7396233,
     "ast_hash": "8ea0648e2b740cdc1fd7e53d1f36b799",
     "semantic_hash": "8ea0648e2b740cdc1fd7e53d1f36b799"
+  },
+  "lib/time.test.ts": {
+    "mtime": 1785218756.699472,
+    "ast_hash": "a187dc2f96f83d1deb6de75e9a66deca",
+    "semantic_hash": ""
+  },
+  ".agents/skills/hallmark/SKILL.md": {
+    "mtime": 1780962077.2901905,
+    "ast_hash": "51dce4fd470667f5b768acbb8c70fd41",
+    "semantic_hash": ""
+  },
+  ".agents/skills/hallmark/references/anti-patterns.md": {
+    "mtime": 1780962077.2998793,
+    "ast_hash": "81915c92217fbd1c80de0bdf4ae22427",
+    "semantic_hash": ""
+  },
+  ".agents/skills/hallmark/references/assets.md": {
+    "mtime": 1780962077.3162935,
+    "ast_hash": "bb89939f35ef1050c893f2000a4893ac",
+    "semantic_hash": ""
+  },
+  ".agents/skills/hallmark/references/color.md": {
+    "mtime": 1780962077.3301363,
+    "ast_hash": "4fa4ce7d67feeaf2ef9cb2e7809ebd74",
+    "semantic_hash": ""
+  },
+  ".agents/skills/hallmark/references/component-cookbook.md": {
+    "mtime": 1780962077.3398967,
+    "ast_hash": "d3c552a69236dc75bb879804615a5ba8",
+    "semantic_hash": ""
+  },
+  ".agents/skills/hallmark/references/components/c1-outlined-chip.md": {
+    "mtime": 1780962077.3499615,
+    "ast_hash": "e0380862ce5f7d9b9d4bff057f7948ba",
+    "semantic_hash": ""
+  },
+  ".agents/skills/hallmark/references/components/c2-inline-form-as-cta.md": {
+    "mtime": 1780962077.3598847,
+    "ast_hash": "dfa6ec433c6f459e971c11f00beda8e0",
+    "semantic_hash": ""
+  },
+  ".agents/skills/hallmark/references/components/c3-typographic-link.md": {
+    "mtime": 1780962077.3598847,
+    "ast_hash": "65b6a6717a99445cdf5b004eb2ab4e71",
+    "semantic_hash": ""
+  },
+  ".agents/skills/hallmark/references/components/c4-sticky-bottom-bar.md": {
+    "mtime": 1780962077.3760087,
+    "ast_hash": "ee49dfae4acf741d7eb00f6e13e36368",
+    "semantic_hash": ""
+  },
+  ".agents/skills/hallmark/references/components/f1-bento-grid.md": {
+    "mtime": 1780962077.379919,
+    "ast_hash": "56e4ffcc34e1296b896abefe19de12c2",
+    "semantic_hash": ""
+  },
+  ".agents/skills/hallmark/references/components/f2-sticky-scroll-stack.md": {
+    "mtime": 1780962077.3899298,
+    "ast_hash": "16aa3331148fa0164de2967262dab3dc",
+    "semantic_hash": ""
+  },
+  ".agents/skills/hallmark/references/components/f3-tabular-spec-sheet.md": {
+    "mtime": 1780962077.3916821,
+    "ast_hash": "d88500b91e7a4c7d5ffc6c89e9373648",
+    "semantic_hash": ""
+  },
+  ".agents/skills/hallmark/references/components/f4-step-sequence.md": {
+    "mtime": 1780962077.3998816,
+    "ast_hash": "1fa4053851ee66b3ce330769a4a69831",
+    "semantic_hash": ""
+  },
+  ".agents/skills/hallmark/references/components/f5-annotated-screenshot.md": {
+    "mtime": 1780962077.4101813,
+    "ast_hash": "db054b286be958578aa91289c89e523a",
+    "semantic_hash": ""
+  },
+  ".agents/skills/hallmark/references/components/f6-product-card-grid.md": {
+    "mtime": 1780962077.4101813,
+    "ast_hash": "e6068713ae7b8354e198dab6ebad39c2",
+    "semantic_hash": ""
+  },
+  ".agents/skills/hallmark/references/components/ft1-mast-headed.md": {
+    "mtime": 1780962077.42312,
+    "ast_hash": "71184d87af98d5be544c87863c48744c",
+    "semantic_hash": ""
+  },
+  ".agents/skills/hallmark/references/components/ft2-inline-rule-single-line.md": {
+    "mtime": 1780962077.4302936,
+    "ast_hash": "df1f748ee41d2ca8a8d66ec6a8345e6d",
+    "semantic_hash": ""
+  },
+  ".agents/skills/hallmark/references/components/ft3-index-style-category-list.md": {
+    "mtime": 1780962077.4402487,
+    "ast_hash": "7d15149ea2a9373a3930bd6f642c24ea",
+    "semantic_hash": ""
+  },
+  ".agents/skills/hallmark/references/components/ft4-dense-typographic.md": {
+    "mtime": 1780962077.4402487,
+    "ast_hash": "6389a5ffbde587ea61e5271b70bf8e3f",
+    "semantic_hash": ""
+  },
+  ".agents/skills/hallmark/references/components/ft5-statement.md": {
+    "mtime": 1780962077.4551444,
+    "ast_hash": "8b519503a163d1a8e5ad48d1792af181",
+    "semantic_hash": ""
+  },
+  ".agents/skills/hallmark/references/components/ft6-letter-close.md": {
+    "mtime": 1780962077.4601643,
+    "ast_hash": "413b97122ffda374d38ae6c218aa5ec3",
+    "semantic_hash": ""
+  },
+  ".agents/skills/hallmark/references/components/ft7-newsletter-first.md": {
+    "mtime": 1780962077.4699535,
+    "ast_hash": "38b1fca4ccea18e3c27932068240f1c2",
+    "semantic_hash": ""
+  },
+  ".agents/skills/hallmark/references/components/ft8-marquee-scroll.md": {
+    "mtime": 1780962077.471272,
+    "ast_hash": "23a89edfebfd339a673e30152e94452f",
+    "semantic_hash": ""
+  },
+  ".agents/skills/hallmark/references/components/h1-marquee.md": {
+    "mtime": 1780962077.4841926,
+    "ast_hash": "1004e4c27ce5605675e213a8f478216d",
+    "semantic_hash": ""
+  },
+  ".agents/skills/hallmark/references/components/h2-split-diptych.md": {
+    "mtime": 1780962077.4899719,
+    "ast_hash": "11a4deca92a0e9934d32b35ef364ef46",
+    "semantic_hash": ""
+  },
+  ".agents/skills/hallmark/references/components/h3-quote-led.md": {
+    "mtime": 1780962077.4899719,
+    "ast_hash": "07d17854c699a43b07253700598d3fb3",
+    "semantic_hash": ""
+  },
+  ".agents/skills/hallmark/references/components/h4-stat-led.md": {
+    "mtime": 1780962077.5029159,
+    "ast_hash": "d0c7aae4da6af4936f33f03841ab6bf9",
+    "semantic_hash": ""
+  },
+  ".agents/skills/hallmark/references/components/h5-letter-hero.md": {
+    "mtime": 1780962077.5123658,
+    "ast_hash": "0f035029bfe0c8fab68a452b0c32c176",
+    "semantic_hash": ""
+  },
+  ".agents/skills/hallmark/references/components/h6-photographic-fold.md": {
+    "mtime": 1780962077.518643,
+    "ast_hash": "128db96850e41b9db1fcbc05a05871e0",
+    "semantic_hash": ""
+  },
+  ".agents/skills/hallmark/references/components/h7-demo-video-clipped-by-viewport-edge.md": {
+    "mtime": 1780962077.5243022,
+    "ast_hash": "6ea0fbcf01f029a8c707370d00c45248",
+    "semantic_hash": ""
+  },
+  ".agents/skills/hallmark/references/components/h8-mockup-split-browser-framed.md": {
+    "mtime": 1780962077.5342865,
+    "ast_hash": "8f9ac1151a4341ec791032e06d8b84a8",
+    "semantic_hash": ""
+  },
+  ".agents/skills/hallmark/references/components/h9-custom-illustration-centerpiece.md": {
+    "mtime": 1780962077.5401433,
+    "ast_hash": "347e0dab736ca623261e36a3ed9e5baf",
+    "semantic_hash": ""
+  },
+  ".agents/skills/hallmark/references/components/n1-wordmark-2-links.md": {
+    "mtime": 1780962077.5500581,
+    "ast_hash": "3d4646aa3b36217f0b550addfe3ed817",
+    "semantic_hash": ""
+  },
+  ".agents/skills/hallmark/references/components/n10-floating-on-scroll-morph.md": {
+    "mtime": 1780962077.5601335,
+    "ast_hash": "149b7940802a40e2c9259ace7ccb1d26",
+    "semantic_hash": ""
+  },
+  ".agents/skills/hallmark/references/components/n2-floating-chip.md": {
+    "mtime": 1780962077.5718923,
+    "ast_hash": "ec75783e88fe4b9f4bf5e94cecc8b364",
+    "semantic_hash": ""
+  },
+  ".agents/skills/hallmark/references/components/n3-side-rail.md": {
+    "mtime": 1780962077.5820837,
+    "ast_hash": "6473551ea9e671948935b5070fe80d01",
+    "semantic_hash": ""
+  },
+  ".agents/skills/hallmark/references/components/n4-hidden-behind-k.md": {
+    "mtime": 1780962077.5889122,
+    "ast_hash": "3477f3a17dc3563707877048a5028b5e",
+    "semantic_hash": ""
+  },
+  ".agents/skills/hallmark/references/components/n5-floating-pill.md": {
+    "mtime": 1780962077.596845,
+    "ast_hash": "9f56ea9d0ec4ad0535e4bfc7a6a465ba",
+    "semantic_hash": ""
+  },
+  ".agents/skills/hallmark/references/components/n6-newspaper-masthead.md": {
+    "mtime": 1780962077.6045406,
+    "ast_hash": "a5c1c136fe4430bcdc3a7eef0825895d",
+    "semantic_hash": ""
+  },
+  ".agents/skills/hallmark/references/components/n7-brutal-slab.md": {
+    "mtime": 1780962077.6101952,
+    "ast_hash": "f5ac03e718256462a29b7da0e100c57c",
+    "semantic_hash": ""
+  },
+  ".agents/skills/hallmark/references/components/n8-terminal-command.md": {
+    "mtime": 1780962077.6132195,
+    "ast_hash": "6ca782b4d324dd487f50afe755fd83ed",
+    "semantic_hash": ""
+  },
+  ".agents/skills/hallmark/references/components/n9-edge-aligned-minimal.md": {
+    "mtime": 1780962077.6201336,
+    "ast_hash": "eecda436c687f5ffb99db08f6e9e70da",
+    "semantic_hash": ""
+  },
+  ".agents/skills/hallmark/references/components/s1-left-margin-numbered.md": {
+    "mtime": 1780962077.6299114,
+    "ast_hash": "70cdcbf71bc502371996343403c32529",
+    "semantic_hash": ""
+  },
+  ".agents/skills/hallmark/references/components/s2-hanging.md": {
+    "mtime": 1780962077.6388514,
+    "ast_hash": "e37a9648995a657137285d227e9899c7",
+    "semantic_hash": ""
+  },
+  ".agents/skills/hallmark/references/components/s3-sticky-pinned.md": {
+    "mtime": 1780962077.6446009,
+    "ast_hash": "44c99d91f7999c1d1cdddbaa8e6ae54a",
+    "semantic_hash": ""
+  },
+  ".agents/skills/hallmark/references/components/s4-inline-no-break.md": {
+    "mtime": 1780962077.650179,
+    "ast_hash": "b3f9073862be369d58eb726bd0fa8545",
+    "semantic_hash": ""
+  },
+  ".agents/skills/hallmark/references/components/s5-bottom-anchored.md": {
+    "mtime": 1780962077.660848,
+    "ast_hash": "81facb95d97a3a24c6aead2efe86d9b5",
+    "semantic_hash": ""
+  },
+  ".agents/skills/hallmark/references/components/t1-pull-quote-with-marginalia.md": {
+    "mtime": 1780962077.661429,
+    "ast_hash": "d7b2dd85795741f29f37fe61a2a1cd4f",
+    "semantic_hash": ""
+  },
+  ".agents/skills/hallmark/references/components/t2-logo-wall-hairline.md": {
+    "mtime": 1780962077.6701424,
+    "ast_hash": "0627279157e97b08c08b22ba3dd58be8",
+    "semantic_hash": ""
+  },
+  ".agents/skills/hallmark/references/components/t3-single-huge-quote.md": {
+    "mtime": 1780962077.680562,
+    "ast_hash": "08c00825f3c1ad38678a86e4f9b88f81",
+    "semantic_hash": ""
+  },
+  ".agents/skills/hallmark/references/components/t4-numbered-stat-strip.md": {
+    "mtime": 1780962077.680562,
+    "ast_hash": "8cd7b7d9f434c8e934d45d3401fc6cbc",
+    "semantic_hash": ""
+  },
+  ".agents/skills/hallmark/references/contract.md": {
+    "mtime": 1780962077.690238,
+    "ast_hash": "0f85e702bac8827ae0b60fdabec84192",
+    "semantic_hash": ""
+  },
+  ".agents/skills/hallmark/references/copy.md": {
+    "mtime": 1780962077.7004442,
+    "ast_hash": "bcf8a68710d56468a82f4188419eb047",
+    "semantic_hash": ""
+  },
+  ".agents/skills/hallmark/references/custom-craft.md": {
+    "mtime": 1780962077.7160769,
+    "ast_hash": "4f14f4a1fba29d6241895add71f1d94e",
+    "semantic_hash": ""
+  },
+  ".agents/skills/hallmark/references/custom-theme.md": {
+    "mtime": 1780962077.7201393,
+    "ast_hash": "d1845c89977c0177a265c7cee76da468",
+    "semantic_hash": ""
+  },
+  ".agents/skills/hallmark/references/design-md.md": {
+    "mtime": 1780962077.731874,
+    "ast_hash": "ce64319d5ad41f043af85381f5bd2447",
+    "semantic_hash": ""
+  },
+  ".agents/skills/hallmark/references/export-formats.md": {
+    "mtime": 1780962077.7402833,
+    "ast_hash": "a7dcdb2bd23abeefd5ebafcff9fe7c42",
+    "semantic_hash": ""
+  },
+  ".agents/skills/hallmark/references/floating-nav.md": {
+    "mtime": 1780962077.76008,
+    "ast_hash": "d74fd3531b613fbc2f443c467c1deebe",
+    "semantic_hash": ""
+  },
+  ".agents/skills/hallmark/references/genres/atmospheric.md": {
+    "mtime": 1780962077.7700918,
+    "ast_hash": "a26740a00104e0ffae430f96594d3c53",
+    "semantic_hash": ""
+  },
+  ".agents/skills/hallmark/references/genres/editorial.md": {
+    "mtime": 1780962077.7803407,
+    "ast_hash": "a5c098948aa7cea1eed97668c60cbd93",
+    "semantic_hash": ""
+  },
+  ".agents/skills/hallmark/references/genres/modern-minimal.md": {
+    "mtime": 1780962077.7898395,
+    "ast_hash": "b5bcc2213176422636245b0f28bc8dd7",
+    "semantic_hash": ""
+  },
+  ".agents/skills/hallmark/references/genres/playful.md": {
+    "mtime": 1780962077.7954319,
+    "ast_hash": "5e8ba79fb898ca04a0ceb2afd26d9cb5",
+    "semantic_hash": ""
+  },
+  ".agents/skills/hallmark/references/hero-enrichment.md": {
+    "mtime": 1780962077.8003068,
+    "ast_hash": "dc4326421a9400189c1e40f3a1501612",
+    "semantic_hash": ""
+  },
+  ".agents/skills/hallmark/references/imagery-kit.md": {
+    "mtime": 1780962077.8172343,
+    "ast_hash": "400397e1db62eeffda9d45bf1f7fc351",
+    "semantic_hash": ""
+  },
+  ".agents/skills/hallmark/references/interaction-and-states.md": {
+    "mtime": 1780962077.8301418,
+    "ast_hash": "fb64e1dd7a917b2b11cd4a9dd58adaac",
+    "semantic_hash": ""
+  },
+  ".agents/skills/hallmark/references/layout-and-space.md": {
+    "mtime": 1780962077.8400419,
+    "ast_hash": "f78761c602f915bf6ea9a4fd8d3a89b4",
+    "semantic_hash": ""
+  },
+  ".agents/skills/hallmark/references/macrostructures.md": {
+    "mtime": 1780962077.8499403,
+    "ast_hash": "b3cdcb42c5343756719bdc0c9335cbe3",
+    "semantic_hash": ""
+  },
+  ".agents/skills/hallmark/references/macrostructures/01-bento-grid.md": {
+    "mtime": 1780962077.874512,
+    "ast_hash": "9c93daf763834fdbb562def8ed7e54c4",
+    "semantic_hash": ""
+  },
+  ".agents/skills/hallmark/references/macrostructures/02-long-document.md": {
+    "mtime": 1780962077.880263,
+    "ast_hash": "55b023bdc205aeca31547df532220547",
+    "semantic_hash": ""
+  },
+  ".agents/skills/hallmark/references/macrostructures/03-marquee-hero.md": {
+    "mtime": 1780962077.889958,
+    "ast_hash": "dc1f4670d755cb7cc1975f360ab23633",
+    "semantic_hash": ""
+  },
+  ".agents/skills/hallmark/references/macrostructures/04-stat-led.md": {
+    "mtime": 1780962077.8999083,
+    "ast_hash": "c463fe9d2fca71a6f7f31ed24cc684c9",
+    "semantic_hash": ""
+  },
+  ".agents/skills/hallmark/references/macrostructures/05-workbench.md": {
+    "mtime": 1780962077.9101524,
+    "ast_hash": "7ea1a98705cf6482c509660b00791f5c",
+    "semantic_hash": ""
+  },
+  ".agents/skills/hallmark/references/macrostructures/06-conversational-faq.md": {
+    "mtime": 1780962077.919921,
+    "ast_hash": "f44b16a06d104c49036ceeff2260530f",
+    "semantic_hash": ""
+  },
+  ".agents/skills/hallmark/references/macrostructures/07-manifesto.md": {
+    "mtime": 1780962077.9302297,
+    "ast_hash": "b4cb5fa43f6b5dda4844639bcb21b267",
+    "semantic_hash": ""
+  },
+  ".agents/skills/hallmark/references/macrostructures/08-photographic.md": {
+    "mtime": 1780962077.9401643,
+    "ast_hash": "6ae5f45f6788fe584c86b22219082ee8",
+    "semantic_hash": ""
+  },
+  ".agents/skills/hallmark/references/macrostructures/09-quote-led.md": {
+    "mtime": 1780962077.950236,
+    "ast_hash": "1724f51e379d0ec1e6aa1a665790ec8a",
+    "semantic_hash": ""
+  },
+  ".agents/skills/hallmark/references/macrostructures/10-specimen.md": {
+    "mtime": 1780962077.9602437,
+    "ast_hash": "32aa0e4d3ed0c4bbf728aef26c7a0a06",
+    "semantic_hash": ""
+  },
+  ".agents/skills/hallmark/references/macrostructures/11-catalogue.md": {
+    "mtime": 1780962077.97026,
+    "ast_hash": "ee5c502e2cbf3265012aca91130b3bbc",
+    "semantic_hash": ""
+  },
+  ".agents/skills/hallmark/references/macrostructures/12-letter.md": {
+    "mtime": 1780962077.9801164,
+    "ast_hash": "1e214c093fa1fbf04a5aa35379c5bd9a",
+    "semantic_hash": ""
+  },
+  ".agents/skills/hallmark/references/macrostructures/13-index-first.md": {
+    "mtime": 1780962077.990023,
+    "ast_hash": "98db03d735bfa3f4f873f727978d40ef",
+    "semantic_hash": ""
+  },
+  ".agents/skills/hallmark/references/macrostructures/14-narrative-workflow.md": {
+    "mtime": 1780962077.9927993,
+    "ast_hash": "cd653a15c7176744e66c00b4c495fea5",
+    "semantic_hash": ""
+  },
+  ".agents/skills/hallmark/references/macrostructures/15-split-studio.md": {
+    "mtime": 1780962078.0017738,
+    "ast_hash": "96346ba8bd78142196da2bbdbf882751",
+    "semantic_hash": ""
+  },
+  ".agents/skills/hallmark/references/macrostructures/16-feature-stack.md": {
+    "mtime": 1780962078.0098555,
+    "ast_hash": "3b56722572870155c4e87aad13e31118",
+    "semantic_hash": ""
+  },
+  ".agents/skills/hallmark/references/macrostructures/17-type-specimen.md": {
+    "mtime": 1780962078.0202796,
+    "ast_hash": "0307319e2aaa64f485e7894740963e10",
+    "semantic_hash": ""
+  },
+  ".agents/skills/hallmark/references/macrostructures/18-portfolio-grid.md": {
+    "mtime": 1780962078.0334172,
+    "ast_hash": "6e7a3269193318071e0be6f5aa6ed0c6",
+    "semantic_hash": ""
+  },
+  ".agents/skills/hallmark/references/macrostructures/19-map-diagram.md": {
+    "mtime": 1780962078.039888,
+    "ast_hash": "406d97afe91a7cd61cd552cd63814903",
+    "semantic_hash": ""
+  },
+  ".agents/skills/hallmark/references/macrostructures/20-ecosystem-index.md": {
+    "mtime": 1780962078.0500233,
+    "ast_hash": "112545b1fc821abd66964b2349ca2b70",
+    "semantic_hash": ""
+  },
+  ".agents/skills/hallmark/references/macrostructures/21-component-playground.md": {
+    "mtime": 1780962078.0540152,
+    "ast_hash": "3904363b8c88ee461324c4e17b2df148",
+    "semantic_hash": ""
+  },
+  ".agents/skills/hallmark/references/microinteractions.md": {
+    "mtime": 1780962078.0654502,
+    "ast_hash": "9829d863b85b6f1a12a922c49aa617ba",
+    "semantic_hash": ""
+  },
+  ".agents/skills/hallmark/references/motion.md": {
+    "mtime": 1780962078.0998943,
+    "ast_hash": "65b222e75e46fb2a923f002254cc41e2",
+    "semantic_hash": ""
+  },
+  ".agents/skills/hallmark/references/preview-examples.md": {
+    "mtime": 1780962078.1068091,
+    "ast_hash": "4ee4999b386fc2587e1c33cf8bd3df78",
+    "semantic_hash": ""
+  },
+  ".agents/skills/hallmark/references/responsive.md": {
+    "mtime": 1780962078.112608,
+    "ast_hash": "592f06319e7c74336a5e31dcf48af923",
+    "semantic_hash": ""
+  },
+  ".agents/skills/hallmark/references/slop-test.md": {
+    "mtime": 1780962078.1200266,
+    "ast_hash": "e6d0f787e7991ac71f9ab6d6c6d91f00",
+    "semantic_hash": ""
+  },
+  ".agents/skills/hallmark/references/structure.md": {
+    "mtime": 1780962078.1370504,
+    "ast_hash": "81d09f84c67ad5260d2d800ceef647fb",
+    "semantic_hash": ""
+  },
+  ".agents/skills/hallmark/references/study.md": {
+    "mtime": 1780962078.1549573,
+    "ast_hash": "943a1363ca73677598b8a4ea5158398c",
+    "semantic_hash": ""
+  },
+  ".agents/skills/hallmark/references/typography.md": {
+    "mtime": 1780962078.1602242,
+    "ast_hash": "8da906bfd1c2af06a1aa2944e5946acd",
+    "semantic_hash": ""
+  },
+  ".agents/skills/hallmark/references/verbs/audit.md": {
+    "mtime": 1780962078.1804724,
+    "ast_hash": "ade1461425029caa8875022a560565b8",
+    "semantic_hash": ""
+  },
+  ".agents/skills/hallmark/references/verbs/redesign.md": {
+    "mtime": 1780962078.1930225,
+    "ast_hash": "48aaf3c3eab70947481c7ad66c83de42",
+    "semantic_hash": ""
+  },
+  ".agents/skills/supabase-postgres-best-practices/CHANGELOG.md": {
+    "mtime": 1781480976.5284824,
+    "ast_hash": "8731d1210c45d9f453c1a8f673bca669",
+    "semantic_hash": ""
+  },
+  ".agents/skills/supabase-postgres-best-practices/SKILL.md": {
+    "mtime": 1781480976.5515704,
+    "ast_hash": "76523dd6bc0fb5d7893efa728a8707a6",
+    "semantic_hash": ""
+  },
+  ".agents/skills/supabase-postgres-best-practices/references/_contributing.md": {
+    "mtime": 1781480976.558531,
+    "ast_hash": "32c800fa6621705288dc651da22c9366",
+    "semantic_hash": ""
+  },
+  ".agents/skills/supabase-postgres-best-practices/references/_sections.md": {
+    "mtime": 1781480976.57501,
+    "ast_hash": "8547fba7fd9fae3b6be916c6f55b0f62",
+    "semantic_hash": ""
+  },
+  ".agents/skills/supabase-postgres-best-practices/references/_template.md": {
+    "mtime": 1781480976.57501,
+    "ast_hash": "74ec7e2bdd6c8ddbb354fcceec038bc2",
+    "semantic_hash": ""
+  },
+  ".agents/skills/supabase-postgres-best-practices/references/advanced-full-text-search.md": {
+    "mtime": 1781480976.5933185,
+    "ast_hash": "327f8367de51b0982b963f2928184c35",
+    "semantic_hash": ""
+  },
+  ".agents/skills/supabase-postgres-best-practices/references/advanced-jsonb-indexing.md": {
+    "mtime": 1781480976.6023166,
+    "ast_hash": "413ba907ff4408d6fd3545f839101ebf",
+    "semantic_hash": ""
+  },
+  ".agents/skills/supabase-postgres-best-practices/references/conn-idle-timeout.md": {
+    "mtime": 1781480976.6111605,
+    "ast_hash": "8bbe8b609d5241351672cefc19036db6",
+    "semantic_hash": ""
+  },
+  ".agents/skills/supabase-postgres-best-practices/references/conn-limits.md": {
+    "mtime": 1781480976.6209621,
+    "ast_hash": "661b3efcf0e35136352b3923ff265d5c",
+    "semantic_hash": ""
+  },
+  ".agents/skills/supabase-postgres-best-practices/references/conn-pooling.md": {
+    "mtime": 1781480976.6259625,
+    "ast_hash": "c90dab7d0ab47443b41f17d5bc9f04b3",
+    "semantic_hash": ""
+  },
+  ".agents/skills/supabase-postgres-best-practices/references/conn-prepared-statements.md": {
+    "mtime": 1781480976.6380148,
+    "ast_hash": "b53eb9dea11d6da338a8b6f9e67a3622",
+    "semantic_hash": ""
+  },
+  ".agents/skills/supabase-postgres-best-practices/references/data-batch-inserts.md": {
+    "mtime": 1781480976.6422765,
+    "ast_hash": "6801a3a2d414dfd6a4c79970a37e795d",
+    "semantic_hash": ""
+  },
+  ".agents/skills/supabase-postgres-best-practices/references/data-n-plus-one.md": {
+    "mtime": 1781480976.6631496,
+    "ast_hash": "c3ed0702a116d654602120bd5cd7713e",
+    "semantic_hash": ""
+  },
+  ".agents/skills/supabase-postgres-best-practices/references/data-pagination.md": {
+    "mtime": 1781480976.6749523,
+    "ast_hash": "59be210a420d34780949ce16d5b4a8d5",
+    "semantic_hash": ""
+  },
+  ".agents/skills/supabase-postgres-best-practices/references/data-upsert.md": {
+    "mtime": 1781480976.6849608,
+    "ast_hash": "3ae132bce8b5368e1e4a426d55ca4567",
+    "semantic_hash": ""
+  },
+  ".agents/skills/supabase-postgres-best-practices/references/lock-advisory.md": {
+    "mtime": 1781480976.6989002,
+    "ast_hash": "ff943eb307d8b6e12cc6ab2bcb6e2d18",
+    "semantic_hash": ""
+  },
+  ".agents/skills/supabase-postgres-best-practices/references/lock-deadlock-prevention.md": {
+    "mtime": 1781480976.7088,
+    "ast_hash": "685b04bcae3a0720e84f1507d243e959",
+    "semantic_hash": ""
+  },
+  ".agents/skills/supabase-postgres-best-practices/references/lock-short-transactions.md": {
+    "mtime": 1781480976.7198095,
+    "ast_hash": "3c947d59e0359f3b236bf2ad1da52c61",
+    "semantic_hash": ""
+  },
+  ".agents/skills/supabase-postgres-best-practices/references/lock-skip-locked.md": {
+    "mtime": 1781480976.7361467,
+    "ast_hash": "098d38542f44b656aa55923f06db74c1",
+    "semantic_hash": ""
+  },
+  ".agents/skills/supabase-postgres-best-practices/references/monitor-explain-analyze.md": {
+    "mtime": 1781480976.7541943,
+    "ast_hash": "1fd19c373a0ff272129edd215a96e3a1",
+    "semantic_hash": ""
+  },
+  ".agents/skills/supabase-postgres-best-practices/references/monitor-pg-stat-statements.md": {
+    "mtime": 1781480976.7669733,
+    "ast_hash": "2f0cab7f72ad9dfe2cba469aaaacc733",
+    "semantic_hash": ""
+  },
+  ".agents/skills/supabase-postgres-best-practices/references/monitor-vacuum-analyze.md": {
+    "mtime": 1781480976.768371,
+    "ast_hash": "25e738451079707ac54d21364b5538e1",
+    "semantic_hash": ""
+  },
+  ".agents/skills/supabase-postgres-best-practices/references/query-composite-indexes.md": {
+    "mtime": 1781480976.7866862,
+    "ast_hash": "5017f09940ed04b5b3ad836e426d9084",
+    "semantic_hash": ""
+  },
+  ".agents/skills/supabase-postgres-best-practices/references/query-covering-indexes.md": {
+    "mtime": 1781480976.7983322,
+    "ast_hash": "fd05c38771229d97f2d4065d0af0df70",
+    "semantic_hash": ""
+  },
+  ".agents/skills/supabase-postgres-best-practices/references/query-index-types.md": {
+    "mtime": 1781480976.8147905,
+    "ast_hash": "e2395c6ef69ea2f147c9ab1d18c7f879",
+    "semantic_hash": ""
+  },
+  ".agents/skills/supabase-postgres-best-practices/references/query-missing-indexes.md": {
+    "mtime": 1781480976.8297005,
+    "ast_hash": "786767ec677862bad060fc1b4ae0a94f",
+    "semantic_hash": ""
+  },
+  ".agents/skills/supabase-postgres-best-practices/references/query-partial-indexes.md": {
+    "mtime": 1781480976.8313787,
+    "ast_hash": "249d8fccca68c332e946b499531f21d8",
+    "semantic_hash": ""
+  },
+  ".agents/skills/supabase-postgres-best-practices/references/schema-constraints.md": {
+    "mtime": 1781480976.8537848,
+    "ast_hash": "476ca283cfda6c5517d94c25c41de775",
+    "semantic_hash": ""
+  },
+  ".agents/skills/supabase-postgres-best-practices/references/schema-data-types.md": {
+    "mtime": 1781480976.8711596,
+    "ast_hash": "cd65e34969ebce0bce84f622f5072477",
+    "semantic_hash": ""
+  },
+  ".agents/skills/supabase-postgres-best-practices/references/schema-foreign-key-indexes.md": {
+    "mtime": 1781480976.8775494,
+    "ast_hash": "8b99b21a07cadd2d85c6c16f416b5464",
+    "semantic_hash": ""
+  },
+  ".agents/skills/supabase-postgres-best-practices/references/schema-lowercase-identifiers.md": {
+    "mtime": 1781480976.8932424,
+    "ast_hash": "632ea53a0da6fe7651e354f3744d998e",
+    "semantic_hash": ""
+  },
+  ".agents/skills/supabase-postgres-best-practices/references/schema-partitioning.md": {
+    "mtime": 1781480976.9090028,
+    "ast_hash": "0f2fe9016bf9aa79dd30d7d6a4a03358",
+    "semantic_hash": ""
+  },
+  ".agents/skills/supabase-postgres-best-practices/references/schema-primary-keys.md": {
+    "mtime": 1781480976.9090028,
+    "ast_hash": "a732b1a95b6c231d47af14b715c6b9b0",
+    "semantic_hash": ""
+  },
+  ".agents/skills/supabase-postgres-best-practices/references/security-privileges.md": {
+    "mtime": 1781480976.9437091,
+    "ast_hash": "e6fbc325f8f3af1cab3e1cb99d9f146a",
+    "semantic_hash": ""
+  },
+  ".agents/skills/supabase-postgres-best-practices/references/security-rls-basics.md": {
+    "mtime": 1781480976.9557095,
+    "ast_hash": "82ee8b214f39f78c9e88061b6f890508",
+    "semantic_hash": ""
+  },
+  ".agents/skills/supabase-postgres-best-practices/references/security-rls-performance.md": {
+    "mtime": 1781480976.9584012,
+    "ast_hash": "ad2ccf01dfd325527b18256c3e25b842",
+    "semantic_hash": ""
+  },
+  ".agents/skills/supabase/CHANGELOG.md": {
+    "mtime": 1781480976.9822886,
+    "ast_hash": "260e8f41018eb83191046f32fb863f05",
+    "semantic_hash": ""
+  },
+  ".agents/skills/supabase/SKILL.md": {
+    "mtime": 1781480977.009625,
+    "ast_hash": "462faaec084676fa37eff6f82b8dd90b",
+    "semantic_hash": ""
+  },
+  ".agents/skills/supabase/assets/feedback-issue-template.md": {
+    "mtime": 1781480977.0211654,
+    "ast_hash": "e2c8b4f1a20e46315dd7609540d9b8d4",
+    "semantic_hash": ""
+  },
+  ".agents/skills/supabase/references/skill-feedback.md": {
+    "mtime": 1781480977.0463529,
+    "ast_hash": "c9fa098e2ec8bdce9d6a0f8a64d2c6c0",
+    "semantic_hash": ""
+  },
+  ".claude/CLAUDE.md": {
+    "mtime": 1781480977.0573564,
+    "ast_hash": "f7fe63e02673fa8f50d82bc1aab06fcd",
+    "semantic_hash": ""
+  },
+  ".claude/agents/code-reviewer.md": {
+    "mtime": 1781569051.586323,
+    "ast_hash": "80d164f85d23b7257568174e534b3a27",
+    "semantic_hash": ""
+  },
+  ".claude/agents/security-auditor.md": {
+    "mtime": 1781569051.5893202,
+    "ast_hash": "9b619392373b5464ae38ec153a456f2f",
+    "semantic_hash": ""
+  },
+  ".claude/agents/test-engineer.md": {
+    "mtime": 1781569051.5913188,
+    "ast_hash": "4fb3d6198f7b65f04e25c77b24fcafca",
+    "semantic_hash": ""
+  },
+  ".claude/agents/web-performance-auditor.md": {
+    "mtime": 1781569051.5943203,
+    "ast_hash": "33be365c27ed7bb633f1a723a2362b65",
+    "semantic_hash": ""
+  },
+  ".claude/skills/api-and-interface-design/SKILL.md": {
+    "mtime": 1781569051.777283,
+    "ast_hash": "052832ba72b44e909294787a5b0c4b8a",
+    "semantic_hash": ""
+  },
+  ".claude/skills/browser-testing-with-devtools/SKILL.md": {
+    "mtime": 1781569051.791787,
+    "ast_hash": "42587fd82a982fd6dda7b78dae6e54c5",
+    "semantic_hash": ""
+  },
+  ".claude/skills/ci-cd-and-automation/SKILL.md": {
+    "mtime": 1781569051.8031995,
+    "ast_hash": "9fdfe900f41fb1b7072398688fe46a89",
+    "semantic_hash": ""
+  },
+  ".claude/skills/code-review-and-quality/SKILL.md": {
+    "mtime": 1781569051.8189192,
+    "ast_hash": "a8ad44a7f6e08799755189d04eb324ba",
+    "semantic_hash": ""
+  },
+  ".claude/skills/code-simplification/SKILL.md": {
+    "mtime": 1781569051.826919,
+    "ast_hash": "2e9119c7077cb38802300831b2d27f8e",
+    "semantic_hash": ""
+  },
+  ".claude/skills/context-engineering/SKILL.md": {
+    "mtime": 1781569051.8425655,
+    "ast_hash": "c5c12a821d7073cd5d922a22485338ac",
+    "semantic_hash": ""
+  },
+  ".claude/skills/debugging-and-error-recovery/SKILL.md": {
+    "mtime": 1781569051.8542948,
+    "ast_hash": "39b046ee335ba3d25aba88230afe76cb",
+    "semantic_hash": ""
+  },
+  ".claude/skills/deprecation-and-migration/SKILL.md": {
+    "mtime": 1781569051.867476,
+    "ast_hash": "cb3f8a355b9d1dc1d6d7535d6ad5a71f",
+    "semantic_hash": ""
+  },
+  ".claude/skills/documentation-and-adrs/SKILL.md": {
+    "mtime": 1781569051.8794746,
+    "ast_hash": "0da9aa02c9fa2b437ad8cc672079f15e",
+    "semantic_hash": ""
+  },
+  ".claude/skills/doubt-driven-development/SKILL.md": {
+    "mtime": 1781569051.8961172,
+    "ast_hash": "d879704c9749ded7cf3f24979ff68602",
+    "semantic_hash": ""
+  },
+  ".claude/skills/frontend-ui-engineering/SKILL.md": {
+    "mtime": 1781569051.9078257,
+    "ast_hash": "4677d90d18c78bcc14e7896ccf11a61d",
+    "semantic_hash": ""
+  },
+  ".claude/skills/git-workflow-and-versioning/SKILL.md": {
+    "mtime": 1781569051.9258425,
+    "ast_hash": "03453db766477ceeba6caf152dcdfec0",
+    "semantic_hash": ""
+  },
+  ".claude/skills/idea-refine/SKILL.md": {
+    "mtime": 1781569051.941322,
+    "ast_hash": "a0923d541346f497d54a7c37aa1463ad",
+    "semantic_hash": ""
+  },
+  ".claude/skills/idea-refine/examples.md": {
+    "mtime": 1781569051.9503655,
+    "ast_hash": "4f758aeb9c9609cd0399f98ab90d1956",
+    "semantic_hash": ""
+  },
+  ".claude/skills/idea-refine/frameworks.md": {
+    "mtime": 1781569051.9587128,
+    "ast_hash": "97a4815d97789ac2370dd41ff28c9dde",
+    "semantic_hash": ""
+  },
+  ".claude/skills/idea-refine/refinement-criteria.md": {
+    "mtime": 1781569051.9607136,
+    "ast_hash": "f1f3cc877190e5cbd73a67bdd3c86541",
+    "semantic_hash": ""
+  },
+  ".claude/skills/incremental-implementation/SKILL.md": {
+    "mtime": 1781569051.9708548,
+    "ast_hash": "6dc9fb9dfddf9c1055c9b85cd7bd20e9",
+    "semantic_hash": ""
+  },
+  ".claude/skills/interview-me/SKILL.md": {
+    "mtime": 1781569051.9956615,
+    "ast_hash": "defaf99a6109dc4bb298c2c3511ab267",
+    "semantic_hash": ""
+  },
+  ".claude/skills/observability-and-instrumentation/SKILL.md": {
+    "mtime": 1781569052.0064354,
+    "ast_hash": "394bc96e9c493316a85f0158b528b0ad",
+    "semantic_hash": ""
+  },
+  ".claude/skills/performance-optimization/SKILL.md": {
+    "mtime": 1781569052.0219035,
+    "ast_hash": "aec75b3b8edb80f6dcf612143f354f2a",
+    "semantic_hash": ""
+  },
+  ".claude/skills/planning-and-task-breakdown/SKILL.md": {
+    "mtime": 1781569052.0367236,
+    "ast_hash": "bcc4e5f930a49099f356a5a1f30bf355",
+    "semantic_hash": ""
+  },
+  ".claude/skills/security-and-hardening/SKILL.md": {
+    "mtime": 1781569052.0397189,
+    "ast_hash": "2e79c2ac9880361aff929d1b0277d10a",
+    "semantic_hash": ""
+  },
+  ".claude/skills/shipping-and-launch/SKILL.md": {
+    "mtime": 1781569052.0637937,
+    "ast_hash": "61569663d53fbce1c8870e77daa9ba54",
+    "semantic_hash": ""
+  },
+  ".claude/skills/source-driven-development/SKILL.md": {
+    "mtime": 1781569052.0808702,
+    "ast_hash": "b3d5e3f0b71cedd2b19a1d47181fd970",
+    "semantic_hash": ""
+  },
+  ".claude/skills/spec-driven-development/SKILL.md": {
+    "mtime": 1781569052.107541,
+    "ast_hash": "a875013eac35abe9fe7069915463701b",
+    "semantic_hash": ""
+  },
+  ".claude/skills/supabase-postgres-best-practices/CHANGELOG.md": {
+    "mtime": 1781480977.0696626,
+    "ast_hash": "8731d1210c45d9f453c1a8f673bca669",
+    "semantic_hash": ""
+  },
+  ".claude/skills/supabase-postgres-best-practices/SKILL.md": {
+    "mtime": 1781480977.0734959,
+    "ast_hash": "76523dd6bc0fb5d7893efa728a8707a6",
+    "semantic_hash": ""
+  },
+  ".claude/skills/supabase-postgres-best-practices/references/_contributing.md": {
+    "mtime": 1781480977.0761373,
+    "ast_hash": "32c800fa6621705288dc651da22c9366",
+    "semantic_hash": ""
+  },
+  ".claude/skills/supabase-postgres-best-practices/references/_sections.md": {
+    "mtime": 1781480977.0791378,
+    "ast_hash": "8547fba7fd9fae3b6be916c6f55b0f62",
+    "semantic_hash": ""
+  },
+  ".claude/skills/supabase-postgres-best-practices/references/_template.md": {
+    "mtime": 1781480977.0821376,
+    "ast_hash": "74ec7e2bdd6c8ddbb354fcceec038bc2",
+    "semantic_hash": ""
+  },
+  ".claude/skills/supabase-postgres-best-practices/references/advanced-full-text-search.md": {
+    "mtime": 1781480977.0851426,
+    "ast_hash": "327f8367de51b0982b963f2928184c35",
+    "semantic_hash": ""
+  },
+  ".claude/skills/supabase-postgres-best-practices/references/advanced-jsonb-indexing.md": {
+    "mtime": 1781480977.0881374,
+    "ast_hash": "413ba907ff4408d6fd3545f839101ebf",
+    "semantic_hash": ""
+  },
+  ".claude/skills/supabase-postgres-best-practices/references/conn-idle-timeout.md": {
+    "mtime": 1781480977.1385267,
+    "ast_hash": "8bbe8b609d5241351672cefc19036db6",
+    "semantic_hash": ""
+  },
+  ".claude/skills/supabase-postgres-best-practices/references/conn-limits.md": {
+    "mtime": 1781480977.1385267,
+    "ast_hash": "661b3efcf0e35136352b3923ff265d5c",
+    "semantic_hash": ""
+  },
+  ".claude/skills/supabase-postgres-best-practices/references/conn-pooling.md": {
+    "mtime": 1781480977.1385267,
+    "ast_hash": "c90dab7d0ab47443b41f17d5bc9f04b3",
+    "semantic_hash": ""
+  },
+  ".claude/skills/supabase-postgres-best-practices/references/conn-prepared-statements.md": {
+    "mtime": 1781480977.1500087,
+    "ast_hash": "b53eb9dea11d6da338a8b6f9e67a3622",
+    "semantic_hash": ""
+  },
+  ".claude/skills/supabase-postgres-best-practices/references/data-batch-inserts.md": {
+    "mtime": 1781480977.1544952,
+    "ast_hash": "6801a3a2d414dfd6a4c79970a37e795d",
+    "semantic_hash": ""
+  },
+  ".claude/skills/supabase-postgres-best-practices/references/data-n-plus-one.md": {
+    "mtime": 1781480977.1544952,
+    "ast_hash": "c3ed0702a116d654602120bd5cd7713e",
+    "semantic_hash": ""
+  },
+  ".claude/skills/supabase-postgres-best-practices/references/data-pagination.md": {
+    "mtime": 1781480977.1590095,
+    "ast_hash": "59be210a420d34780949ce16d5b4a8d5",
+    "semantic_hash": ""
+  },
+  ".claude/skills/supabase-postgres-best-practices/references/data-upsert.md": {
+    "mtime": 1781480977.161015,
+    "ast_hash": "3ae132bce8b5368e1e4a426d55ca4567",
+    "semantic_hash": ""
+  },
+  ".claude/skills/supabase-postgres-best-practices/references/lock-advisory.md": {
+    "mtime": 1781480977.1664605,
+    "ast_hash": "ff943eb307d8b6e12cc6ab2bcb6e2d18",
+    "semantic_hash": ""
+  },
+  ".claude/skills/supabase-postgres-best-practices/references/lock-deadlock-prevention.md": {
+    "mtime": 1781480977.1682847,
+    "ast_hash": "685b04bcae3a0720e84f1507d243e959",
+    "semantic_hash": ""
+  },
+  ".claude/skills/supabase-postgres-best-practices/references/lock-short-transactions.md": {
+    "mtime": 1781480977.170294,
+    "ast_hash": "3c947d59e0359f3b236bf2ad1da52c61",
+    "semantic_hash": ""
+  },
+  ".claude/skills/supabase-postgres-best-practices/references/lock-skip-locked.md": {
+    "mtime": 1781480977.170294,
+    "ast_hash": "098d38542f44b656aa55923f06db74c1",
+    "semantic_hash": ""
+  },
+  ".claude/skills/supabase-postgres-best-practices/references/monitor-explain-analyze.md": {
+    "mtime": 1781480977.170294,
+    "ast_hash": "1fd19c373a0ff272129edd215a96e3a1",
+    "semantic_hash": ""
+  },
+  ".claude/skills/supabase-postgres-best-practices/references/monitor-pg-stat-statements.md": {
+    "mtime": 1781480977.1806302,
+    "ast_hash": "2f0cab7f72ad9dfe2cba469aaaacc733",
+    "semantic_hash": ""
+  },
+  ".claude/skills/supabase-postgres-best-practices/references/monitor-vacuum-analyze.md": {
+    "mtime": 1781480977.1806302,
+    "ast_hash": "25e738451079707ac54d21364b5538e1",
+    "semantic_hash": ""
+  },
+  ".claude/skills/supabase-postgres-best-practices/references/query-composite-indexes.md": {
+    "mtime": 1781480977.1859908,
+    "ast_hash": "5017f09940ed04b5b3ad836e426d9084",
+    "semantic_hash": ""
+  },
+  ".claude/skills/supabase-postgres-best-practices/references/query-covering-indexes.md": {
+    "mtime": 1781480977.1859908,
+    "ast_hash": "fd05c38771229d97f2d4065d0af0df70",
+    "semantic_hash": ""
+  },
+  ".claude/skills/supabase-postgres-best-practices/references/query-index-types.md": {
+    "mtime": 1781480977.1859908,
+    "ast_hash": "e2395c6ef69ea2f147c9ab1d18c7f879",
+    "semantic_hash": ""
+  },
+  ".claude/skills/supabase-postgres-best-practices/references/query-missing-indexes.md": {
+    "mtime": 1781480977.1936712,
+    "ast_hash": "786767ec677862bad060fc1b4ae0a94f",
+    "semantic_hash": ""
+  },
+  ".claude/skills/supabase-postgres-best-practices/references/query-partial-indexes.md": {
+    "mtime": 1781480977.1936712,
+    "ast_hash": "249d8fccca68c332e946b499531f21d8",
+    "semantic_hash": ""
+  },
+  ".claude/skills/supabase-postgres-best-practices/references/schema-constraints.md": {
+    "mtime": 1781480977.20184,
+    "ast_hash": "476ca283cfda6c5517d94c25c41de775",
+    "semantic_hash": ""
+  },
+  ".claude/skills/supabase-postgres-best-practices/references/schema-data-types.md": {
+    "mtime": 1781480977.20184,
+    "ast_hash": "cd65e34969ebce0bce84f622f5072477",
+    "semantic_hash": ""
+  },
+  ".claude/skills/supabase-postgres-best-practices/references/schema-foreign-key-indexes.md": {
+    "mtime": 1781480977.20184,
+    "ast_hash": "8b99b21a07cadd2d85c6c16f416b5464",
+    "semantic_hash": ""
+  },
+  ".claude/skills/supabase-postgres-best-practices/references/schema-lowercase-identifiers.md": {
+    "mtime": 1781480977.20184,
+    "ast_hash": "632ea53a0da6fe7651e354f3744d998e",
+    "semantic_hash": ""
+  },
+  ".claude/skills/supabase-postgres-best-practices/references/schema-partitioning.md": {
+    "mtime": 1781480977.20184,
+    "ast_hash": "0f2fe9016bf9aa79dd30d7d6a4a03358",
+    "semantic_hash": ""
+  },
+  ".claude/skills/supabase-postgres-best-practices/references/schema-primary-keys.md": {
+    "mtime": 1781480977.20184,
+    "ast_hash": "a732b1a95b6c231d47af14b715c6b9b0",
+    "semantic_hash": ""
+  },
+  ".claude/skills/supabase-postgres-best-practices/references/security-privileges.md": {
+    "mtime": 1781480977.2490923,
+    "ast_hash": "e6fbc325f8f3af1cab3e1cb99d9f146a",
+    "semantic_hash": ""
+  },
+  ".claude/skills/supabase-postgres-best-practices/references/security-rls-basics.md": {
+    "mtime": 1781480977.2490923,
+    "ast_hash": "82ee8b214f39f78c9e88061b6f890508",
+    "semantic_hash": ""
+  },
+  ".claude/skills/supabase-postgres-best-practices/references/security-rls-performance.md": {
+    "mtime": 1781480977.2560012,
+    "ast_hash": "ad2ccf01dfd325527b18256c3e25b842",
+    "semantic_hash": ""
+  },
+  ".claude/skills/supabase/CHANGELOG.md": {
+    "mtime": 1781480977.2560012,
+    "ast_hash": "260e8f41018eb83191046f32fb863f05",
+    "semantic_hash": ""
+  },
+  ".claude/skills/supabase/SKILL.md": {
+    "mtime": 1781480977.2620392,
+    "ast_hash": "462faaec084676fa37eff6f82b8dd90b",
+    "semantic_hash": ""
+  },
+  ".claude/skills/supabase/assets/feedback-issue-template.md": {
+    "mtime": 1781480977.2647474,
+    "ast_hash": "e2c8b4f1a20e46315dd7609540d9b8d4",
+    "semantic_hash": ""
+  },
+  ".claude/skills/supabase/references/skill-feedback.md": {
+    "mtime": 1781480977.2804813,
+    "ast_hash": "c9fa098e2ec8bdce9d6a0f8a64d2c6c0",
+    "semantic_hash": ""
+  },
+  ".claude/skills/test-driven-development/SKILL.md": {
+    "mtime": 1781569052.1114676,
+    "ast_hash": "b42bb9f1fbb1c07ca9ac1c37474b6912",
+    "semantic_hash": ""
+  },
+  ".claude/skills/using-agent-skills/SKILL.md": {
+    "mtime": 1781569052.127998,
+    "ast_hash": "9a83cc3fe4e0f2d63a4b60a012d9c5aa",
+    "semantic_hash": ""
+  },
+  "AGENTS.md": {
+    "mtime": 1780962078.2498672,
+    "ast_hash": "9346a4897ff955555ddedb7bebf77adb",
+    "semantic_hash": ""
+  },
+  "CLAUDE.md": {
+    "mtime": 1785218698.7121296,
+    "ast_hash": "b0517ee048d45b5cd5463430230eb52f",
+    "semantic_hash": ""
+  },
+  "README.md": {
+    "mtime": 1780962078.2598765,
+    "ast_hash": "fedae63aa646f57bf8c8da6b3b19be83",
+    "semantic_hash": ""
+  },
+  "doc/PLAN-15-2.md": {
+    "mtime": 1785218756.6156642,
+    "ast_hash": "cf4fa7cec5c0c431ee1670c58e5561d6",
+    "semantic_hash": ""
+  },
+  "doc/PLAN-16.md": {
+    "mtime": 1782955879.3205302,
+    "ast_hash": "38f942141697af943432f7f8655dd1bc",
+    "semantic_hash": ""
+  },
+  "doc/SPEC-13.md": {
+    "mtime": 1782955879.3359168,
+    "ast_hash": "86568e6b4ae637ac560275f303eca1e7",
+    "semantic_hash": ""
+  },
+  "doc/SPEC-14.md": {
+    "mtime": 1782955879.3389072,
+    "ast_hash": "ba0e06f093bbc0ccc8163a7f6622608b",
+    "semantic_hash": ""
+  },
+  "doc/SPEC-15.md": {
+    "mtime": 1782955879.3409069,
+    "ast_hash": "19886f2057e8a9092833603467b7eb29",
+    "semantic_hash": ""
+  },
+  "doc/SPEC-16.md": {
+    "mtime": 1782955879.3439069,
+    "ast_hash": "1fb646693484bd5987d9b7cc89601d81",
+    "semantic_hash": ""
+  },
+  "doc/SPEC-25.md": {
+    "mtime": 1782970767.7710404,
+    "ast_hash": "6fa3c4dc3334ab92f02409e1053eb636",
+    "semantic_hash": ""
+  },
+  "doc/database-schema.md": {
+    "mtime": 1781480978.4598517,
+    "ast_hash": "570221039fb0c7bf3ca2d1a17478d8e0",
+    "semantic_hash": ""
+  },
+  "doc/development-roadmap.md": {
+    "mtime": 1781480978.4797835,
+    "ast_hash": "43f144772009bebcd077dedeebf944fc",
+    "semantic_hash": ""
+  },
+  "doc/product-spec.md": {
+    "mtime": 1781480978.4936802,
+    "ast_hash": "e977c9b7472d7f02db02036cdb13f87c",
+    "semantic_hash": ""
+  },
+  "doc/requirements.md": {
+    "mtime": 1781480978.5126054,
+    "ast_hash": "db178a3d413dce2a5ac5a6f40b900d11",
+    "semantic_hash": ""
+  },
+  "doc/setup.md": {
+    "mtime": 1780962078.7198586,
+    "ast_hash": "d63f29c44ffe17d802078cc3974d23c2",
+    "semantic_hash": ""
+  },
+  "doc/spec-15-2.md": {
+    "mtime": 1785218756.6428678,
+    "ast_hash": "2441564616aef8adefd67bc4c30139b0",
+    "semantic_hash": ""
+  },
+  "doc/system-review-2026-07.md": {
+    "mtime": 1785218756.672623,
+    "ast_hash": "e83fad3adcb75f41919a55c92b0f592e",
+    "semantic_hash": ""
+  },
+  "public/file.svg": {
+    "mtime": 1780962078.970113,
+    "ast_hash": "d09f95206c3fa0bb9bd9fefabfd0ea71",
+    "semantic_hash": ""
+  },
+  "public/globe.svg": {
+    "mtime": 1780962078.9839432,
+    "ast_hash": "2aaafa6a49b6563925fe440891e32717",
+    "semantic_hash": ""
+  },
+  "public/next.svg": {
+    "mtime": 1780962078.9928453,
+    "ast_hash": "8e061864f388b47f33a1c3780831193e",
+    "semantic_hash": ""
+  },
+  "public/vercel.svg": {
+    "mtime": 1780962079.0000901,
+    "ast_hash": "c0af2f507b369b085b35ef4bbe3bcf1e",
+    "semantic_hash": ""
+  },
+  "public/window.svg": {
+    "mtime": 1780962079.0159457,
+    "ast_hash": "a2760511c65806022ad20adf74370ff3",
+    "semantic_hash": ""
   }
 }

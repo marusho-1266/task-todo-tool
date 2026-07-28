@@ -1,7 +1,7 @@
 import { isValidWorkSessionSource, type WorkSession } from "@/lib/types";
 
 export const WORK_SESSION_SELECT =
-  "id, task_id, todo_id, started_at, ended_at, duration_minutes, source, label, todos(id, tasks(title))" as const;
+  "id, task_id, todo_id, started_at, ended_at, duration_minutes, source, label, todos(id, tasks(title, project_id))" as const;
 
 function parseWorkSession(value: unknown): WorkSession | null {
   if (!value || typeof value !== "object") return null;
@@ -20,12 +20,16 @@ function parseWorkSession(value: unknown): WorkSession | null {
     if (typeof row.todos !== "object") return null;
     const todoRow = row.todos as Record<string, unknown>;
     if (typeof todoRow.id !== "string") return null;
-    let tasks: { title: string } | null = null;
+    let tasks: { title: string; project_id: string | null } | null = null;
     if (todoRow.tasks !== null && todoRow.tasks !== undefined) {
       if (typeof todoRow.tasks !== "object") return null;
       const taskRow = todoRow.tasks as Record<string, unknown>;
       if (typeof taskRow.title !== "string") return null;
-      tasks = { title: taskRow.title };
+      tasks = {
+        title: taskRow.title,
+        project_id:
+          typeof taskRow.project_id === "string" ? taskRow.project_id : null,
+      };
     }
     todos = { id: todoRow.id, tasks };
   }

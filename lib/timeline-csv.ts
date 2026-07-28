@@ -6,11 +6,18 @@ import {
   minutesFromDayStart,
   scheduledEndMinutes,
 } from "@/lib/time";
-import type { Todo, TodoStatus, WorkSession, WorkSessionSource } from "@/lib/types";
+import type {
+  BacklogProject,
+  Todo,
+  TodoStatus,
+  WorkSession,
+  WorkSessionSource,
+} from "@/lib/types";
 
 const CSV_HEADERS = [
   "種別",
   "日付",
+  "プロジェクト",
   "タイトル",
   "開始時刻",
   "終了時刻",
@@ -24,6 +31,7 @@ const CSV_HEADERS = [
 type TimelineCsvRow = {
   kind: "計画" | "実績";
   date: string;
+  project: string;
   title: string;
   startTime: string;
   endTime: string;
@@ -34,6 +42,18 @@ type TimelineCsvRow = {
   source: string;
   sortMinutes: number;
 };
+
+function buildProjectTitleMap(projects: BacklogProject[]): Map<string, string> {
+  return new Map(projects.map((project) => [project.id, project.title]));
+}
+
+function projectTitle(
+  projectId: string | null | undefined,
+  projectTitles: Map<string, string>,
+): string {
+  if (!projectId) return "";
+  return projectTitles.get(projectId) ?? "";
+}
 
 function escapeCsvField(value: string): string {
   if (/[",\r\n]/.test(value)) {
@@ -79,7 +99,11 @@ function exportSessionDuration(session: WorkSession, now: Date): number {
   return Math.max(1, Math.round((now.getTime() - start.getTime()) / 60_000));
 }
 
-function buildPlanRows(date: string, todos: Todo[]): TimelineCsvRow[] {
+function buildPlanRows(
+  date: string,
+  todos: Todo[],
+  projectTitles: Map<string, string>,
+): TimelineCsvRow[] {
   return todos
     .filter((todo) => todo.scheduled_start && !todo.is_ad_hoc)
     .map((todo) => {
@@ -94,6 +118,7 @@ function buildPlanRows(date: string, todos: Todo[]): TimelineCsvRow[] {
       return {
         kind: "計画",
         date,
+        project: projectTitle(todo.tasks?.project_id, projectTitles),
         title: todo.tasks?.title ?? "（無題）",
         startTime: formatClockTime(startDt),
         endTime: formatClockTime(endDt),
@@ -111,6 +136,7 @@ function buildActualRows(
   date: string,
   sessions: WorkSession[],
   now: Date,
+  projectTitles: Map<string, string>,
 ): TimelineCsvRow[] {
   return sessions.map((session) => {
     const startDt = new Date(session.started_at);
@@ -121,6 +147,7 @@ function buildActualRows(
     return {
       kind: "実績",
       date,
+      project: projectTitle(session.todos?.tasks?.project_id, projectTitles),
       title: getSessionDisplayTitle(session),
       startTime: formatClockTime(startDt),
       endTime: endDt ? formatClockTime(endDt) : "",
@@ -138,6 +165,7 @@ function rowToCsvLine(row: TimelineCsvRow): string {
   return [
     row.kind,
     row.date,
+    row.project,
     row.title,
     row.startTime,
     row.endTime,
@@ -156,10 +184,12 @@ export function buildTimelineCsv(
   placedTodos: Todo[],
   daySessions: WorkSession[],
   now: Date = new Date(),
+  projects: BacklogProject[] = [],
 ): string {
+  const projectTitles = buildProjectTitleMap(projects);
   const rows = [
-    ...buildPlanRows(date, placedTodos),
-    ...buildActualRows(date, daySessions, now),
+    ...buildPlanRows(date, placedTodos, projectTitles),
+    ...buildActualRows(date, daySessions, now, projectTitles),
   ].sort((a, b) => a.sortMinutes - b.sortMinutes || a.kind.localeCompare(b.kind, "ja"));
 
   const lines = [CSV_HEADERS.join(","), ...rows.map(rowToCsvLine)];

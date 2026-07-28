@@ -25,7 +25,7 @@ import {
   formatPlanTooltip,
   PLAN_LANE_CLASS,
 } from "@/lib/timeline-blocks";
-import type { CalendarEvent, Todo, WorkSession } from "@/lib/types";
+import type { BacklogProject, CalendarEvent, Todo, WorkSession } from "@/lib/types";
 import { useToast } from "@/components/ui/Toast";
 import { QuickAddModal } from "@/components/timeline/QuickAddModal";
 import { SessionBlock } from "@/components/timeline/SessionBlock";
@@ -47,6 +47,7 @@ type Props = {
   onEditTodo?: (todo: Todo) => void;
   onOptimisticUpdate?: (todoId: string, scheduled_start: string | null, planned_minutes: number) => void;
   calendarEvents?: CalendarEvent[];
+  projects?: BacklogProject[];
 };
 
 export function Timeline({
@@ -60,6 +61,7 @@ export function Timeline({
   onEditTodo,
   onOptimisticUpdate,
   calendarEvents = [],
+  projects = [],
 }: Props) {
   const { showToast } = useToast();
   const timelineRef = useRef<HTMLDivElement>(null);
@@ -97,10 +99,10 @@ export function Timeline({
       showToast("エクスポートするデータがありません");
       return;
     }
-    const csv = buildTimelineCsv(date, placedTodos, daySessions);
+    const csv = buildTimelineCsv(date, placedTodos, daySessions, new Date(), projects);
     downloadTimelineCsv(csv, date);
     showToast("CSVをダウンロードしました", "success");
-  }, [date, daySessions, placedTodos, showToast]);
+  }, [date, daySessions, placedTodos, projects, showToast]);
 
   const handleBlockMoveStart = useCallback(
     (todo: Todo, e: React.PointerEvent) => {

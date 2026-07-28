@@ -98,7 +98,7 @@ export type WorkSession = {
   label: string | null;
   todos: {
     id: string;
-    tasks: { title: string } | null;
+    tasks: { title: string; project_id: string | null } | null;
   } | null;
 };
 

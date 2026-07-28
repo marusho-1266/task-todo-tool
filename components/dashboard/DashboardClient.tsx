@@ -350,6 +350,7 @@ export function DashboardClient({
               onEditTodo={setEditTodo}
               onOptimisticUpdate={handleOptimisticTodoUpdate}
               calendarEvents={gcalEnabled ? calendarEvents : []}
+              projects={projects}
             />
           </div>
         </div>
