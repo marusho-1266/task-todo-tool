@@ -44,6 +44,9 @@ type Props = {
 // Google Calendar 予定のクライアント側キャッシュ有効期間
 const CALENDAR_CACHE_TTL_MS = 5 * 60 * 1000;
 
+// 複数端末(タブレット/PC)での表示ズレを防ぐための定期再取得間隔
+const AUTO_REFRESH_INTERVAL_MS = 60 * 1000;
+
 export function DashboardClient({
   selectedDate,
   dateStr,
@@ -147,8 +150,42 @@ export function DashboardClient({
     router.refresh();
   }, [router]);
 
+  // タブレット/PC など複数端末を併用したときの表示ズレを解消するため、
+  // 画面を離れて戻ってきたタイミングと一定間隔でサーバーの最新状態を取り込む。
+  // ドラッグ中・モーダル編集中は割り込まないよう抑制する。
+  const isDraggingRef = useRef(false);
+  const isBusyRef = useRef(false);
+  useEffect(() => {
+    isBusyRef.current =
+      isDraggingRef.current ||
+      Boolean(editSession || editTodo || showManualAdd || showPrepareTomorrow);
+  });
+
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === "visible" && !isBusyRef.current) {
+        refresh();
+      }
+    };
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+    window.addEventListener("focus", handleVisibilityChange);
+
+    const intervalId = window.setInterval(() => {
+      if (document.visibilityState === "visible" && !isBusyRef.current) {
+        refresh();
+      }
+    }, AUTO_REFRESH_INTERVAL_MS);
+
+    return () => {
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+      window.removeEventListener("focus", handleVisibilityChange);
+      window.clearInterval(intervalId);
+    };
+  }, [refresh]);
+
   const onDragEnd = useCallback(
     async (result: DropResult) => {
+      isDraggingRef.current = false;
       const { draggableId, destination } = result;
       if (!destination) return;
 
@@ -235,7 +272,12 @@ export function DashboardClient({
   );
 
   return (
-    <DragDropContext onDragEnd={onDragEnd}>
+    <DragDropContext
+      onDragStart={() => {
+        isDraggingRef.current = true;
+      }}
+      onDragEnd={onDragEnd}
+    >
       <div
         className="flex h-dvh min-h-0 flex-col overflow-hidden"
         style={{ background: "var(--color-paper)" }}
